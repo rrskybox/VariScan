@@ -138,14 +138,14 @@ namespace VariScan
             TargetPickListBox.Items.Clear();
             foreach (string t in tdirs)
                 TargetPickListBox.Items.Add(VariScanFileManager.StripPath(t));
-            TargetPickListBox.SelectedIndex = 0;
+            if (TargetPickListBox.Items.Count > 0) TargetPickListBox.SelectedIndex = 0;
             CurrentTargetData.TargetName = TargetPickListBox.Text;
 
-            SampleManager SampleSet = new SampleManager(TargetPickListBox.SelectedItem.ToString());
+            SampleManager SampleSet = new SampleManager(TargetPickListBox.Text);
             TargetDateSelectBox.Items.Clear();
             foreach (DateTime dt in SampleSet.GetTargetSessions())
                 TargetDateSelectBox.Items.Add(dt.ToShortDateString());
-            TargetDateSelectBox.SelectedIndex = 0;
+            if (TargetDateSelectBox.Items.Count > 0) TargetDateSelectBox.SelectedIndex = 0;
 
             PrimaryColorBox.SelectedIndex = 1;  //Vj
             DifferentialColorBox.SelectedIndex = 0;  //Bj
@@ -1125,9 +1125,9 @@ namespace VariScan
             isAnalyzing = true;
             CurrentTargetData.SessionDate = CollectionSessionDateBox.Value;
             if (UseGaiaBox.Checked)
-                Starchive.ClearStarchiveSession(CurrentTargetData.SessionDate,"Gaia");
+                Starchive.ClearStarchiveSession(CurrentTargetData.SessionDate, "Gaia");
             else
-                Starchive.ClearStarchiveSession(CurrentTargetData.SessionDate,"APASS");
+                Starchive.ClearStarchiveSession(CurrentTargetData.SessionDate, "APASS");
             Utility.ButtonGreen(ClearDateButton);
             isAnalyzing = false;
         }
@@ -1170,7 +1170,7 @@ namespace VariScan
             isAnalyzing = false;
 
         }
-        
+
         private void ScanImagesButton_Click(object sender, EventArgs e)
         {
             Utility.ButtonRed(ScanImagesButton);
