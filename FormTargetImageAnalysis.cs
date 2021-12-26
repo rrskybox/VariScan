@@ -955,6 +955,17 @@ namespace VariScan
         private void PlotPhotometryHistory(TargetData tgt)
         {
             //Plots out history of current star photometry
+            //
+            //Sort for catalog and filters being used
+            string catName;
+            if (UseGaiaBox.Checked)
+                catName = "Gaia";
+            else catName = "APASS";
+            string priColor = PrimaryColorBox.Text;
+            string difColor = DifferentialColorBox.Text;
+            string priFilter = PrimaryFilterBox.Text;
+            string difFilter = DifferentialFilterBox.Text;
+
             List<TargetData> tDataList = new List<TargetData>();
             tDataList = Starchive.RetrievePhotometry(tgt);
             this.HistoryChart.Series[0].Points.Clear();
@@ -966,7 +977,13 @@ namespace VariScan
             foreach (TargetData tData in tDataList)
             {
                 double tgtMag = tData.StandardColorMagnitude;
-                if (tData.IsTransformed && tgtMag != 0)
+                if (tData.IsTransformed &&
+                    tgtMag != 0 &&
+                    tData.CatalogName == catName &&
+                    tData.PrimaryImageFilter==priFilter &&
+                    tData.DifferentialImageFilter==difFilter &&
+                    tData.PrimaryStandardColor == priColor &&
+                    tData.DifferentialStandardColor==difColor)
                 {
                     double errorBar = tData.StandardMagnitudeError;
                     HistoryChart.Series[0].Points.AddXY(tData.SessionDate, tgtMag);
@@ -1004,9 +1021,13 @@ namespace VariScan
                     CurrentTargetData.MagnitudeTransform = MagnitudeTransform;
                 }
                 else
+                {
                     CalculateTransforms(UseGaiaBox.Checked);
+                }
+
                 isTransformed = ConvertToColorStandard(UseGaiaBox.Checked);
             }
+
             if (isTransformed)
             {
                 ResultsTargetBox.Text = CurrentTargetData.TargetName;
@@ -1016,6 +1037,7 @@ namespace VariScan
                 ResultsDifferentialColorBox.Text = CurrentTargetData.DifferentialStandardColor;
                 ResultsDifferentialFilterBox.Text = CurrentTargetData.DifferentialImageFilter;
             }
+
             CurrentTargetData.IsTransformed = isTransformed;
             Starchive.StorePhotometry(CurrentTargetData);
             PlotPhotometryHistory(CurrentTargetData);
@@ -1061,6 +1083,9 @@ namespace VariScan
                 PrimaryStandardColor = PrimaryColorBox.Text,
                 DifferentialStandardColor = DifferentialColorBox.Text
             };
+            if (UseGaiaBox.Checked)
+                CurrentTargetData.CatalogName = "Gaia";
+            else CurrentTargetData.CatalogName = "APASS";
             return;
         }
 
@@ -1195,6 +1220,7 @@ namespace VariScan
                 TargetedNameBox.Text = CurrentTargetData.TargetName;
                 TargetedRABox.Text = CurrentTargetData.TargetRA.ToString("0.00000");
                 TargetedDecBox.Text = CurrentTargetData.TargetDec.ToString("0.00000");
+                
                 int tidx = TargetPickListBox.FindString(tname);
                 TargetPickListBox.SelectedIndex = tidx;
                 foreach (DateTime dt in VariScanFileManager.SessionDates(tname))

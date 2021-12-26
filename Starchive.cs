@@ -118,12 +118,12 @@ namespace VariScan
             IEnumerable<XElement> starXlist = starAllXdata.Elements(PhotometryRecordX);
             foreach (XElement star in starXlist)
             {
-                if ((star.Element(TargetNameX).Value == tgt.TargetName)
-                        && (star.Element(CatalogNameX).Value == tgt.CatalogName)
-                        && (star.Element(PrimaryStandardColorX).Value == tgt.PrimaryStandardColor)
-                        && (star.Element(DifferentialStandardColorX).Value == tgt.DifferentialStandardColor)
-                        && (star.Element(PrimaryFilterX).Value == tgt.PrimaryImageFilter)
-                        && (star.Element(DifferentialFilterX).Value == tgt.DifferentialImageFilter))
+                if ((star.Element(TargetNameX).Value == tgt.TargetName))
+                //&& (star.Element(CatalogNameX).Value == tgt.CatalogName)
+                //&& (star.Element(PrimaryStandardColorX).Value == tgt.PrimaryStandardColor)
+                //&& (star.Element(DifferentialStandardColorX).Value == tgt.DifferentialStandardColor)
+                //&& (star.Element(PrimaryFilterX).Value == tgt.PrimaryImageFilter)
+                //&& (star.Element(DifferentialFilterX).Value == tgt.DifferentialImageFilter))
                 {
                     TargetData pd = CreateTarget(star);
                     starList.Add(pd);
@@ -139,8 +139,14 @@ namespace VariScan
             {
                 if ((DateTime.Compare(p.SessionDate, tgt.SessionDate) == 0) &&
                     (p.PrimaryStandardColor == tgt.PrimaryStandardColor) &&
+                    //(p.CatalogName == tgt.CatalogName) &&
+                    (p.DifferentialStandardColor == tgt.DifferentialStandardColor) &&
                     (p.CatalogName == tgt.CatalogName) &&
-                    (p.DifferentialStandardColor == tgt.DifferentialStandardColor))
+                    (p.PrimaryStandardColor == tgt.PrimaryStandardColor) &&
+                    (p.DifferentialStandardColor == tgt.DifferentialStandardColor) &&
+                    (p.PrimaryImageFilter == tgt.PrimaryImageFilter) &&
+                    (p.DifferentialImageFilter == tgt.DifferentialImageFilter))
+
                     return true;
             }
             return false;
@@ -265,7 +271,7 @@ namespace VariScan
                 return;
             XElement starAllXdata = XElement.Load(cfg.StarchiveFilePath);
             List<XElement> starXlist = starAllXdata.Elements(PhotometryRecordX).ToList();
-            var vb = starXlist.Where(x => (Convert.ToDateTime(x.Element(SessionDateX).Value) != sessionDate) || (x.Element(CatalogNameX).Value != catName));
+            var vb = starXlist.Where(x => (Convert.ToDateTime(x.Element(SessionDateX).Value) != sessionDate) && (x.Element(CatalogNameX).Value != catName));
             foreach (XElement x in vb)
                 newStarchive.Add(vb);
             newStarchive.Save(cfg.StarchiveFilePath);
