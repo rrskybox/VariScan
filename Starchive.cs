@@ -271,7 +271,7 @@ namespace VariScan
                 return;
             XElement starAllXdata = XElement.Load(cfg.StarchiveFilePath);
             List<XElement> starXlist = starAllXdata.Elements(PhotometryRecordX).ToList();
-            var vb = starXlist.Where(x => (Convert.ToDateTime(x.Element(SessionDateX).Value) != sessionDate) && (x.Element(CatalogNameX).Value != catName));
+            var vb = starXlist.Where(x => (Convert.ToDateTime(x.Element(SessionDateX).Value) != sessionDate) || (x.Element(CatalogNameX).Value != catName));
             foreach (XElement x in vb)
                 newStarchive.Add(vb);
             newStarchive.Save(cfg.StarchiveFilePath);
