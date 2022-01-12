@@ -169,10 +169,7 @@ namespace VariScan
             ManualColorTransformValueBox.Value = (decimal)trans.Item1;
             ManualMagTransformValueBox.Value = (decimal)trans.Item2;
 
-            if (UseGaiaBox.Checked)
-                CurrentTargetData.CatalogName = "Gaia";
-            else
-                CurrentTargetData.CatalogName = "APASS";
+            CurrentTargetData.CatalogName = TargetCatalogBox.Text;
             return;
         }
 
@@ -318,8 +315,8 @@ namespace VariScan
             ColorIndexing.ColorDataSource priColStd = ColorIndexing.ConvertColorEnum(priCol);
             ColorIndexing.ColorDataSource difColStd = ColorIndexing.ConvertColorEnum(difCol);
 
-            double priCatMag = Transformation.GetCatalogedMagnitude(priColStd, catDat, UseGaiaBox.Checked);
-            double difCatMag = Transformation.GetCatalogedMagnitude(difColStd, catDat, UseGaiaBox.Checked);
+            double priCatMag = Transformation.GetCatalogedMagnitude(priColStd, catDat, TargetCatalogBox.Text);
+            double difCatMag = Transformation.GetCatalogedMagnitude(difColStd, catDat, TargetCatalogBox.Text);
 
             if (priCatMag != 0 && difCatMag != 0)
                 return true;
@@ -327,7 +324,7 @@ namespace VariScan
                 return false;
         }
 
-        public void CalculateTransforms(bool useGaia)
+        public void CalculateTransforms(string catalog)
         {
             //Set colors for primary and differential fields
             LogIt("Calculating transforms for " + CurrentTargetData.TargetName);
@@ -360,8 +357,8 @@ namespace VariScan
                     {
                         //Calculate Color Transform for each comparison star
                         //  First calculate B minus V :  we'll do this every time although it is not necessary
-                        var magBV = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, targetStandardColor, pLS, useGaia);
-                        var magbv = Transformation.FormColorIndex((int)compStar.RegistrationIndex, instrumentColor, dLS, instrumentColor, pLS, useGaia);
+                        var magBV = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, targetStandardColor, pLS, catalog);
+                        var magbv = Transformation.FormColorIndex((int)compStar.RegistrationIndex, instrumentColor, dLS, instrumentColor, pLS, catalog);
                         //if any value is 0 then stack it -- meaning that both light source arrays don't share a registered star
                         double instColorIndex = magbv.differentialMag - magbv.primaryMag;
                         double stdColorIndex = magBV.differentialMag - magBV.primaryMag;
@@ -388,7 +385,7 @@ namespace VariScan
                     (filteredInstrumentCI, filteredStandardCI) = Transformation.TwoPassSlope(instrumentColorIndexList, standardColorIndexList);
                     (double colorIntercept, double colorTransform) = Transformation.ColorTransform(ref filteredInstrumentCI, ref filteredStandardCI);
                     ColorTransformBox.Text = colorTransform.ToString("0.00");
-                    ColorTransformListBox.Items.Add("(P" + priIndex.ToString() + " D" + difIndex.ToString() + "): " + colorTransform.ToString("0.00"));
+                    ColorTransformListBox.Items.Add(colorTransform.ToString("0.00") + " (P" + priIndex.ToString() + " D" + difIndex.ToString() + ")");
                     LogIt("Color Transform for " + "(P" + priIndex.ToString() + " D" + difIndex.ToString() + "): " + colorTransform.ToString("0.00"));
 
                     ColorTransformChart.Series[0].Points.Clear();
@@ -416,8 +413,8 @@ namespace VariScan
                 foreach (StarField.FieldLightSource compStar in masterRegisteredList)
                 {
                     //Create list of color index for B-v and B-V for comparison stars in this primary image
-                    var magBV = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, targetStandardColor, pLS, useGaia);
-                    var magBv = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, instrumentColor, pLS, useGaia);
+                    var magBV = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, targetStandardColor, pLS, catalog);
+                    var magBv = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, instrumentColor, pLS, catalog);
                     //if all values are not zero then stack it
                     if (magBV.primaryMag != 0 && magBV.differentialMag != 0 && magBv.primaryMag != 0 && magBv.differentialMag != 0)
                     {
@@ -442,7 +439,7 @@ namespace VariScan
                 List<double> filteredStandardMag = new List<double>();
                 (filteredInstrumentMag, filteredStandardMag) = Transformation.TwoPassSlope(instrumentMagnitudeIndexList, standardMagnitudeIndexList);
                 (double magIntercept, double magnitudeTransform) = Transformation.MagnitudeTransform(filteredInstrumentMag.ToArray(), filteredStandardMag.ToArray());
-                MagnitudeTransformListBox.Items.Add("(P " + priIndex.ToString() + "): " + magnitudeTransform.ToString("0.00"));
+                MagnitudeTransformListBox.Items.Add(magnitudeTransform.ToString("0.00")   + " (P " + priIndex.ToString()+ ")");
                 LogIt("Magnitude Transform for " + "(P " + priIndex.ToString() + "): " + magnitudeTransform.ToString("0.00"));
                 Show();
                 System.Windows.Forms.Application.DoEvents();
@@ -506,7 +503,7 @@ namespace VariScan
             return;
         }
 
-        public bool ConvertToColorStandard(bool useGaia)
+        public bool ConvertToColorStandard(string catalog)
         {
             //********************************************************************************
             //
@@ -956,11 +953,11 @@ namespace VariScan
         {
             //Plots out history of current star photometry
             //
-            //Sort for catalog and filters being used
-            string catName;
-            if (UseGaiaBox.Checked)
-                catName = "Gaia";
-            else catName = "APASS";
+            //Graph for both catalogs, using different colors
+            //string catName;
+            //if (UseGaiaBox.Checked)
+            //    catName = "Gaia";
+            //else catName = "APASS";
             string priColor = PrimaryColorBox.Text;
             string difColor = DifferentialColorBox.Text;
             string priFilter = PrimaryFilterBox.Text;
@@ -974,20 +971,33 @@ namespace VariScan
             HistoryChart.Series[0].MarkerStyle = MarkerStyle.None;
             HistoryChart.Series[1].ChartType = (SeriesChartType.ErrorBar);
             HistoryChart.Series[1].MarkerColor = Color.Blue;
+            HistoryChart.Series[2].ChartType = (SeriesChartType.FastPoint);
+            HistoryChart.Series[2].MarkerStyle = MarkerStyle.None;
+            HistoryChart.Series[3].ChartType = (SeriesChartType.ErrorBar);
+            HistoryChart.Series[3].MarkerColor = Color.Green;
             foreach (TargetData tData in tDataList)
             {
                 double tgtMag = tData.StandardColorMagnitude;
                 if (tData.IsTransformed &&
                     tgtMag != 0 &&
-                    tData.CatalogName == catName &&
-                    tData.PrimaryImageFilter==priFilter &&
-                    tData.DifferentialImageFilter==difFilter &&
+                    //tData.CatalogName == catName &&
+                    tData.PrimaryImageFilter == priFilter &&
+                    tData.DifferentialImageFilter == difFilter &&
                     tData.PrimaryStandardColor == priColor &&
-                    tData.DifferentialStandardColor==difColor)
+                    tData.DifferentialStandardColor == difColor)
                 {
                     double errorBar = tData.StandardMagnitudeError;
-                    HistoryChart.Series[0].Points.AddXY(tData.SessionDate, tgtMag);
-                    HistoryChart.Series[1].Points.AddXY(tData.SessionDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
+                    if (tData.CatalogName == "APASS")
+                    {
+                        HistoryChart.Series[0].Points.AddXY(tData.SessionDate, tgtMag);
+                        HistoryChart.Series[1].Points.AddXY(tData.SessionDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
+                    }
+                    else
+                    {
+                        HistoryChart.Series[2].Points.AddXY(tData.SessionDate, tgtMag);
+                        HistoryChart.Series[3].Points.AddXY(tData.SessionDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
+                    }
+
                 }
             }
             return;
@@ -998,10 +1008,7 @@ namespace VariScan
             //returns true if transformed, false otherwise
             //Build lightsource database
             bool isTransformed = false;
-            if (UseGaiaBox.Checked)
-                CurrentTargetData.CatalogName = "Gaia";
-            else
-                CurrentTargetData.CatalogName = "APASS";
+            CurrentTargetData.CatalogName = TargetCatalogBox.Text;
             RegisterLightSources();
             if (primaryLightSources.Count == 0 || differentialLightSources.Count == 0)
             {
@@ -1022,10 +1029,10 @@ namespace VariScan
                 }
                 else
                 {
-                    CalculateTransforms(UseGaiaBox.Checked);
+                    CalculateTransforms(CurrentTargetData.CatalogName);
                 }
 
-                isTransformed = ConvertToColorStandard(UseGaiaBox.Checked);
+                isTransformed = ConvertToColorStandard(CurrentTargetData.CatalogName);
             }
 
             if (isTransformed)
@@ -1040,7 +1047,6 @@ namespace VariScan
 
             CurrentTargetData.IsTransformed = isTransformed;
             Starchive.StorePhotometry(CurrentTargetData);
-            PlotPhotometryHistory(CurrentTargetData);
         }
 
         private string GetSeeingClass(double FWHM, double aperture)
@@ -1083,9 +1089,7 @@ namespace VariScan
                 PrimaryStandardColor = PrimaryColorBox.Text,
                 DifferentialStandardColor = DifferentialColorBox.Text
             };
-            if (UseGaiaBox.Checked)
-                CurrentTargetData.CatalogName = "Gaia";
-            else CurrentTargetData.CatalogName = "APASS";
+            CurrentTargetData.CatalogName = TargetCatalogBox.Text;
             return;
         }
 
@@ -1138,6 +1142,8 @@ namespace VariScan
             TargetColorIndex = new ColorIndexing();
 
             TransformTargetImageSet();
+            PlotPhotometryHistory(CurrentTargetData);
+
             Utility.ButtonGreen(TransformButton);
             isAnalyzing = false;
             return;
@@ -1149,10 +1155,7 @@ namespace VariScan
             Utility.ButtonRed(ClearDateButton);
             isAnalyzing = true;
             CurrentTargetData.SessionDate = CollectionSessionDateBox.Value;
-            if (UseGaiaBox.Checked)
-                Starchive.ClearStarchiveSession(CurrentTargetData.SessionDate, "Gaia");
-            else
-                Starchive.ClearStarchiveSession(CurrentTargetData.SessionDate, "APASS");
+            Starchive.ClearStarchiveSession(CurrentTargetData.SessionDate, TargetCatalogBox.Text);
             Utility.ButtonGreen(ClearDateButton);
             isAnalyzing = false;
         }
@@ -1172,10 +1175,7 @@ namespace VariScan
             //Remove all entries for the specified catalog
             Utility.ButtonRed(ClearTargetButton);
             isAnalyzing = true;
-            if (UseGaiaBox.Checked)
-                Starchive.ClearStarchiveCatalog("Gaia");
-            else
-                Starchive.ClearStarchiveCatalog("APASS");
+            Starchive.ClearStarchiveCatalog(TargetCatalogBox.Text);
             Utility.ButtonGreen(ClearTargetButton);
             isAnalyzing = false;
         }
@@ -1185,15 +1185,9 @@ namespace VariScan
             //Remove all entries for the specified target and catalog
             Utility.ButtonRed(ClearTargetButton);
             isAnalyzing = true;
-            string catName;
-            if (UseGaiaBox.Checked)
-                catName = "Gaia";
-            else
-                catName = "APASS";
-            Starchive.ClearStarchiveTarget(CurrentTargetData.TargetName, catName);
+            Starchive.ClearStarchiveTarget(CurrentTargetData.TargetName, TargetCatalogBox.Text);
             Utility.ButtonGreen(ClearTargetButton);
             isAnalyzing = false;
-
         }
 
         private void ScanImagesButton_Click(object sender, EventArgs e)
@@ -1220,7 +1214,7 @@ namespace VariScan
                 TargetedNameBox.Text = CurrentTargetData.TargetName;
                 TargetedRABox.Text = CurrentTargetData.TargetRA.ToString("0.00000");
                 TargetedDecBox.Text = CurrentTargetData.TargetDec.ToString("0.00000");
-                
+
                 int tidx = TargetPickListBox.FindString(tname);
                 TargetPickListBox.SelectedIndex = tidx;
                 foreach (DateTime dt in VariScanFileManager.SessionDates(tname))
@@ -1235,6 +1229,7 @@ namespace VariScan
                         TransformTargetImageSet();
                     }
                 }
+                PlotPhotometryHistory(CurrentTargetData);
             }
             Utility.ButtonGreen(ScanImagesButton);
             isAnalyzing = false;
@@ -1400,15 +1395,6 @@ namespace VariScan
         {
             if (!isInitializing)
                 CurrentTargetData.DifferentialStandardColor = DifferentialColorBox.Text;
-            return;
-        }
-
-        private void UseGaiaBox_CheckedChanged(object sender, EventArgs e)
-        {
-            //Sets flag to use Gaia rather than APASS catalog magnitudes
-            Configuration cfg = new Configuration();
-            if (!isInitializing)
-                cfg.UseGaia = UseGaiaBox.Checked.ToString();
             return;
         }
 

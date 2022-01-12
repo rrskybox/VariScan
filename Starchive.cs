@@ -139,7 +139,7 @@ namespace VariScan
             {
                 if ((DateTime.Compare(p.SessionDate, tgt.SessionDate) == 0) &&
                     (p.PrimaryStandardColor == tgt.PrimaryStandardColor) &&
-                    //(p.CatalogName == tgt.CatalogName) &&
+                    (p.CatalogName == tgt.CatalogName) &&
                     (p.DifferentialStandardColor == tgt.DifferentialStandardColor) &&
                     (p.CatalogName == tgt.CatalogName) &&
                     (p.PrimaryStandardColor == tgt.PrimaryStandardColor) &&

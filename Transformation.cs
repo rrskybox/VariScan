@@ -67,7 +67,7 @@ namespace VariScan
                                                                                  StarField.FieldLightSource[] differentialFLS,
                                                                                  ColorIndexing.ColorDataSource priColor,
                                                                                  StarField.FieldLightSource[] primaryFLS,
-                                                                                 bool useGaia)
+                                                                                 string catalog)
         {
             StarField.FieldLightSource pFLS = (from StarField.FieldLightSource p in primaryFLS
                                                where (p.RegistrationIndex == regIndex)
@@ -78,10 +78,10 @@ namespace VariScan
             if (pFLS.StandardMagnitudes == null || dFLS.StandardMagnitudes == null)
                 return (0, 0);
             else
-                return (GetCatalogedMagnitude(priColor, pFLS, useGaia), GetCatalogedMagnitude(diffColor, dFLS, useGaia));
+                return (GetCatalogedMagnitude(priColor, pFLS, catalog), GetCatalogedMagnitude(diffColor, dFLS, catalog));
         }
 
-        public static double GetCatalogedMagnitude(ColorIndexing.ColorDataSource cds, StarField.FieldLightSource fls, bool useGaia)
+        public static double GetCatalogedMagnitude(ColorIndexing.ColorDataSource cds, StarField.FieldLightSource fls, string catalog)
         {
             double mag = 0;
 
@@ -94,7 +94,7 @@ namespace VariScan
                     }
                 case ColorIndexing.ColorDataSource.Bj:
                     {
-                        if (useGaia)
+                        if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Bj,
                                                               fls.StandardMagnitudes.Value.GAIACatalogMagnitudeG,
                                                               fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGbp,
@@ -105,7 +105,7 @@ namespace VariScan
                     }
                 case ColorIndexing.ColorDataSource.Vj:
                     {
-                        if (useGaia)
+                        if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Vj,
                                                               fls.StandardMagnitudes.Value.GAIACatalogMagnitudeG,
                                                               fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGbp,
@@ -115,7 +115,7 @@ namespace VariScan
                     }
                 case ColorIndexing.ColorDataSource.Rc:
                     {
-                        if (useGaia)
+                        if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Rc,
                                                               fls.StandardMagnitudes.Value.GAIACatalogMagnitudeG,
                                                               fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGbp,
@@ -153,7 +153,7 @@ namespace VariScan
             return (mag);
         }
 
-        public static double GetCatalogedMagnitude(ColorIndexing.ColorDataSource cds, StarField.CatalogData fls, bool useGaia)
+        public static double GetCatalogedMagnitude(ColorIndexing.ColorDataSource cds, StarField.CatalogData fls, string catalog)
         {
             double mag = 0;
 
@@ -161,7 +161,7 @@ namespace VariScan
             {
                 case ColorIndexing.ColorDataSource.Bj:
                     {
-                        if (useGaia)
+                        if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Bj,
                                                               fls.GAIACatalogMagnitudeG,
                                                               fls.GAIACatalogMagnitudeGbp,
@@ -172,7 +172,7 @@ namespace VariScan
                     }
                 case ColorIndexing.ColorDataSource.Vj:
                     {
-                        if (useGaia)
+                        if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Vj,
                                                               fls.GAIACatalogMagnitudeG,
                                                               fls.GAIACatalogMagnitudeGbp,
@@ -182,7 +182,7 @@ namespace VariScan
                     }
                 case ColorIndexing.ColorDataSource.Rc:
                     {
-                        if (useGaia)
+                        if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Rc,
                                                               fls.GAIACatalogMagnitudeG,
                                                               fls.GAIACatalogMagnitudeGbp,

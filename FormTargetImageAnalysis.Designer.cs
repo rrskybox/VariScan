@@ -46,9 +46,11 @@ namespace VariScan
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series11 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Title title4 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.MaxADULabel = new System.Windows.Forms.Label();
             this.SeeingClassLabel = new System.Windows.Forms.Label();
@@ -181,7 +183,6 @@ namespace VariScan
             this.ManualMagTransformValueBox = new System.Windows.Forms.NumericUpDown();
             this.label23 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
-            this.UseGaiaBox = new System.Windows.Forms.CheckBox();
             this.StepTransformsCheckbox = new System.Windows.Forms.CheckBox();
             this.ClearDateButton = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
@@ -191,6 +192,8 @@ namespace VariScan
             this.ClearAllSessionsButton = new System.Windows.Forms.Button();
             this.ClearTargetButton = new System.Windows.Forms.Button();
             this.ClearCatButton = new System.Windows.Forms.Button();
+            this.TargetCatalogBox = new System.Windows.Forms.ComboBox();
+            this.label45 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.StarADUChart)).BeginInit();
             this.SeeingGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MagnitudeTransformChart)).BeginInit();
@@ -594,9 +597,9 @@ namespace VariScan
             this.label37.AutoSize = true;
             this.label37.Location = new System.Drawing.Point(16, 181);
             this.label37.Name = "label37";
-            this.label37.Size = new System.Drawing.Size(107, 13);
+            this.label37.Size = new System.Drawing.Size(78, 13);
             this.label37.TabIndex = 144;
-            this.label37.Text = "Magnitude Transform";
+            this.label37.Text = "Mag Transform";
             this.AnalysisToolTips.SetToolTip(this.label37, "Full Width Half Maximum of selected star image");
             // 
             // label38
@@ -624,9 +627,9 @@ namespace VariScan
             this.label40.AutoSize = true;
             this.label40.Location = new System.Drawing.Point(16, 207);
             this.label40.Name = "label40";
-            this.label40.Size = new System.Drawing.Size(126, 13);
+            this.label40.Size = new System.Drawing.Size(97, 13);
             this.label40.TabIndex = 150;
-            this.label40.Text = "Magnitude Transform List";
+            this.label40.Text = "Mag Transform List";
             this.AnalysisToolTips.SetToolTip(this.label40, "Full Width Half Maximum of selected star image");
             // 
             // label13
@@ -1216,6 +1219,8 @@ namespace VariScan
             // 
             // TargetedVariableGroupBox
             // 
+            this.TargetedVariableGroupBox.Controls.Add(this.TargetCatalogBox);
+            this.TargetedVariableGroupBox.Controls.Add(this.label45);
             this.TargetedVariableGroupBox.Controls.Add(this.TargetedDecBox);
             this.TargetedVariableGroupBox.Controls.Add(this.label4);
             this.TargetedVariableGroupBox.Controls.Add(this.TargetedNameBox);
@@ -1263,14 +1268,23 @@ namespace VariScan
             this.HistoryChart.Name = "HistoryChart";
             series6.ChartArea = "VariableHistoryChart";
             series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
-            series6.Name = "Magnitudes";
+            series6.Name = "APASSMagnitudes";
             series6.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Date;
             series7.ChartArea = "VariableHistoryChart";
             series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.ErrorBar;
-            series7.Name = "ErrorBar";
+            series7.Name = "APASSErrorBar";
             series7.YValuesPerPoint = 3;
+            series8.ChartArea = "VariableHistoryChart";
+            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series8.Name = "GaiaMagnitudes";
+            series9.ChartArea = "VariableHistoryChart";
+            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.ErrorBar;
+            series9.Name = "GaiaErrorBar";
+            series9.YValuesPerPoint = 3;
             this.HistoryChart.Series.Add(series6);
             this.HistoryChart.Series.Add(series7);
+            this.HistoryChart.Series.Add(series8);
+            this.HistoryChart.Series.Add(series9);
             this.HistoryChart.Size = new System.Drawing.Size(811, 167);
             this.HistoryChart.TabIndex = 105;
             this.HistoryChart.Text = "chart1";
@@ -1414,14 +1428,14 @@ namespace VariScan
             this.TransformedTargetChart.ChartAreas.Add(chartArea5);
             this.TransformedTargetChart.Location = new System.Drawing.Point(1057, 11);
             this.TransformedTargetChart.Name = "TransformedTargetChart";
-            series8.ChartArea = "TransformedTargetChart";
-            series8.Name = "Series3";
-            series9.ChartArea = "TransformedTargetChart";
-            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series9.Color = System.Drawing.Color.Red;
-            series9.Name = "Series2";
-            this.TransformedTargetChart.Series.Add(series8);
-            this.TransformedTargetChart.Series.Add(series9);
+            series10.ChartArea = "TransformedTargetChart";
+            series10.Name = "Series3";
+            series11.ChartArea = "TransformedTargetChart";
+            series11.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series11.Color = System.Drawing.Color.Red;
+            series11.Name = "Series2";
+            this.TransformedTargetChart.Series.Add(series10);
+            this.TransformedTargetChart.Series.Add(series11);
             this.TransformedTargetChart.Size = new System.Drawing.Size(258, 259);
             this.TransformedTargetChart.TabIndex = 136;
             this.TransformedTargetChart.Text = "Photometry";
@@ -1448,34 +1462,34 @@ namespace VariScan
             // 
             // MagnitudeTransformBox
             // 
-            this.MagnitudeTransformBox.Location = new System.Drawing.Point(148, 178);
+            this.MagnitudeTransformBox.Location = new System.Drawing.Point(117, 178);
             this.MagnitudeTransformBox.Name = "MagnitudeTransformBox";
-            this.MagnitudeTransformBox.Size = new System.Drawing.Size(84, 20);
+            this.MagnitudeTransformBox.Size = new System.Drawing.Size(115, 20);
             this.MagnitudeTransformBox.TabIndex = 143;
             this.MagnitudeTransformBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ColorTransformBox
             // 
-            this.ColorTransformBox.Location = new System.Drawing.Point(148, 125);
+            this.ColorTransformBox.Location = new System.Drawing.Point(117, 125);
             this.ColorTransformBox.Name = "ColorTransformBox";
-            this.ColorTransformBox.Size = new System.Drawing.Size(84, 20);
+            this.ColorTransformBox.Size = new System.Drawing.Size(115, 20);
             this.ColorTransformBox.TabIndex = 145;
             this.ColorTransformBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ColorTransformListBox
             // 
             this.ColorTransformListBox.FormattingEnabled = true;
-            this.ColorTransformListBox.Location = new System.Drawing.Point(148, 151);
+            this.ColorTransformListBox.Location = new System.Drawing.Point(117, 151);
             this.ColorTransformListBox.Name = "ColorTransformListBox";
-            this.ColorTransformListBox.Size = new System.Drawing.Size(84, 21);
+            this.ColorTransformListBox.Size = new System.Drawing.Size(115, 21);
             this.ColorTransformListBox.TabIndex = 147;
             // 
             // MagnitudeTransformListBox
             // 
             this.MagnitudeTransformListBox.FormattingEnabled = true;
-            this.MagnitudeTransformListBox.Location = new System.Drawing.Point(148, 204);
+            this.MagnitudeTransformListBox.Location = new System.Drawing.Point(117, 204);
             this.MagnitudeTransformListBox.Name = "MagnitudeTransformListBox";
-            this.MagnitudeTransformListBox.Size = new System.Drawing.Size(84, 21);
+            this.MagnitudeTransformListBox.Size = new System.Drawing.Size(115, 21);
             this.MagnitudeTransformListBox.TabIndex = 149;
             // 
             // LogBox
@@ -1668,22 +1682,10 @@ namespace VariScan
             this.label27.TabIndex = 159;
             this.label27.Text = "Magnitude";
             // 
-            // UseGaiaBox
-            // 
-            this.UseGaiaBox.AutoSize = true;
-            this.UseGaiaBox.Location = new System.Drawing.Point(454, 249);
-            this.UseGaiaBox.Margin = new System.Windows.Forms.Padding(1);
-            this.UseGaiaBox.Name = "UseGaiaBox";
-            this.UseGaiaBox.Size = new System.Drawing.Size(48, 17);
-            this.UseGaiaBox.TabIndex = 160;
-            this.UseGaiaBox.Text = "Gaia";
-            this.UseGaiaBox.UseVisualStyleBackColor = true;
-            this.UseGaiaBox.CheckedChanged += new System.EventHandler(this.UseGaiaBox_CheckedChanged);
-            // 
             // StepTransformsCheckbox
             // 
             this.StepTransformsCheckbox.AutoSize = true;
-            this.StepTransformsCheckbox.Location = new System.Drawing.Point(454, 230);
+            this.StepTransformsCheckbox.Location = new System.Drawing.Point(452, 238);
             this.StepTransformsCheckbox.Margin = new System.Windows.Forms.Padding(1);
             this.StepTransformsCheckbox.Name = "StepTransformsCheckbox";
             this.StepTransformsCheckbox.Size = new System.Drawing.Size(48, 17);
@@ -1779,6 +1781,28 @@ namespace VariScan
             this.ClearCatButton.UseVisualStyleBackColor = false;
             this.ClearCatButton.Click += new System.EventHandler(this.ClearCatButton_Click);
             // 
+            // TargetCatalogBox
+            // 
+            this.TargetCatalogBox.FormattingEnabled = true;
+            this.TargetCatalogBox.Items.AddRange(new object[] {
+            "APASS",
+            "Gaia"});
+            this.TargetCatalogBox.Location = new System.Drawing.Point(84, 121);
+            this.TargetCatalogBox.Name = "TargetCatalogBox";
+            this.TargetCatalogBox.Size = new System.Drawing.Size(95, 21);
+            this.TargetCatalogBox.TabIndex = 112;
+            this.TargetCatalogBox.Text = "APASS";
+            // 
+            // label45
+            // 
+            this.label45.AutoSize = true;
+            this.label45.Location = new System.Drawing.Point(10, 124);
+            this.label45.Name = "label45";
+            this.label45.Size = new System.Drawing.Size(43, 13);
+            this.label45.TabIndex = 111;
+            this.label45.Text = "Catalog";
+            this.AnalysisToolTips.SetToolTip(this.label45, "2.76 / Aperture (inches)");
+            // 
             // FormTargetImageAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1794,7 +1818,6 @@ namespace VariScan
             this.Controls.Add(this.label5);
             this.Controls.Add(this.ClearDateButton);
             this.Controls.Add(this.StepTransformsCheckbox);
-            this.Controls.Add(this.UseGaiaBox);
             this.Controls.Add(this.label27);
             this.Controls.Add(this.label23);
             this.Controls.Add(this.ManualMagTransformValueBox);
@@ -1971,7 +1994,6 @@ namespace VariScan
         private System.Windows.Forms.NumericUpDown ManualMagTransformValueBox;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label27;
-        private System.Windows.Forms.CheckBox UseGaiaBox;
         private System.Windows.Forms.ComboBox TargetDateSelectBox;
         private System.Windows.Forms.TextBox ResultsTargetBox;
         internal System.Windows.Forms.Label label30;
@@ -1996,6 +2018,8 @@ namespace VariScan
         private System.Windows.Forms.Button ClearAllSessionsButton;
         private System.Windows.Forms.Button ClearTargetButton;
         private System.Windows.Forms.Button ClearCatButton;
+        private System.Windows.Forms.ComboBox TargetCatalogBox;
+        private System.Windows.Forms.Label label45;
     }
 }
 
