@@ -65,7 +65,11 @@ namespace VariScan
                 if (value)
                     tsxd.IsCoupled = 1;
                 else
+                {
                     tsxd.IsCoupled = 0;
+                    //Abort any on-going dome action or commands
+                    tsxd.Abort();
+                }
                 return;
             }
         }
@@ -146,7 +150,7 @@ namespace VariScan
             try { tsxd.Abort(); }
             catch { return; }
             //Wait for a second for the command to clear
-            System.Threading.Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(5000);
             //Close up the dome:  Connect, Home (so power is to the dome), Close the slit
             if (tsxd.IsConnected == 1)
             {
