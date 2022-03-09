@@ -93,8 +93,67 @@ namespace VariScan
                 Directory.CreateDirectory(ssdir);
             }
 
+            //check on collection folder, if none create it
+            cmdir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + ScanFolderName + "\\" + ScanCollectionFolderName;
+            if (!Directory.Exists(cmdir))
+                Directory.CreateDirectory(cmdir);
+
+            //check on Log folder, if none, create it
+            if (!Directory.Exists(cmdir + "\\" + ScanLogFoldername))
+                Directory.CreateDirectory(cmdir + "\\" + ScanLogFoldername);
+
+            //check on Image Bank folder, if none, create it.
+            if (!Directory.Exists(cmdir + "\\" + ScanImageBankFoldername))
+                Directory.CreateDirectory(cmdir + "\\" + ScanImageBankFoldername);
+
             //The configuration file is set at in the VariScan directory, if not there than create it with defaults.
-            if (!File.Exists(ssdir + "\\" + ScanConfigurationFilename))
+            if (File.Exists(ssdir + "\\" + ScanConfigurationFilename))
+            {
+                string cfgfilename = ssdir + "\\" + ScanConfigurationFilename;
+                XElement cfgXf = XElement.Load(cfgfilename);
+                XElement cDefaultX = new XElement(ScanConfigurationRootX,
+                    new XElement(ScanFolderPathX, ssdir),
+                    new XElement(ScanCollectionFolderPathX, ScanCollectionFolderName),
+                    new XElement(ScanTargetListPathX, cmdir + "\\" + TargetListFilename),
+                    new XElement(ScanColorListPathX, cmdir + "\\" + ColorListFilename),
+                    new XElement(ScanImageBankFoldernameX, cmdir + "\\" + ScanImageBankFoldername),
+                    new XElement(StarchiveFilePathX, cmdir + "\\" + StarchiveFileName),
+                    new XElement(ScanLogFoldernameX, cmdir + "\\" + ScanLogFoldername),
+                    new XElement(ScanExposureX, Exposure),
+                    new XElement(ScanMinimumAltitudeX, MinAltitude),
+                    new XElement(ScanMinimumRetakeIntervalX, MinRetakeInterval),
+                    new XElement(ScanImagesPerSampleX, ImagesPerSample),
+                    new XElement(ScanCCDTempX, CCDTemp),
+                    new XElement(ScanAutoFocusX, AutoFocus),
+                    new XElement(ScanFocusFilterX, FocusFilter),
+                    new XElement(ScanAutoStartX, AutoStart),
+                    new XElement(ScanAutoExtinctionX, AutoExtinction),
+                    new XElement(ScanStageSystemOnX, StageSystemOn),
+                    new XElement(ScanStartUpOnX, StartUpOn),
+                    new XElement(ScanShutDownOnX, ShutDownOn),
+                    new XElement(ScanStageSystemTimeX, StageSystemTime),
+                    new XElement(ScanStartUpTimeX, StartUpTime),
+                    new XElement(ScanShutDownTimeX, ShutDownTime),
+                    new XElement(ScanStageSystemPathX, StageSystemPath),
+                    new XElement(ScanStartUpPathX, StartUpPath),
+                    new XElement(ScanShutDownPathX, ShutDownPath),
+                    new XElement(ScanWatchWeatherX, WatchWeather),
+                    new XElement(ScanUsesDomeX, UsesDome),
+                    new XElement(ScanFormOnTopX, SurveyFormOnTop),
+                    new XElement(ScanRefreshTargetsX, RefreshTargets),
+                    new XElement(ReductionTypeX, ReductionType),
+                    new XElement(AutoADUX, AutoADU),
+                    new XElement(ADUMaxX, ADUMax),
+                    new XElement(StepsPerDegreeX, StepsPerDegree),
+                    new XElement(PositionAtZeroX, PositionAtZero),
+                    new XElement(ScanUseGaiaX, UseGaia),
+                    new XElement(ScanStepTransformsX, StepTransforms)
+                    );
+
+                cDefaultX.Save(ssdir + "\\" + ScanConfigurationFilename);
+
+            }
+            else
             {
                 XElement cDefaultX = new XElement(ScanConfigurationRootX,
                     new XElement(ScanFolderPathX, ssdir),
@@ -108,7 +167,6 @@ namespace VariScan
                     new XElement(ScanMinimumAltitudeX, "30"),
                     new XElement(ScanMinimumRetakeIntervalX, "12"),
                     new XElement(ScanImagesPerSampleX, "1"),
-
                     new XElement(ScanCCDTempX, " -30"),
                     new XElement(ScanAutoFocusX, "None"),
                     new XElement(ScanFocusFilterX, "3"),
@@ -138,19 +196,6 @@ namespace VariScan
                 cDefaultX.Save(ssdir + "\\" + ScanConfigurationFilename);
             }
 
-            //check on collection folder, if none create it
-            cmdir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + ScanFolderName + "\\" + ScanCollectionFolderName;
-            if (!Directory.Exists(cmdir))
-                Directory.CreateDirectory(cmdir);
-            
-            //check on Log folder, if none, create it
-            if (!Directory.Exists(cmdir + "\\" + ScanLogFoldername))
-                Directory.CreateDirectory(cmdir + "\\" + ScanLogFoldername);
-
-            //check on Image Bank folder, if none, create it.
-            if (!Directory.Exists(cmdir + "\\" + ScanImageBankFoldername))
-                Directory.CreateDirectory(cmdir + "\\" + ScanImageBankFoldername);
-
             return;
         }
 
@@ -158,7 +203,7 @@ namespace VariScan
         {
             string cfgfilename = ssdir + "\\" + ScanConfigurationFilename;
             XElement cfgXf = XElement.Load(cfgfilename);
-            if (cfgXf.Element(elementName) == null)
+            if (cfgXf.Element(elementName) == null || cfgXf.Element(elementName).Value == "")
             {
                 cfgXf.Add(new XElement(elementName, defaultValue));
                 cfgXf.Save(cfgfilename);
@@ -399,6 +444,11 @@ namespace VariScan
         {
             get { return GetConfig(ScanStepTransformsX, "False"); }
             set { SetConfig(ScanStepTransformsX, value); }
+        }
+        public string RefreshTargets
+        {
+            get { return GetConfig(ScanRefreshTargetsX, "True"); }
+            set { SetConfig(ScanRefreshTargetsX, value); }
         }
     }
 }
