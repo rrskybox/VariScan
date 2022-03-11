@@ -192,6 +192,9 @@ namespace VariScan
 
             double minSeparation = double.MaxValue;
 
+            if (targetListRecordX == null)
+                return lastTgt;
+
             foreach (XElement tDesc in targetListRecordX.Elements())
             {
                 TargetXDescriptor xTarget = new TargetXDescriptor(tDesc);

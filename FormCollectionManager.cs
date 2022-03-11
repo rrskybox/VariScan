@@ -68,6 +68,7 @@ namespace VariScan
             this.Close();
             return;
         }
+                
 
     }
 }

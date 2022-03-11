@@ -28,6 +28,8 @@ namespace VariScan
         public Logger()
         {
             Configuration cfg = new Configuration();
+            if (cfg.LogFolder == "")
+                return;
             string logfilename = DateTime.Now.ToString("dd_MMM_yyyy") + ".txt";
             string logfilepath = cfg.LogFolder + "\\" + logfilename;
             if (!Directory.Exists(cfg.LogFolder))
@@ -40,6 +42,8 @@ namespace VariScan
         public void LogEntry(string upd)
         {
             Configuration cfg = new Configuration();
+            if (cfg.LogFolder == "")
+                return;
             string logfilename = DateTime.Now.ToString("dd_MMM_yyyy") + ".txt";
             string logfilepath = cfg.LogFolder + "\\" + logfilename;
             System.IO.StreamWriter sys_sw = new System.IO.StreamWriter(logfilepath, true);

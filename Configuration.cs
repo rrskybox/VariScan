@@ -104,7 +104,7 @@ namespace VariScan
                     //new XElement(ScanColorListPathX, ssdir + "\\" + ScanCollectionFolderName + "\\" + ColorListFilename),
                     //new XElement(ScanImageBankFoldernameX, ssdir + "\\" + ScanCollectionFolderName + "\\" + ScanImageBankFoldername),
                     //new XElement(StarchiveFilePathX, ssdir + "\\" + ScanCollectionFolderName + "\\" + StarchiveFileName),
-                    new XElement(ScanLogFoldernameX, ssdir + "\\" + ScanLogFoldername),
+                    //new XElement(ScanLogFoldernameX, ssdir + "\\" + ScanLogFoldername),
                     new XElement(ScanExposureX, "180"),
                     new XElement(ScanMinimumAltitudeX, "30"),
                     new XElement(ScanMinimumRetakeIntervalX, "12"),
@@ -219,7 +219,7 @@ namespace VariScan
 
         public string LogFolder
         {
-            get { return GetConfig(ScanLogFoldernameX, "Log"); }
+            get { return GetConfig(ScanLogFoldernameX, ""); }
             set { SetConfig(ScanLogFoldernameX, value); }
         }
 

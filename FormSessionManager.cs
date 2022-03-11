@@ -112,14 +112,19 @@ namespace VariScan
             //REad through the AGN entries, least recent first,
             // until either every target is up to date, or time runs out
 
+            Configuration cfg = new Configuration();
+            //Check for valid collection, if none then flash a warning and return
+            if (cfg.CollectionFolderPath == "")
+            {
+                MessageBox.Show("You must configure a target collection before imaging.");
+                return;
+            }
+            DeviceControl ss_hwp = new DeviceControl();
             //Check to see if scan already underway, if so, then just ignore
             //save current color of start scan button
             if (StartScanButton.BackColor == Color.LightCoral) return;
             Color scanbuttoncolorsave = StartScanButton.BackColor;
             StartScanButton.BackColor = Color.LightCoral;
-
-            Configuration cfg = new Configuration();
-            DeviceControl ss_hwp = new DeviceControl();
 
             //AutoStart section
             //If AutoStart is enabled, then wait for 15 seconds for the user to disable, if desired
@@ -514,14 +519,7 @@ namespace VariScan
             return;
         }
 
-        private void ConvertButton_Click(object sender, EventArgs e)
-        {
-            Form importCSVForm = new FormCreateTargetList();
-            importCSVForm.ShowDialog();
-            return;
-        }
-
-        private void AtFocusBox_SelectedIndexChanged(object sender, EventArgs e)
+         private void AtFocusBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             Configuration cfg = new Configuration();
             switch (AtFocusTypeBox.SelectedIndex)
@@ -563,8 +561,6 @@ namespace VariScan
                 //InitializeCollection();
                 Configuration cfg = new Configuration();
                 CollectionGroupBox.Text = Path.GetFileName(cfg.CollectionFolderPath);
-                if (!File.Exists(cfg.TargetListPath) || !File.Exists(cfg.ColorListPath))
-                    ConvertButton_Click(sender, e);
             }
             InitializeCollection();
             return;
