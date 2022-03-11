@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
 
 namespace VariScan
 {
@@ -28,17 +29,27 @@ namespace VariScan
         {
             //If the collection isn't already initialized, create a new collection file structure
             Configuration cfg = new Configuration();
+            cfg.CollectionFolderPath = cfg.VariScanFolderPath+"\\"+collectionPath;
             if (!Directory.Exists(cfg.CollectionFolderPath))
             {
                 Directory.CreateDirectory(cfg.CollectionFolderPath);
-                cfg.TargetListPath = cfg.CollectionFolderPath + "\\" + Configuration.TargetListFilename;
-                cfg.ColorListPath = cfg.CollectionFolderPath + "\\" + Configuration.ColorListFilename;
+                cfg.TargetListPath = cfg.CollectionFolderPath + "\\" + "VariScanList.xml";
+                cfg.ColorListPath = cfg.CollectionFolderPath + "\\" + "ColorList.xml";
                 cfg.ImageBankFolder = cfg.CollectionFolderPath + "\\" + "Image Bank";
                 Directory.CreateDirectory(cfg.ImageBankFolder);
                 cfg.StarchiveFilePath = cfg.CollectionFolderPath + "\\" + "Starchive.xml";
                 cfg.LogFolder = cfg.CollectionFolderPath + "\\" + "Logs";
                 Directory.CreateDirectory(cfg.LogFolder);
             }
+            else
+            {
+                DialogResult dr = MessageBox.Show("Overwrite existing target list?", "", MessageBoxButtons.OKCancel);
+                if (dr == DialogResult.OK)
+                {
+                    File.Delete(cfg.TargetListPath);
+                }
+            }
+            return;
         }
 
         public static string OpenCollection(string collectionName)
@@ -47,8 +58,8 @@ namespace VariScan
             //  Return the path to the collection's target list)
             Configuration cfg = new Configuration();
             cfg.CollectionFolderPath = cfg.VariScanFolderPath + "\\" + collectionName;
-            cfg.TargetListPath = cfg.CollectionFolderPath + "\\" + Configuration.TargetListFilename;
-            cfg.ColorListPath = cfg.CollectionFolderPath + "\\" + Configuration.ColorListFilename;
+            cfg.TargetListPath = cfg.CollectionFolderPath + "\\"+"VariScanList.xml";
+            cfg.ColorListPath = cfg.CollectionFolderPath + "\\" + "ColorList.xml";
             cfg.ImageBankFolder = cfg.CollectionFolderPath + "\\" + "Image Bank";
             cfg.StarchiveFilePath = cfg.CollectionFolderPath + "\\" + "Starchive.xml";
             cfg.LogFolder = cfg.CollectionFolderPath + "\\" + "Logs";

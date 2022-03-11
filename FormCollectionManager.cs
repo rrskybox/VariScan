@@ -45,6 +45,7 @@ namespace VariScan
             }
             //Upon return
             this.Close();
+            return;
         }
 
         private void AddNewButton_Click(object sender, EventArgs e)
@@ -56,8 +57,16 @@ namespace VariScan
             {
                 string choice = AddCollectionTextBox.Text;
                 CollectionManagement.CreateCollection(choice);
+                CollectionManagement.OpenCollection(choice);
             }
+            if (!File.Exists(cfg.TargetListPath))
+            {
+                Form ctForm = new FormCreateTargetList();
+                ctForm.ShowDialog();
+            }
+            //Upon return
             this.Close();
+            return;
         }
 
     }
