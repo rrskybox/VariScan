@@ -121,13 +121,22 @@ namespace VariScan
             return;
         }
 
-        public int ReliableClosedLoopSlew(double RA, double Dec, string name, bool hasDome)
+        public int ReliableClosedLoopSlew(double RA, double Dec, string name, bool hasDome, string reductionType)
         {
             //Tries to perform CLS without running into dome tracking race condition
             //
             //First set camera to AutoDark
             ccdsoftCamera tsxc = new ccdsoftCamera();
-            tsxc.ImageReduction = ccdsoftImageReduction.cdAutoDark;
+            switch (reductionType)
+            {
+                case "None":
+                    { tsxc.ImageReduction = ccdsoftImageReduction.cdNone; break; }
+                case "2":
+                    { tsxc.ImageReduction = ccdsoftImageReduction.cdAutoDark; break; }
+                case "3":
+                    { tsxc.ImageReduction = ccdsoftImageReduction.cdBiasDarkFlat; break; }
+            }
+
             ReliableRADecSlew(RA, Dec, name, hasDome);
             ClosedLoopSlew tsx_cl = new ClosedLoopSlew();
             int clsStatus = 123;

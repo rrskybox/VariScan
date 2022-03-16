@@ -69,6 +69,9 @@ namespace VariScan
             this.LogBox = new System.Windows.Forms.TextBox();
             this.AbortButton = new System.Windows.Forms.Button();
             this.AnalyzeButton = new System.Windows.Forms.Button();
+            this.label9 = new System.Windows.Forms.Label();
+            this.CLSReductionBox = new System.Windows.Forms.ComboBox();
+            this.EnableCLSBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.ExposureTimeSetting)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MinAltitudeSetting)).BeginInit();
             this.CollectionGroupBox.SuspendLayout();
@@ -252,6 +255,9 @@ namespace VariScan
             // ConfigurationGroupBox
             // 
             this.ConfigurationGroupBox.BackColor = System.Drawing.Color.LightSeaGreen;
+            this.ConfigurationGroupBox.Controls.Add(this.EnableCLSBox);
+            this.ConfigurationGroupBox.Controls.Add(this.CLSReductionBox);
+            this.ConfigurationGroupBox.Controls.Add(this.label9);
             this.ConfigurationGroupBox.Controls.Add(this.label6);
             this.ConfigurationGroupBox.Controls.Add(this.ImagesPerSampleBox);
             this.ConfigurationGroupBox.Controls.Add(this.ExposureGroupBox);
@@ -270,7 +276,7 @@ namespace VariScan
             this.ConfigurationGroupBox.ForeColor = System.Drawing.Color.White;
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 112);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(276, 307);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(276, 328);
             this.ConfigurationGroupBox.TabIndex = 16;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
@@ -315,7 +321,7 @@ namespace VariScan
             this.ExposureGroupBox.Controls.Add(this.ExposureTimeSetting);
             this.ExposureGroupBox.Controls.Add(this.ExposureTimeLabel);
             this.ExposureGroupBox.ForeColor = System.Drawing.Color.White;
-            this.ExposureGroupBox.Location = new System.Drawing.Point(8, 163);
+            this.ExposureGroupBox.Location = new System.Drawing.Point(7, 182);
             this.ExposureGroupBox.Name = "ExposureGroupBox";
             this.ExposureGroupBox.Size = new System.Drawing.Size(262, 68);
             this.ExposureGroupBox.TabIndex = 33;
@@ -490,7 +496,7 @@ namespace VariScan
             this.AutoFocusGroupBox.Controls.Add(this.label7);
             this.AutoFocusGroupBox.Controls.Add(this.FocusFilterBox);
             this.AutoFocusGroupBox.ForeColor = System.Drawing.Color.White;
-            this.AutoFocusGroupBox.Location = new System.Drawing.Point(7, 234);
+            this.AutoFocusGroupBox.Location = new System.Drawing.Point(6, 256);
             this.AutoFocusGroupBox.Name = "AutoFocusGroupBox";
             this.AutoFocusGroupBox.Size = new System.Drawing.Size(263, 66);
             this.AutoFocusGroupBox.TabIndex = 32;
@@ -577,12 +583,12 @@ namespace VariScan
             // 
             this.LogBox.BackColor = System.Drawing.Color.LightSeaGreen;
             this.LogBox.ForeColor = System.Drawing.Color.White;
-            this.LogBox.Location = new System.Drawing.Point(11, 425);
+            this.LogBox.Location = new System.Drawing.Point(10, 446);
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
             this.LogBox.ReadOnly = true;
             this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.LogBox.Size = new System.Drawing.Size(277, 156);
+            this.LogBox.Size = new System.Drawing.Size(277, 135);
             this.LogBox.TabIndex = 18;
             this.LogBox.Text = "Session Log";
             // 
@@ -607,6 +613,42 @@ namespace VariScan
             this.AnalyzeButton.Text = "Photometry";
             this.AnalyzeButton.UseVisualStyleBackColor = false;
             this.AnalyzeButton.Click += new System.EventHandler(this.AnalyzeButton_Click);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(104, 166);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(79, 13);
+            this.label9.TabIndex = 36;
+            this.label9.Text = "CLS Reduction";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // CLSReductionBox
+            // 
+            this.CLSReductionBox.FormattingEnabled = true;
+            this.CLSReductionBox.Items.AddRange(new object[] {
+            "None",
+            "Auto Dark",
+            "Full"});
+            this.CLSReductionBox.Location = new System.Drawing.Point(188, 163);
+            this.CLSReductionBox.Name = "CLSReductionBox";
+            this.CLSReductionBox.Size = new System.Drawing.Size(70, 21);
+            this.CLSReductionBox.TabIndex = 37;
+            this.CLSReductionBox.Text = "None";
+            // 
+            // EnableCLSBox
+            // 
+            this.EnableCLSBox.AutoSize = true;
+            this.EnableCLSBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.EnableCLSBox.Location = new System.Drawing.Point(7, 165);
+            this.EnableCLSBox.Name = "EnableCLSBox";
+            this.EnableCLSBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.EnableCLSBox.Size = new System.Drawing.Size(82, 17);
+            this.EnableCLSBox.TabIndex = 38;
+            this.EnableCLSBox.Text = "Enable CLS";
+            this.EnableCLSBox.UseVisualStyleBackColor = true;
+            this.EnableCLSBox.CheckedChanged += new System.EventHandler(this.EnableCLSBox_CheckedChanged);
             // 
             // FormSessionManager
             // 
@@ -688,6 +730,9 @@ namespace VariScan
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.ComboBox AtFocusTypeBox;
         private System.Windows.Forms.CheckBox FocusPresetBox;
+        private System.Windows.Forms.CheckBox EnableCLSBox;
+        private System.Windows.Forms.ComboBox CLSReductionBox;
+        private System.Windows.Forms.Label label9;
     }
 }
 

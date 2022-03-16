@@ -85,6 +85,7 @@ namespace VariScan
         //Find the coordinates of the object targetName and perform a slew, then CLS to it.
         private bool SeekTarget()
         {
+            Configuration cfg = new Configuration();
             sky6StarChart tsx_sc = new sky6StarChart();
             ClosedLoopSlew tsx_cl = new ClosedLoopSlew();
             sky6RASCOMTele tsx_mt = new sky6RASCOMTele();
@@ -115,7 +116,6 @@ namespace VariScan
             //  Ignore it a wait a few seconds for stuff to clear
 
             //If using dome, toggle dome coupling:  this appears to clear most Error 123 problems
-            Configuration cfg = new Configuration();
             bool hasDome = Convert.ToBoolean(cfg.UsesDome);
             if (hasDome)
             {
@@ -127,18 +127,29 @@ namespace VariScan
 
             //Wait for any Error 123//s to clear
 
-            LogEntry("Precision slew (CLS) to target");
             DeviceControl dctl = new DeviceControl();
-            int clsStatus = dctl.ReliableClosedLoopSlew(freshImageRA, freshImageDec, freshImageName, hasDome);
-            LogEntry("Precision Slew Complete:  ");
-            if (clsStatus == 0)
+            int slewStatus = 0;
+            if (Convert.ToBoolean(cfg.UseCLS))
             {
-                LogEntry("    CLS successful");
+                LogEntry("Precision slew (CLS) to target");
+                slewStatus = dctl.ReliableClosedLoopSlew(freshImageRA, freshImageDec, freshImageName, hasDome, cfg.CLSReduction);
+                LogEntry("Precision Slew Complete");
+            }
+            else
+            {
+                LogEntry("Simple slew to target");
+                dctl.ReliableRADecSlew(freshImageRA, freshImageDec, freshImageName, hasDome);
+                slewStatus = dctl.ReliableClosedLoopSlew(freshImageRA, freshImageDec, freshImageName, hasDome, cfg.CLSReduction);
+                LogEntry("Simple slew Complete");
+            }
+            if (slewStatus == 0)
+            {
+                LogEntry("    CLS or Slew successful");
                 return true;
             }
             else
             {
-                LogEntry("    CLS unsucessful: Error: " + clsStatus.ToString());
+                LogEntry("    CLS unsucessful: Error: " + slewStatus.ToString());
                 return false;
             }
         }

@@ -89,6 +89,31 @@ namespace VariScan
             ImagesPerSampleBox.Value = (int)Convert.ToInt32(cfg.ImagesPerSample);
             FocusPresetBox.Checked = Convert.ToBoolean(cfg.UseFocusPreset);
             FocusFilterBox.SelectedIndex = Convert.ToInt32(cfg.FocusFilter);
+            EnableCLSBox.Checked = Convert.ToBoolean(cfg.UseCLS);
+            switch (cfg.CLSReduction)
+            {
+                case "None":
+                    {
+                        CLSReductionBox.SelectedIndex = 0;
+                        break;
+                    }
+                case "2":
+                    {
+                        CLSReductionBox.SelectedIndex = 1;
+                        break;
+                    }
+                case "3":
+                    {
+                        CLSReductionBox.SelectedIndex = 2;
+                        break;
+                    }
+                default:
+                    {
+                        CLSReductionBox.SelectedIndex = 0;
+                        break;
+                    }
+            }
+
             try
             { this.Text = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString(); }
             catch
@@ -549,6 +574,13 @@ namespace VariScan
             cfg.UseFocusPreset = FocusPresetBox.Checked.ToString();
         }
 
+        private void EnableCLSBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            cfg.UseCLS = EnableCLSBox.Checked.ToString();
+        }
+
+
         private void SetCollectionButton_Click(object sender, EventArgs e)
         {
             //Sets the folder for the Collection
@@ -600,7 +632,6 @@ namespace VariScan
         #endregion
 
         private void CollectExtinctionFrames()
-
         {
             Configuration cfg = new Configuration();
             LogEventHandler("Gathering Extinction Frames");
@@ -672,7 +703,6 @@ namespace VariScan
             TargetXList.AddDifferentialToTargetXList(lTargetDef);
             return;
         }
-
 
     }
 }

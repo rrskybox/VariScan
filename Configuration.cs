@@ -81,6 +81,9 @@ namespace VariScan
         const string StepsPerDegreeX = "FocuserStepsPerDegree";
         const string PositionAtZeroX = "FocuserPositionAtZero";
 
+        const string UseCLSX = "UseCLS";
+        const string CLSReductionX = "CLSReduction";
+
         string ssdir;  //VariScan Root directory
         string cmdir;  //Current Collection directory
 
@@ -132,6 +135,8 @@ namespace VariScan
                     new XElement(ADUMaxX, "24000"),
                     new XElement(StepsPerDegreeX, "0"),
                     new XElement(PositionAtZeroX, "0"),
+                    new XElement(UseCLSX, "True"),
+                    new XElement(CLSReductionX, "None"),
                     new XElement(ScanUseGaiaX, "False"),
                     new XElement(ScanStepTransformsX, "False"));
 
@@ -403,6 +408,16 @@ namespace VariScan
         {
             get { return GetConfig(ScanRefreshTargetsX, "True"); }
             set { SetConfig(ScanRefreshTargetsX, value); }
+        }
+        public string UseCLS
+        {
+            get { return GetConfig(UseCLSX, "True"); }
+            set { SetConfig(UseCLSX, value); }
+        }
+        public string CLSReduction
+        {
+            get { return GetConfig(CLSReductionX, "None"); }
+            set { SetConfig(CLSReductionX, value); }
         }
     }
 }
