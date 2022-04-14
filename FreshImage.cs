@@ -36,17 +36,17 @@ namespace VariScan
         private double freshImageRA = 0;
         private double freshImageDec = 0;
         private double freshImageExposure = 0;
-        private int freshImageFilter = 0;
+        private int freshImageFilterNumber = 0;
         //private double freshImageScale = 0;
 
-        public FreshImage(TargetXList.TargetXDescriptor targetX, int filter)
+        public FreshImage(TargetXList.TargetXDescriptor targetX, int filterNumber)
         {
             //populate freshimage info
             Configuration agncf = new Configuration();
             freshImageName = targetX.Name;
             freshImageRA = targetX.RA;
             freshImageDec = targetX.Dec;
-            freshImageFilter = filter;
+            freshImageFilterNumber = filterNumber;
             freshImageExposure = targetX.Exposure;
             string imageDir = agncf.ImageBankFolder + "\\" + freshImageName;
             if (!Directory.Exists(imageDir)) Directory.CreateDirectory(imageDir);
@@ -60,7 +60,7 @@ namespace VariScan
             int fCount = 0;
             do
             {
-                freshImagePath = baseDir + "\\" + freshImageName + " " + DateTime.Now.ToString("dd-MMM-yyyy") + " F " + freshImageFilter + " " + " N" + fCount.ToString("0") + ".fit";
+                freshImagePath = baseDir + "\\" + freshImageName + " " + DateTime.Now.ToString("dd-MMM-yyyy") + " F " + freshImageFilterNumber + " " + " N" + fCount.ToString("0") + ".fit";
                 fCount++;
             }
             while (File.Exists(freshImagePath));
@@ -180,7 +180,7 @@ namespace VariScan
                     BinX = 1,
                     BinY = 1,
                     AutoSaveOn = 0,          //Autosave Off
-                    FilterIndexZeroBased = freshImageFilter,
+                    FilterIndexZeroBased = freshImageFilterNumber,
                     ExposureTime = testExposure,
                     Subframe = 0,
                     Frame = ccdsoftImageFrame.cdLight,
@@ -200,7 +200,7 @@ namespace VariScan
                 tsxc = new ccdsoftCamera
                 {
                     AutoSaveOn = 0,          //Autosave Off
-                    FilterIndexZeroBased = freshImageFilter,
+                    FilterIndexZeroBased = freshImageFilterNumber,
                     ExposureTime = testExposure,
                     Subframe = 1,
                     SubframeTop = subTop,
@@ -217,7 +217,7 @@ namespace VariScan
                 tsxc = new ccdsoftCamera
                 {
                     AutoSaveOn = 0,          //Autosave Off
-                    FilterIndexZeroBased = freshImageFilter,
+                    FilterIndexZeroBased = freshImageFilterNumber,
                     ExposureTime = testExposure,
                     Frame = ccdsoftImageFrame.cdLight,
                     ImageReduction = ccdsoftImageReduction.cdAutoDark,
@@ -244,7 +244,7 @@ namespace VariScan
             ccdsoftCamera tsx_cc = new ccdsoftCamera
             {
                 AutoSaveOn = 0,          //Autosave Off
-                FilterIndexZeroBased = freshImageFilter,
+                FilterIndexZeroBased = freshImageFilterNumber,
                 ExposureTime = freshImageExposure,
                 Subframe = 0,
                 Frame = ccdsoftImageFrame.cdLight,
@@ -271,9 +271,9 @@ namespace VariScan
                         Reduction calLib = new Reduction();
                         string binning = "1X1";
                         int camTemp = (int)tsx_cc.TemperatureSetPoint;
-                        if (!calLib.SetReductionGroup(freshImageFilter, freshImageExposure, camTemp, binning))
+                        if (!calLib.SetReductionGroup(freshImageFilterNumber, freshImageExposure, camTemp, binning))
                         {
-                            LogEntry("No calibration library found: " + "B_" + binning + "T_" + camTemp + "E_" + freshImageFilter.ToString("0") + "F_" + freshImageFilter.ToString("0"));
+                            LogEntry("No calibration library found: " + "B_" + binning + "T_" + camTemp + "E_" + freshImageFilterNumber.ToString("0") + "F_" + freshImageFilterNumber.ToString("0"));
                             return false;
                         }
                         LogEntry("Full image calibration set: " + calLib.ReductionGroupName);
@@ -291,7 +291,7 @@ namespace VariScan
 
                 LogEntry("Imaging " + currentTarget.Name + " at RA: " + Utility.SexidecimalRADec(freshImageRA, true) +
                          " / Dec: " + Utility.SexidecimalRADec(freshImageDec, false));
-                LogEntry("Filter set to " + freshImageFilter.ToString("0"));
+                LogEntry("Filter set to " + freshImageFilterNumber.ToString("0"));
                 LogEntry("Imaging target for " + freshImageExposure.ToString("0.0") + " secs");
                 tsx_cc.TakeImage();
                 //Wait for completion

@@ -51,27 +51,26 @@ namespace VariScan
                 foreach (string cType in codeList)
                 {
                     char c = cType[0];
-                    string n = cType.Remove(0, 1);
                     switch (c)
                     {
                         case 'T':
                             {
-                                Temperature = Convert.ToInt32(n);
+                                Temperature = Convert.ToInt32(cType.Remove(0, 1));
                                 break;
                             }
                         case 'B':
                             {
-                                Binning = n;
+                                Binning = cType.Remove(0, 1);
                                 break;
                             }
                         case 'E':
                             {
-                                Exposure = Convert.ToDouble(n);
+                                Exposure = Convert.ToDouble(cType.Remove(0, 1));
                                 break;
                             };
                         case 'F':
                             {
-                                Filter = n;
+                                Filter = cType.Remove(0, 1);
                                 break;
                             }
                         default:
