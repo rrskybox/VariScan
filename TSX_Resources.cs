@@ -3,7 +3,7 @@
 //
 // Description:	
 //
-// Environment:  Windows 10 executable, 32 and 64 bit
+// Environment:  Windows 10 executable, 64 bit
 //
 // Usage:        TBD
 //

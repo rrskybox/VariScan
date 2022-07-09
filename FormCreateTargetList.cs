@@ -70,6 +70,16 @@ namespace VariScan
             this.Close();
         }
 
+        private void FormCreateTargetList_Load(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://filtergraph.com/aavso/default/index");
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
         //private void PrimaryFilterBox_SelectedIndexChanged(object sender, EventArgs e)
         //{
         //    PrimaryFilterZBBox.Text = Filters.LookUpFilterIndex(PrimaryFilterBox.Text).ToString() ?? "N/A";

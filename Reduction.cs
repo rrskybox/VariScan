@@ -128,6 +128,8 @@ namespace VariScan
                 string filterName = FilterList[filterNumber];
                 //Build sublist for filterNumber, temperature and binning
                 List<ReductionLibrary> rsubList = LibraryList.Where(x => (x.Filter == filterName) && (x.Temperature == temperature) && (x.Binning == binning)).ToList();
+                if (rsubList.Count == 0)
+                    return false;
                 ReductionGroupName = ClosestExposure(rsubList, exposure);
                 if (ReductionGroupName != "")
                 {

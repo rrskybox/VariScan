@@ -44,6 +44,9 @@ namespace VariScan
             this.CollectionGroupBox = new System.Windows.Forms.GroupBox();
             this.SetCollectionButton = new System.Windows.Forms.Button();
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
+            this.EnableCLSBox = new System.Windows.Forms.CheckBox();
+            this.CLSReductionBox = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.ImagesPerSampleBox = new System.Windows.Forms.NumericUpDown();
             this.ExposureGroupBox = new System.Windows.Forms.GroupBox();
@@ -69,9 +72,6 @@ namespace VariScan
             this.LogBox = new System.Windows.Forms.TextBox();
             this.AbortButton = new System.Windows.Forms.Button();
             this.AnalyzeButton = new System.Windows.Forms.Button();
-            this.label9 = new System.Windows.Forms.Label();
-            this.CLSReductionBox = new System.Windows.Forms.ComboBox();
-            this.EnableCLSBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.ExposureTimeSetting)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MinAltitudeSetting)).BeginInit();
             this.CollectionGroupBox.SuspendLayout();
@@ -280,6 +280,42 @@ namespace VariScan
             this.ConfigurationGroupBox.TabIndex = 16;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
+            // 
+            // EnableCLSBox
+            // 
+            this.EnableCLSBox.AutoSize = true;
+            this.EnableCLSBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.EnableCLSBox.Location = new System.Drawing.Point(7, 165);
+            this.EnableCLSBox.Name = "EnableCLSBox";
+            this.EnableCLSBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.EnableCLSBox.Size = new System.Drawing.Size(82, 17);
+            this.EnableCLSBox.TabIndex = 38;
+            this.EnableCLSBox.Text = "Enable CLS";
+            this.EnableCLSBox.UseVisualStyleBackColor = true;
+            this.EnableCLSBox.CheckedChanged += new System.EventHandler(this.EnableCLSBox_CheckedChanged);
+            // 
+            // CLSReductionBox
+            // 
+            this.CLSReductionBox.FormattingEnabled = true;
+            this.CLSReductionBox.Items.AddRange(new object[] {
+            "None",
+            "Auto Dark",
+            "Full"});
+            this.CLSReductionBox.Location = new System.Drawing.Point(188, 163);
+            this.CLSReductionBox.Name = "CLSReductionBox";
+            this.CLSReductionBox.Size = new System.Drawing.Size(70, 21);
+            this.CLSReductionBox.TabIndex = 37;
+            this.CLSReductionBox.Text = "None";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(104, 166);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(79, 13);
+            this.label9.TabIndex = 36;
+            this.label9.Text = "CLS Reduction";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // label6
             // 
@@ -614,42 +650,6 @@ namespace VariScan
             this.AnalyzeButton.UseVisualStyleBackColor = false;
             this.AnalyzeButton.Click += new System.EventHandler(this.AnalyzeButton_Click);
             // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(104, 166);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(79, 13);
-            this.label9.TabIndex = 36;
-            this.label9.Text = "CLS Reduction";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // CLSReductionBox
-            // 
-            this.CLSReductionBox.FormattingEnabled = true;
-            this.CLSReductionBox.Items.AddRange(new object[] {
-            "None",
-            "Auto Dark",
-            "Full"});
-            this.CLSReductionBox.Location = new System.Drawing.Point(188, 163);
-            this.CLSReductionBox.Name = "CLSReductionBox";
-            this.CLSReductionBox.Size = new System.Drawing.Size(70, 21);
-            this.CLSReductionBox.TabIndex = 37;
-            this.CLSReductionBox.Text = "None";
-            // 
-            // EnableCLSBox
-            // 
-            this.EnableCLSBox.AutoSize = true;
-            this.EnableCLSBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.EnableCLSBox.Location = new System.Drawing.Point(7, 165);
-            this.EnableCLSBox.Name = "EnableCLSBox";
-            this.EnableCLSBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.EnableCLSBox.Size = new System.Drawing.Size(82, 17);
-            this.EnableCLSBox.TabIndex = 38;
-            this.EnableCLSBox.Text = "Enable CLS";
-            this.EnableCLSBox.UseVisualStyleBackColor = true;
-            this.EnableCLSBox.CheckedChanged += new System.EventHandler(this.EnableCLSBox_CheckedChanged);
-            // 
             // FormSessionManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -665,7 +665,6 @@ namespace VariScan
             this.Controls.Add(this.ConfigurationGroupBox);
             this.Controls.Add(this.OnTopCheckBox);
             this.ForeColor = System.Drawing.Color.Black;
-            this.Location = new System.Drawing.Point(1200, 120);
             this.Name = "FormSessionManager";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "  ";

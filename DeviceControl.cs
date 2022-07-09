@@ -125,7 +125,7 @@ namespace VariScan
         {
             //Tries to perform CLS without running into dome tracking race condition
             //
-            //First set camera to AutoDark
+            //First set camera for image reduction
             ccdsoftCamera tsxc = new ccdsoftCamera();
             switch (reductionType)
             {

@@ -46,7 +46,11 @@ namespace VariScan
                 return;
             string logfilename = DateTime.Now.ToString("dd_MMM_yyyy") + ".txt";
             string logfilepath = cfg.LogFolder + "\\" + logfilename;
-            System.IO.StreamWriter sys_sw = new System.IO.StreamWriter(logfilepath, true);
+            System.IO.StreamWriter sys_sw;
+            if (!File.Exists(logfilepath))
+                sys_sw = File.CreateText(logfilepath);
+            else 
+                sys_sw = new System.IO.StreamWriter(logfilepath, true);
             sys_sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " :: " + upd);
             sys_sw.Close();
             return;

@@ -28,7 +28,7 @@
     <ProductName>VariScan</ProductName>
     <PublisherName>TSXToolKit</PublisherName>
     <SuiteName>TSXToolKit</SuiteName>
-    <ApplicationRevision>13</ApplicationRevision>
+    <ApplicationRevision>14</ApplicationRevision>
     <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -46,7 +46,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
-    <IntermediateOutputPath>C:\Users\rick-\AppData\Local\Temp\vs224A.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\rick-\AppData\Local\Temp\vsA5DE.tmp\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -57,7 +57,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <IntermediateOutputPath>C:\Users\rick-\AppData\Local\Temp\vs224A.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\rick-\AppData\Local\Temp\vsA5DE.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>FC2EA5CE6CE68670847B8D83FD551D14C24CE51B</ManifestCertificateThumbprint>
@@ -82,7 +82,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <IntermediateOutputPath>C:\Users\rick-\AppData\Local\Temp\vs224A.tmp\x64\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\rick-\AppData\Local\Temp\vsA5DE.tmp\x64\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -92,7 +92,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <IntermediateOutputPath>C:\Users\rick-\AppData\Local\Temp\vs224A.tmp\x64\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\rick-\AppData\Local\Temp\vsA5DE.tmp\x64\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>VariScan.Program</StartupObject>
