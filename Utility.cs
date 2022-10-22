@@ -32,6 +32,15 @@ namespace VariScan
         }
     }
 
+    public class SpecialDateComparer : IComparer<string>
+    {
+        public int Compare(string d1, string d2)
+        {
+            return Convert.ToDateTime(d2).CompareTo(Convert.ToDateTime(d1));
+        }
+
+    }
+
 
     public static class Utility
     {
@@ -209,13 +218,15 @@ namespace VariScan
             return b;
         }
 
-        public static bool NightTest(DateTime sampleDT, DateTime sessionDT)
+        public static bool NightTest(DateTime sampleDT, DateTime sessionNight)
         {
-            //Determine it sampleDT is within 12 hours, plus or minus of the sessionDT
+            //Determine it sampleDT is within 12 hours, plus or minus of the sessionNight
+            //  ssessionNight is defined as the local day after or on the time of the image
             //  which will be a datetime of date at 0000 hours that is midnight of the
             //  session
-            TimeSpan dif = sampleDT - sessionDT;
-            if (dif > TimeSpan.FromHours(12) || dif < TimeSpan.FromHours(-12))
+            DateTime sessionZero = sessionNight -= sessionNight.TimeOfDay;
+            DateTime sampleZero = (sampleDT + TimeSpan.FromHours(6)) - (sampleDT + TimeSpan.FromHours(6)).TimeOfDay;
+            if (sessionZero != sampleZero)
                 return false;
             else
                 return true;

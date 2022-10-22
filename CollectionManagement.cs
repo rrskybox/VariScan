@@ -29,7 +29,7 @@ namespace VariScan
         {
             //If the collection isn't already initialized, create a new collection file structure
             Configuration cfg = new Configuration();
-            cfg.CollectionFolderPath = cfg.VariScanFolderPath+"\\"+collectionPath;
+            cfg.CollectionFolderPath = cfg.VariScanFolderPath + "\\" + collectionPath;
             if (!Directory.Exists(cfg.CollectionFolderPath))
             {
                 Directory.CreateDirectory(cfg.CollectionFolderPath);
@@ -58,7 +58,7 @@ namespace VariScan
             //  Return the path to the collection's target list)
             Configuration cfg = new Configuration();
             cfg.CollectionFolderPath = cfg.VariScanFolderPath + "\\" + collectionName;
-            cfg.TargetListPath = cfg.CollectionFolderPath + "\\"+"VariScanList.xml";
+            cfg.TargetListPath = cfg.CollectionFolderPath + "\\" + "VariScanList.xml";
             cfg.ColorListPath = cfg.CollectionFolderPath + "\\" + "ColorList.xml";
             cfg.ImageBankFolder = cfg.CollectionFolderPath + "\\" + "Image Bank";
             cfg.StarchiveFilePath = cfg.CollectionFolderPath + "\\" + "Starchive.xml";

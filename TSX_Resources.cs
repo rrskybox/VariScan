@@ -103,5 +103,29 @@ namespace VariScan
             return 0;
         }
 
+        public static string GetTSXDirectoryPath()
+        {
+            //Returns the path to the current TSX base directory (independent of 32 or 64 bit versions)
+            string tsxDir = "Software Bisque";
+            sky6StarChart tsxs = new sky6StarChart();
+            string tsxChartSettingsDir = tsxs.Path;
+            int tsxDirIndex = tsxChartSettingsDir.IndexOf(tsxDir);
+            if (tsxDirIndex != -1)
+                return tsxChartSettingsDir.Substring(0, tsxDirIndex + 1 + tsxDir.Length);
+            else
+                return null;
+        }
+
+        public static (double RA, double Dec) FindTarget(string targetName)
+        {
+            sky6StarChart tsx_sc = new sky6StarChart();
+            sky6ObjectInformation tsxoi = new sky6ObjectInformation();
+            tsx_sc.Find(targetName);
+            tsxoi.Property(Sk6ObjectInformationProperty.sk6ObjInfoProp_RA_2000);
+            double RA = tsxoi.ObjInfoPropOut;
+            tsxoi.Property(Sk6ObjectInformationProperty.sk6ObjInfoProp_DEC_2000);
+            double Dec = tsxoi.ObjInfoPropOut;
+            return (RA, Dec);
+        }
     }
 }

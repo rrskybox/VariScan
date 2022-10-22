@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using TheSky64Lib;
 
 namespace VariScan
@@ -121,6 +122,32 @@ namespace VariScan
         }
 
         private static List<Tuple<double, double>> PositionAndTemp = new List<Tuple<double, double>>();
+
+        public static bool InitializeFocuser()
+        {
+            //Uses TSX Focuser Training to load previously acquired focuser position data, if available
+            //Do not call until camera, focuser, etc are initialized
+            const string fcPath = @"\Focuser Data\AutomatedFocuserTraining.foc";
+            FocuserTraining ft = new FocuserTraining();
+            ccdsoftCamera tsxc = new ccdsoftCamera();
+            sky6StarChart tsxs = new sky6StarChart();
+            string focDataFilePath = TSX_Resources.GetTSXDirectoryPath() + fcPath;
+
+            if (File.Exists(focDataFilePath))
+            {
+                try
+                {
+                    ft.initialize();
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+                tsxc.focTemperatureCompensationMode = ccdsoftfocTempCompMode.cdfocTempCompMode_A;
+                return true;
+            }
+            else return false;
+        }
 
         public static string PresetFocus()
         {

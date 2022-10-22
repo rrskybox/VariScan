@@ -28,6 +28,7 @@ namespace VariScan
         public bool IsImageLinked { get; set; }
         public bool IsTransformed { get; set; }
         public string CatalogName { get; set; }
+        public int Registration { get; set; }
         public int InventoryArrayIndex { get; set; }
         public double TargetRA { get; set; }
         public double TargetDec { get; set; }

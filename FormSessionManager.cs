@@ -30,6 +30,8 @@ namespace VariScan
 {
     public partial class FormSessionManager : Form
     {
+        public const int HomeAZ = 220;
+
         private TargetXList varList;
         private Logger ss_log = new Logger();
 
@@ -367,7 +369,7 @@ namespace VariScan
                         else LogEventHandler("Mount park failed");
 
                         LogEventHandler("Closing Dome");
-                        if (Convert.ToBoolean(cfg.UsesDome)) DomeControl.CloseDome();
+                        if (Convert.ToBoolean(cfg.UsesDome)) DomeControl.CloseDome(HomeAZ);
                     }
                     else LogEventHandler("Waiting on unsafe weather conditions...");
                     do
@@ -384,7 +386,7 @@ namespace VariScan
                         {
                             LogEventHandler("Weather conditions safe");
                             LogEventHandler("Opening Dome");
-                            if (Convert.ToBoolean(cfg.UsesDome)) DomeControl.OpenDome();
+                            if (Convert.ToBoolean(cfg.UsesDome)) DomeControl.OpenDome(HomeAZ);
                             LogEventHandler("Unparking telescope");
                             if (ss_hwp.TelescopeStartUp()) LogEventHandler("Mount unparked");
 
@@ -544,7 +546,7 @@ namespace VariScan
             return;
         }
 
-         private void AtFocusBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void AtFocusBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             Configuration cfg = new Configuration();
             switch (AtFocusTypeBox.SelectedIndex)

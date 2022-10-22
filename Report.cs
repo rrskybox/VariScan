@@ -26,10 +26,6 @@ namespace VariScan
 
         public static void CreateSummaryReport(string textFilePath)
         {
-            // Ken's format
-            //RA(j2k) Dec(j2k)    UTC Gaia    APASS Cal. SE
-            //
-            // Proposed format
             // Target Name, Target RA(j2K), Target Dec(j2K), Image UTC, Image Filter, Differential Catalog Mag, APASS Catalog Mag, Standard Catalog Variance, APASS Catalog Variance, 
             //
             // Description:
@@ -83,7 +79,7 @@ namespace VariScan
             return;
         }
 
-         public static void CreateAAVSOReport(string textFilePath, string AAVSO_Observers_Code)
+        public static void CreateAAVSOReport(string textFilePath, string AAVSO_Observers_Code)
         {
             //https://www.aavso.org/aavso-extended-file-format
 
@@ -121,7 +117,7 @@ namespace VariScan
                     bline += tData.ImageDate.ToString() + DELIMITER; //DATE
                     bline += tData.StandardColorMagnitude + DELIMITER; //MAGNITUDE
                     bline += tData.StandardMagnitudeError + DELIMITER;//MAGERR
-                    bline += tData.PrimaryImageFilter + DELIMITER;
+                    bline += tData.PrimaryStandardColor + DELIMITER;
                     bline += "NO" + DELIMITER;  //TRANS NOT LANDOLT STANDARDS
                     bline += "STD" + DELIMITER; //MTYPE 
                     bline += "na" + DELIMITER; //CNAME
@@ -130,8 +126,13 @@ namespace VariScan
                     bline += "ensemble" + DELIMITER; //KMAG
                     bline += tData.AirMass.ToString("0.000") + DELIMITER; //AIRMASS
                     bline += "na" + DELIMITER; //GROUP
-                    bline += "APASS Full Frame" + DELIMITER; //CHART
-                    bline += "Full frame light source calibration to " + tData.ApassStarCount.ToString("0") + " APASS cataloged stars."; //NOTES
+                    bline += tData.CatalogName + " Full Frame" + DELIMITER; //CHART
+                    bline += "Full frame light source calibration using " + tData.ApassStarCount.ToString("0") + " " +
+                             tData.CatalogName + " cataloged stars to transform " +
+                             "Primary " + tData.PrimaryImageFilter + "/" +
+                             "Differential " + tData.DifferentialImageFilter +
+                             " filter data to " +
+                             tData.PrimaryStandardColor + " standard color."; //NOTES
 
                     csvFile.WriteLine(bline);
                 }

@@ -31,6 +31,7 @@ namespace VariScan
 {
     public static class VariScanFileManager
     {
+
         public static bool DirectOpenFitsFilePath(ccdsoftImage tsximg, string filePath)
         {
             tsximg.Path = filePath;
@@ -164,14 +165,14 @@ namespace VariScan
             Configuration cfg = new Configuration();
             List<string> imageFiles = null;
             string imageDir = cfg.ImageBankFolder + "\\" + targetName;
-            //IEnumerable<string> imageDirs = Directory.EnumerateDirectories(cfg.ImageBankFolder);
             if (Directory.Exists(imageDir))
                 imageFiles = Directory.EnumerateFiles(imageDir, "*.fit").ToList();
             return imageFiles;
         }
 
-        public static List<string> GetVaultList()
+        public static List<string> GetTargetPathList()
         {
+            //Make a list of paths for all target folders with images
             Configuration cfg = new Configuration();
             //get the image bank folder name from configuration file
             //make a new one if it didn't exist
@@ -181,41 +182,146 @@ namespace VariScan
             //get the list of target directories in the bank and cull it for empty target directories
             List<string> imageBankDirs = Directory.GetDirectories(iBank).ToList();
             List<string> targetDirs = new List<string>();
-            foreach (string f in imageBankDirs)
-                if (Directory.GetFiles(f).Length > 0) targetDirs.Add(f);
+            foreach (string iDir in imageBankDirs)
+                if (Directory.GetFiles(iDir).Length > 0)
+                    targetDirs.Add(iDir);
             //sort alphabetically
             targetDirs.Sort();
             return targetDirs;
         }
 
+        public static List<string> GetTargetNameList()
+        {
+            //Make a list of target names for all target folders with images
+            Configuration cfg = new Configuration();
+            //get the image bank folder name from configuration file
+            //make a new one if it didn't exist
+            string iBank = cfg.ImageBankFolder;
+            if (!Directory.Exists(iBank))
+                Directory.CreateDirectory(iBank);
+            //get the list of target directories in the bank and cull it for empty target directories
+            List<string> imageBankDirs = Directory.GetDirectories(iBank).ToList();
+            List<string> targetDirNames = new List<string>();
+            foreach (string iDir in imageBankDirs)
+                if (Directory.GetFiles(iDir,"*.fit").Length > 0)
+                    targetDirNames.Add(Path.GetFileNameWithoutExtension(iDir));
+            //cull duplicates and sort alphabetically
+            targetDirNames.Distinct().ToList().Sort();
+            return targetDirNames;
+        }
+
+        public static List<string> GetCollectionFilenameList()
+        {
+            //Make a list of all image filenames in image bank
+            Configuration cfg = new Configuration();
+            //get the image bank folder name from configuration file
+            //make a new one if it didn't exist
+            string iBank = cfg.ImageBankFolder;
+            if (!Directory.Exists(iBank))
+                Directory.CreateDirectory(iBank);
+            //get the list of target directories in the bank and cull it for empty target directories
+            List<string> targetDirNames = new List<string>();
+            foreach (string iDir in Directory.GetDirectories(iBank).ToList())
+                foreach (string iFile in Directory.GetFiles(iDir, "*.fit").ToList())
+                    targetDirNames.Add(Path.GetFileNameWithoutExtension(iFile));
+            //cull duplicates and sort alphabetically
+            targetDirNames.Distinct().ToList().Sort();
+            return targetDirNames;
+        }
+
+        public static List<string> GetTargetPathList(DateTime imageDate)
+        {
+            //Return list of image directories that contain images on the imageDate (full path)
+            List<string> nonEmptyTargetDirectories = new List<string>();
+            //Get list of imagefile out of each target directory
+            foreach (string nonEmptyDirectory in GetTargetPathList())
+            {
+                foreach (string path in Directory.GetFiles(nonEmptyDirectory,"*.fit").ToList())
+                {
+                    (string tName, string iD, string iF, string iC) =
+                            ParseImageFileName(Path.GetFileNameWithoutExtension(path));
+                    if (Convert.ToDateTime(iD) == imageDate)
+                    {
+                        nonEmptyTargetDirectories.Add(nonEmptyDirectory);
+                        break;
+                    }
+                }
+            }
+            nonEmptyTargetDirectories.Distinct().ToList().Sort();
+            return nonEmptyTargetDirectories;
+        }
+
+        public static List<string> GetAllImageDates()
+        {
+            //Returns sorted list of all dates that have images in image bank
+            List<string> imageDateList = new List<string>();
+            //Get list of imagefile out of each target directory
+            foreach (string nonEmptyDirectory in GetTargetPathList())
+            {
+                foreach (string path in Directory.GetFiles(nonEmptyDirectory,"*.fit").ToList())
+                {
+                    (string n, string iD, string iF, string iC) =
+                            ParseImageFileName(Path.GetFileNameWithoutExtension(path));
+                    imageDateList.Add(iD);
+                }
+            }
+            imageDateList = imageDateList.Distinct().ToList();
+            imageDateList.Sort(new SpecialDateComparer());
+            return imageDateList;
+        }
+
         public static List<string> GetTargetSessionPaths(string targetName, DateTime sessionDate)
         {
             //REturn list of files for a session date for a target
+            //A Session Date is a window from +/- 6 hours of 0:00 AM of file creation time
+
             Configuration cfg = new Configuration();
-            List<string> targetPaths = new List<string>();
+            List<string> datedFiles = new List<string>();
             //Look for image bank folder, create it if missing then return empty handed
             string iBank = cfg.ImageBankFolder;
             if (!Directory.Exists(iBank))
             {
                 Directory.CreateDirectory(iBank);
-                return (targetPaths);
+                return (datedFiles);
             }
             //take a look in the iBankName target directory
             string iBankDir = iBank + "\\" + targetName;
-            List<string> datedFiles = Directory.GetFiles(iBankDir).ToList();
             //parse and convert each dir name to a date, then add to list
-            foreach (string f in datedFiles)
+            foreach (string f in Directory.GetFiles(iBankDir,"*.fit").ToList())
             {
-                string[] splitName = Path.GetFileName(f).Split(' ');
-                foreach (string s in splitName)
-                    if (s.Contains('-'))
-                    {
-                        DateTime fileSession = Convert.ToDateTime(s);
-                        if (fileSession == sessionDate)
-                            datedFiles.Add(f);
-                    }
+                (string tName, string iDate, string iFilter, string iSeq) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
+                DateTime fileDate = Convert.ToDateTime(iDate);
+                //DateTime fileDate = File.GetCreationTime(f);
+                if (Utility.NightTest(fileDate, sessionDate))
+                    datedFiles.Add(f);
             }
             return datedFiles.ToList();
+        }
+
+        public static List<string> GetTargetSessionPaths(string targetName, DateTime sessionDate, string filter)
+        {
+            //REturn list of files for a session date for a target and filter
+            Configuration cfg = new Configuration();
+            List<string> datedFilterFiles = new List<string>();
+            //Look for image bank folder, create it if missing then return empty handed
+            string iBank = cfg.ImageBankFolder;
+            if (!Directory.Exists(iBank))
+            {
+                Directory.CreateDirectory(iBank);
+                return (datedFilterFiles);
+            }
+            //take a look in the iBankName target directory
+            string iBankDir = iBank + "\\" + targetName;
+            //parse and convert each dir name to a date, then add to list
+            foreach (string f in Directory.GetFiles(iBankDir,"*.fit").ToList())
+            {
+                (string tName, string iDate, string iFilter, string iSeq) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
+                //if (Utility.NightTest(Convert.ToDateTime(iDate), sessionDate) && iFilter == filter)
+                if (Convert.ToDateTime(iDate) == sessionDate && iFilter == filter)
+
+                    datedFilterFiles.Add(f);
+            }
+            return datedFilterFiles.ToList();
         }
 
         public static List<DateTime> SessionDates(string targetName)
@@ -232,23 +338,12 @@ namespace VariScan
             }
             //take a look in the iBankName target directory
             string iBankDir = iBank + "\\" + targetName;
-            List<string> datedFiles = Directory.GetFiles(iBankDir).ToList();
+            List<string> datedFiles = Directory.GetFiles(iBankDir,"*.fit").ToList();
             //parse and convert each dir name to a date, then add to list
             foreach (string f in datedFiles)
             {
                 FitsFileStandAlone ffso = new FitsFileStandAlone(f);
                 dateList.Add(Utility.GetImageSession(ffso.FitsLocalDateTime));
-                //string[] splitName = Path.GetFileName(f).Split(' ');
-                //foreach (string s in splitName)
-                //    if (s.Contains('-'))
-                //    {
-                //        try
-                //        {
-                //            DateTime fileSession = Convert.ToDateTime(s);
-                //            dateList.Add(fileSession);
-                //        }
-                //        catch { }
-                //    }
             }
             dateList.Sort();
             return dateList.Distinct().ToList();
@@ -267,7 +362,7 @@ namespace VariScan
             }
             //take a look in the iBankName target directory
             string iBankDir = iBank + "\\" + iBankName;
-            List<string> filterFiles = Directory.GetFiles(iBankDir).ToList();
+            List<string> filterFiles = Directory.GetFiles(iBankDir, "*.fit").ToList();
             //parse and convert each dir name to a date, then add to list
             if (filterFiles.Count > 0)
             {
@@ -340,6 +435,23 @@ namespace VariScan
             return map[map.Length - 1];
         }
 
+        public static (string, string, string, string) ParseImageFileName(string imageFilenameWithoutExtension)
+        {
+            //returns separated strings for date, filter and sequence number and time of creation
+            //  from variscan image filenaming conventions
+            // 
+            char[] sp = { ' ' };
+
+            string[] p = imageFilenameWithoutExtension.Split(sp, StringSplitOptions.RemoveEmptyEntries);
+            string seqStr = p[p.Length - 1].Substring(1);
+            char[] fHdr = new char[] { 'F', '_' };
+            string filterStr = p[p.Length - 2].TrimStart(fHdr);
+            string dateStr = p[p.Length - 3];
+            string name = null;
+            for (int i = 0; i <= p.Length - 3; i++)
+                name += p[i] + " ";
+            return (name.TrimEnd(' '), dateStr, filterStr, seqStr);
+        }
 
     }
 }

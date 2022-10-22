@@ -31,16 +31,17 @@ namespace VariScan
 {
     public partial class FormTargetImageAnalysis : Form
     {
+        public const double MinSeparationArcSec = 5;
         public const double NyquistMinimumSamples = 2;
         public bool isInitializing;
         public bool isAnalyzing;
-        private int currentPickIndex = 0;
+
         public SampleManager SampleSet;
 
         public const double maxMagVal = 21;
         public const double minMagVal = 4;
 
-        public int currentTargetRegistration;
+        public int? currentTargetRegistration;
 
         public double Xcen;
         public double Ycen;
@@ -59,18 +60,18 @@ namespace VariScan
         public double PixelScale_arcsec { get; set; }
         public bool FitsIsOpen { get; set; }
         public double FWHMSeeing_arcsec { get; set; }
-        public double MagnitudeTransform { get; set; }
-        public double ColorTransform { get; set; }
         public ColorIndexing TargetColorIndex { get; set; }
 
+        StarField.FieldLightSource[] masterLightSources;
         List<StarField.FieldLightSource[]> primaryLightSources = new List<StarField.FieldLightSource[]>();
         List<StarField.FieldLightSource[]> differentialLightSources = new List<StarField.FieldLightSource[]>();
-        List<StarField.FieldLightSource> masterRegisteredList = new List<StarField.FieldLightSource>();
 
         List<double> colorTransformList = new List<double>();
         List<double> magnitudeTransformList = new List<double>();
 
         List<double> targetStandardizedMag = new List<double>();
+        List<FormSampleCatalog.TargetShoot> SessionList = new List<FormSampleCatalog.TargetShoot>();
+
 
         public FormTargetImageAnalysis()
         {
@@ -86,11 +87,13 @@ namespace VariScan
             TargetedVariableGroupBox.ForeColor = Color.White;
             SessionGroupBox.ForeColor = Color.White;
             SourceGroupBox.ForeColor = Color.White;
-            CatalogGroupBox.ForeColor = Color.White;
+            //CatalogGroupBox.ForeColor = Color.White;
             TransformResultsBox.ForeColor = Color.White;
             ReportGroupBox.ForeColor = Color.White;
 
             Utility.ButtonGreen(DoneButton);
+            Utility.ButtonGreen(DisplayGridButton);
+
             // Acquire the version information and put it in the form header
             try { this.Text = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString(); }
             catch { this.Text = " in Debug"; } //probably in debug, no version info available
@@ -119,7 +122,6 @@ namespace VariScan
                 Path.GetFileName(fd);
                 CollectionSelectionBox.Items.Add(Path.GetFileName(fd));
             }
-            CollectionSessionDateBox.Value = DateTime.Now.Date;
             CollectionSelectionBox.SelectedItem = Path.GetFileName(cfg.CollectionFolderPath);
             CollectionManagement.OpenCollection(Path.GetFileName(cfg.CollectionFolderPath));
 
@@ -133,19 +135,6 @@ namespace VariScan
             string[] filters = colorIndex.GetSessionFilters().ToArray();
             PrimaryFilterBox.Items.AddRange(filters);
             DifferentialFilterBox.Items.AddRange(filters);
-            //Populate variable list box in the form
-            List<string> tdirs = VariScanFileManager.GetVaultList();
-            TargetPickListBox.Items.Clear();
-            foreach (string t in tdirs)
-                TargetPickListBox.Items.Add(VariScanFileManager.StripPath(t));
-            if (TargetPickListBox.Items.Count > 0) TargetPickListBox.SelectedIndex = 0;
-            CurrentTargetData.TargetName = TargetPickListBox.Text;
-
-            SampleManager SampleSet = new SampleManager(TargetPickListBox.Text);
-            TargetDateSelectBox.Items.Clear();
-            foreach (DateTime dt in SampleSet.GetTargetSessions())
-                TargetDateSelectBox.Items.Add(dt.ToShortDateString());
-            if (TargetDateSelectBox.Items.Count > 0) TargetDateSelectBox.SelectedIndex = 0;
 
             PrimaryColorBox.SelectedIndex = 1;  //Vj
             DifferentialColorBox.SelectedIndex = 0;  //Bj
@@ -170,21 +159,34 @@ namespace VariScan
             ManualMagTransformValueBox.Value = (decimal)trans.Item2;
 
             CurrentTargetData.CatalogName = TargetCatalogBox.Text;
+            //Populate Fits Name list
+            FitsNameBox.Items.Clear();
+            foreach (string f in VariScanFileManager.GetCollectionFilenameList())
+                FitsNameBox.Items.Add(f);
+            if (FitsNameBox.Items.Count > 0)
+                FitsNameBox.SelectedIndex = 0;
+            //Initialize plot target fields
+            TargetPlotBox.Items.Clear();
+            foreach (string f in VariScanFileManager.GetTargetNameList())
+                TargetPlotBox.Items.Add(f);
+            if (TargetPlotBox.Items.Count > 0)
+                TargetPlotBox.SelectedIndex = 0;
             return;
         }
 
 
         #region analysis
-        public void RegisterLightSources()
+        public void RegisterLightSources(FormSampleCatalog.TargetShoot tgtShot)
         {
-            LogIt("Registering " + CurrentTargetData.TargetName);
+            LogIt("Registering " + tgtShot.Target + " on " + tgtShot.Date);
             List<StarField.FieldLightSource[]> unregisteredPLS = new List<StarField.FieldLightSource[]>();
             List<StarField.FieldLightSource[]> unregisteredDLS = new List<StarField.FieldLightSource[]>();
             List<SampleManager.SessionSample> priFiles = new List<SampleManager.SessionSample>();
             List<SampleManager.SessionSample> difFiles = new List<SampleManager.SessionSample>();
+
             primaryLightSources.Clear();
             differentialLightSources.Clear();
-            masterRegisteredList.Clear();
+            //masterRegisteredList.Clear();
 
             //Housekeeping
             //Clear any existing SRC files, as they might be locked and TSX will quietly crash
@@ -192,16 +194,12 @@ namespace VariScan
             TSX_Process.DeleteSRC(cfg.ImageBankFolder);
 
             //Open a sample manager for the selected target
-            SampleManager sMgr = new SampleManager(CurrentTargetData.TargetName);
+            SampleManager sMgr = new SampleManager(tgtShot.Target, Convert.ToDateTime(tgtShot.Date));
             //Acquire primary and differential lists of fits files for this target and this session
             //  based on session date box and filter designations from calling parameters
-            DateTime targetSession = Convert.ToDateTime(TargetDateSelectBox.SelectedItem.ToString());
             //Image Link each fits file and collect the light source inventory into arrays for each image
-            priFiles = sMgr.GetSessionSamples(CurrentTargetData.SessionDate, CurrentTargetData.PrimaryImageFilter);
-            difFiles = sMgr.GetSessionSamples(CurrentTargetData.SessionDate, CurrentTargetData.DifferentialImageFilter);
-            //Center the skychart on the ra/dec coordinates
-            //Set the star chart size to 1.5 times the image width (fits the whole thing on, persumably
-            TSX_Resources.CenterStarChart(TSX_Image, CurrentTargetData);
+            priFiles = sMgr.SelectSessionSamples(CurrentTargetData.SessionDate, CurrentTargetData.PrimaryImageFilter);
+            difFiles = sMgr.SelectSessionSamples(CurrentTargetData.SessionDate, CurrentTargetData.DifferentialImageFilter);
             //check for images for this target, date, filter
             // exit if none
             if (priFiles.Count == 0 || difFiles.Count == 0)
@@ -209,6 +207,11 @@ namespace VariScan
                 LogIt("No primary and/or differential images for this date/filter in image bank");
                 return;
             }
+
+            #region acquireImageLightSources
+            //Center the skychart on the ra/dec coordinates
+            //Set the star chart size to 1.5 times the image width (fits the whole thing on, persumably
+            TSX_Resources.CenterStarChart(TSX_Image, CurrentTargetData);
             //Image link then list light source date for each primary image
             int ith = 0;  //counter
             foreach (SampleManager.SessionSample sample in priFiles)
@@ -230,6 +233,8 @@ namespace VariScan
                     unregisteredPLS.Add(unregList.ToArray());
                     ith++;
                 }
+                else
+                    LogIt("Primary image failed Image Link");
                 sf.Close();
             }
             //Check for results -- if no light sources then return
@@ -239,7 +244,7 @@ namespace VariScan
                 return;
             }
             //
-            //Image link then list light source date for each primary image
+            //Image link then list light source date for each differential image
             ith = 0; //counter
             foreach (SampleManager.SessionSample sample in difFiles)
             {
@@ -256,6 +261,8 @@ namespace VariScan
                     unregisteredDLS.Add(unregList.ToArray());
                     ith++;
                 }
+                else
+                    LogIt("Differential image failed Image Link");
                 sf.Close();
             }
             //Check for results -- if no light sources then return
@@ -264,8 +271,10 @@ namespace VariScan
                 LogIt("Insufficient primary light sources");
                 return;
             }
+            #endregion
+
             //Pick out a master list from the primary lightsources  -- first one for now, Pick just the top 40 stars by instrument magnitude
-            StarField.FieldLightSource[] masterLightSources = unregisteredPLS.First().ToArray();
+            masterLightSources = unregisteredPLS.First().ToArray();
             LogIt("Acquiring catalog data for light sources");
 
             //Populate the master sample image with APASS, GAIA and GCVS data, as available
@@ -275,34 +284,49 @@ namespace VariScan
                 SourceCountBox.Text = i.ToString() + " / " + masterLightSources.Length.ToString();
                 StarField.CatalogData catDat = StarField.GetCatalogData(masterLightSources[i].SourceRA, masterLightSources[i].SourceDec);
                 masterLightSources[i].StandardMagnitudes = catDat;
-                //Set registration index for each master light source
+                //Set registration index for each master light source -- but may not need this
                 masterLightSources[i].RegistrationIndex = i;
             }
+
             //Get target registration index
+            //  use Find function rather than believing the AAVSO fields
+            //  if a cataloged star is not located close to the location of a light source
+            //  then quit
+            LogIt("Finding coordinates for " + tgtShot.Target);
+            (double tRA, double tDec) = TSX_Resources.FindTarget(tgtShot.Target);
             LogIt("Assigning light source to cataloged star");
-            currentTargetRegistration = Registration.ClosestFieldLightSource(CurrentTargetData.TargetRA, CurrentTargetData.TargetDec, masterLightSources);
+            currentTargetRegistration = Registration.ClosestLightSource(masterLightSources, tRA, tDec, MinSeparationArcSec);
+            if (currentTargetRegistration == null)
+            {
+                LogIt("Cannot register light source to cataloged target star");
+                return;
+            }
+            //Create master registration list (has data for all targets on first primary image
+            //masterRegisteredList = masterLightSources.ToList<StarField.FieldLightSource>();
 
             //To align all the field light source arrays based on registration number
             //Register other primary samples and differential samples against master sample, including the image data selected for the master sample
             //then convert to lists for more easy management
             for (int i = 0; i < unregisteredPLS.Count; i++)
-                primaryLightSources.Add(Registration.RegisterLightSources(masterLightSources, unregisteredPLS[i]));
+                primaryLightSources.Add(Registration.RegisterLightSources(masterLightSources, unregisteredPLS[i], MinSeparationArcSec));
             for (int i = 0; i < unregisteredDLS.Count; i++)
-                differentialLightSources.Add(Registration.RegisterLightSources(masterLightSources, unregisteredDLS[i]));
-            masterRegisteredList = masterLightSources.ToList<StarField.FieldLightSource>();
+                differentialLightSources.Add(Registration.RegisterLightSources(masterLightSources, unregisteredDLS[i], MinSeparationArcSec));
             LogIt("Registration Complete");
-            //remove target from master list after recording target information
-            CurrentTargetData.SourceRA = masterRegisteredList[currentTargetRegistration].SourceRA;
-            CurrentTargetData.SourceDec = masterRegisteredList[currentTargetRegistration].SourceDec;
-            masterRegisteredList.RemoveAll(x => x.RegistrationIndex == currentTargetRegistration);
-            masterRegisteredList.RemoveAll(x => ((StarField.CatalogData)x.StandardMagnitudes).IsGCVSCataloged);
-            CurrentTargetData.ApassStarCount = (from a in masterRegisteredList
+
+            CurrentTargetData.Registration = (int)currentTargetRegistration;
+            CurrentTargetData.SourceRA = masterLightSources[(int)currentTargetRegistration].SourceRA;
+            CurrentTargetData.SourceDec = masterLightSources[(int)currentTargetRegistration].SourceDec;
+            CurrentTargetData.Catalog = StarField.GetCatalogData(masterLightSources[(int)currentTargetRegistration]);
+
+            //DO NOT remove target from master list after recording target information
+            // masterRegisteredList.RemoveAll(x => x.RegistrationIndex == currentTargetRegistration);
+            //masterRegisteredList.RemoveAll(x => ((StarField.CatalogData)x.StandardMagnitudes).IsGCVSCataloged);
+            CurrentTargetData.ApassStarCount = (from a in masterLightSources
                                                 where a.StandardMagnitudes != null && a.StandardMagnitudes.Value.APASSCatalogName != null
                                                 select a).Count();
-            CurrentTargetData.GaiaStarCount = (from a in masterRegisteredList
+            CurrentTargetData.GaiaStarCount = (from a in masterLightSources
                                                where a.StandardMagnitudes != null && a.StandardMagnitudes.Value.GAIACatalogName != null
                                                select a).Count();
-            CurrentTargetData.Catalog = StarField.GetCatalogData(CurrentTargetData.SourceRA, CurrentTargetData.SourceDec);
             (CurrentTargetData.SourceToAPASSCatalogPositionError, CurrentTargetData.SourceToGAIACatalogPositionError) = StarField.CalculateSeparations(CurrentTargetData);
             DisplayCatalogData();
             DisplayLightSourceData();
@@ -336,13 +360,13 @@ namespace VariScan
             //targetStandardizedMag.Clear();
             colorTransformList.Clear();
             magnitudeTransformList.Clear();
+            ColorTransformListBox.Items.Clear();
+            MagnitudeTransformListBox.Items.Clear();
 
             //For each primary image, calculate the ColorTransform and MagnitudeTransform
             //  then calculate the standard color based on each comparison star
             //  then average the set of standard colors
             //List for results of target color
-            ColorTransformListBox.Items.Clear();
-            MagnitudeTransformListBox.Items.Clear();
             int priIndex = 0;
             foreach (StarField.FieldLightSource[] pLS in primaryLightSources)
             {
@@ -353,7 +377,7 @@ namespace VariScan
                     //Color Transformation loop:
                     List<double> standardColorIndexList = new List<double>();
                     List<double> instrumentColorIndexList = new List<double>();
-                    foreach (StarField.FieldLightSource compStar in masterRegisteredList)
+                    foreach (StarField.FieldLightSource compStar in masterLightSources)
                     {
                         //Calculate Color Transform for each comparison star
                         //  First calculate B minus V :  we'll do this every time although it is not necessary
@@ -373,8 +397,7 @@ namespace VariScan
                             standardColorIndexList.Add(stdColorIndex);
                         }
                     }
-                    List<double> filteredInstrumentCI = new List<double>();
-                    List<double> filteredStandardCI = new List<double>();
+
                     if (instrumentColorIndexList.Count <= 2 || standardColorIndexList.Count <= 2)
                     {
                         LogIt("Too few color differentials to create transforms");
@@ -382,21 +405,23 @@ namespace VariScan
                         System.Windows.Forms.Application.DoEvents();
                         return;
                     }
-                    (filteredInstrumentCI, filteredStandardCI) = Transformation.TwoPassSlope(instrumentColorIndexList, standardColorIndexList);
-                    (double colorIntercept, double colorTransform) = Transformation.ColorTransform(ref filteredInstrumentCI, ref filteredStandardCI);
+                    //Original two pass slope filter 
+                    //(filteredInstrumentCI, filteredStandardCI) = Transformation.RoughOutlierFilter(instrumentColorIndexList, standardColorIndexList);
+                    //(double colorIntercept, double colorTransform) = Transformation.ColorTransform(ref filteredInstrumentCI, ref filteredStandardCI);
+                    (double colorIntercept, double colorTransform) = Transformation.ColorTransform(instrumentColorIndexList, standardColorIndexList);
                     ColorTransformBox.Text = colorTransform.ToString("0.00");
                     ColorTransformListBox.Items.Add(colorTransform.ToString("0.00") + " (P" + priIndex.ToString() + " D" + difIndex.ToString() + ")");
                     LogIt("Color Transform for " + "(P" + priIndex.ToString() + " D" + difIndex.ToString() + "): " + colorTransform.ToString("0.00"));
 
                     ColorTransformChart.Series[0].Points.Clear();
-                    for (int i = 0; i < filteredInstrumentCI.Count(); i++)
+                    for (int i = 0; i < instrumentColorIndexList.Count(); i++)
                         ColorTransformChart.Series[0].Points.AddXY(instrumentColorIndexList[i], standardColorIndexList[i]);
                     //Trendline
                     ColorTransformChart.Series[1].Points.Clear();
-                    double xMaxC = filteredInstrumentCI.Max();
-                    double xMinC = filteredInstrumentCI.Min();
-                    ColorTransformChart.Series[1].Points.AddXY(xMinC, (xMinC / colorTransform) + colorIntercept);
-                    ColorTransformChart.Series[1].Points.AddXY(xMaxC, (xMaxC / colorTransform) + colorIntercept);
+                    double xMaxC = instrumentColorIndexList.Max();
+                    double xMinC = instrumentColorIndexList.Min();
+                    ColorTransformChart.Series[1].Points.AddXY(xMinC, (xMinC * colorTransform) + colorIntercept);
+                    ColorTransformChart.Series[1].Points.AddXY(xMaxC, (xMaxC * colorTransform) + colorIntercept);
 
                     colorTransformList.Add(colorTransform);
                     difIndex++;
@@ -410,7 +435,7 @@ namespace VariScan
                 List<double> standardMagnitudeIndexList = new List<double>();
                 List<double> instrumentMagnitudeIndexList = new List<double>();
                 int compStarCount = 0;
-                foreach (StarField.FieldLightSource compStar in masterRegisteredList)
+                foreach (StarField.FieldLightSource compStar in masterLightSources)
                 {
                     //Create list of color index for B-v and B-V for comparison stars in this primary image
                     var magBV = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, targetStandardColor, pLS, catalog);
@@ -422,9 +447,8 @@ namespace VariScan
                         standardMagnitudeIndexList.Add(magBV.differentialMag - magBV.primaryMag);
                     }
                     compStarCount++;
-                    SourceCountBox.Text = compStarCount.ToString() + " / " + masterRegisteredList.Count.ToString();
+                    SourceCountBox.Text = compStarCount.ToString() + " / " + masterLightSources.Length.ToString();
                     Show();
-                    System.Windows.Forms.Application.DoEvents();
                 }
 
                 if (instrumentMagnitudeIndexList.Count <= 2 || standardMagnitudeIndexList.Count <= 2)
@@ -435,22 +459,19 @@ namespace VariScan
                     return;
                 }
 
-                List<double> filteredInstrumentMag = new List<double>();
-                List<double> filteredStandardMag = new List<double>();
-                (filteredInstrumentMag, filteredStandardMag) = Transformation.TwoPassSlope(instrumentMagnitudeIndexList, standardMagnitudeIndexList);
-                (double magIntercept, double magnitudeTransform) = Transformation.MagnitudeTransform(filteredInstrumentMag.ToArray(), filteredStandardMag.ToArray());
-                MagnitudeTransformListBox.Items.Add(magnitudeTransform.ToString("0.00")   + " (P " + priIndex.ToString()+ ")");
+                (double magIntercept, double magnitudeTransform) = Transformation.MagnitudeTransform(instrumentMagnitudeIndexList, standardMagnitudeIndexList);
+                MagnitudeTransformListBox.Items.Add(magnitudeTransform.ToString("0.00") + " (P " + priIndex.ToString() + ")");
                 LogIt("Magnitude Transform for " + "(P " + priIndex.ToString() + "): " + magnitudeTransform.ToString("0.00"));
                 Show();
                 System.Windows.Forms.Application.DoEvents();
 
                 MagnitudeTransformChart.Series[0].Points.Clear();
-                for (int i = 0; i < filteredInstrumentMag.Count(); i++)
+                for (int i = 0; i < instrumentMagnitudeIndexList.Count(); i++)
                     MagnitudeTransformChart.Series[0].Points.AddXY(instrumentMagnitudeIndexList[i], standardMagnitudeIndexList[i]);
                 //Trendline
                 MagnitudeTransformChart.Series[1].Points.Clear();
-                double xMaxM = filteredInstrumentMag.Max();
-                double xMinM = filteredInstrumentMag.Min();
+                double xMaxM = instrumentMagnitudeIndexList.Max();
+                double xMinM = instrumentMagnitudeIndexList.Min();
                 MagnitudeTransformChart.Series[1].Points.AddXY(xMinM, (xMinM * magnitudeTransform) + magIntercept);
                 MagnitudeTransformChart.Series[1].Points.AddXY(xMaxM, (xMaxM * magnitudeTransform) + magIntercept);
                 Show();
@@ -458,35 +479,32 @@ namespace VariScan
 
                 magnitudeTransformList.Add(magnitudeTransform);
                 priIndex++;
-                CheckTransformPause();
+                CheckTransformPause(); //for "stepping" through individual transform graphs
             }
+
             //Set the magnitude transform axis labels to associated differentials
             MagnitudeTransformChart.ChartAreas[0].AxisX.Title = DifferentialColorBox.Text + "-" + PrimaryFilterBox.Text;
             MagnitudeTransformChart.ChartAreas[0].AxisY.Title = DifferentialColorBox.Text + "-" + PrimaryColorBox.Text;
 
+            //Choose color transform from list
             if (colorTransformList.Count == 1)
-                ColorTransform = colorTransformList[0];
-            else if (colorTransformList.Count < 5)
-                ColorTransform = MathNet.Numerics.Statistics.ArrayStatistics.Mean(colorTransformList.ToArray());
-            else
-                ColorTransform = MathNet.Numerics.Statistics.ArrayStatistics.Mean(Transformation.OutlierRemover(colorTransformList).ToArray());
-            ColorTransformBox.Text = ColorTransform.ToString("0.00") + " / " + colorTransformList.Count.ToString();
+                CurrentTargetData.ColorTransform = colorTransformList[0];
+            else CurrentTargetData.ColorTransform = MathNet.Numerics.Statistics.ArrayStatistics.Mean(colorTransformList.ToArray());
+
+            ColorTransformBox.Text = CurrentTargetData.ColorTransform.ToString("0.00") + " / " + colorTransformList.Count.ToString();
             ColorTransformListBox.SelectedIndex = 0;
-            //update the current target data
-            CurrentTargetData.ColorTransform = ColorTransform;
+
             //add the color transform list to the color transform data and update the preset
             ManualColorTransformValueBox.Value = (decimal)TargetColorIndex.AddColorTransform(colorTransformList);
 
+            //Choose Magnitude transform from list
             if (magnitudeTransformList.Count == 1)
-                MagnitudeTransform = magnitudeTransformList[0];
-            else if (magnitudeTransformList.Count < 5)
-                MagnitudeTransform = MathNet.Numerics.Statistics.ArrayStatistics.Mean(magnitudeTransformList.ToArray());
-            else
-                MagnitudeTransform = MathNet.Numerics.Statistics.ArrayStatistics.Mean(Transformation.OutlierRemover(magnitudeTransformList).ToArray());
-            MagnitudeTransformBox.Text = MagnitudeTransform.ToString("0.00") + " / " + magnitudeTransformList.Count.ToString();
+                CurrentTargetData.MagnitudeTransform = magnitudeTransformList[0];
+            else CurrentTargetData.MagnitudeTransform = MathNet.Numerics.Statistics.ArrayStatistics.Mean(magnitudeTransformList.ToArray());
+
+            MagnitudeTransformBox.Text = CurrentTargetData.MagnitudeTransform.ToString("0.00") + " / " + magnitudeTransformList.Count.ToString();
             MagnitudeTransformListBox.SelectedIndex = 0;
-            //update the current target data
-            CurrentTargetData.MagnitudeTransform = MagnitudeTransform;
+
             //add the color transform list to the color transform data and update the preset
             ManualMagTransformValueBox.Value = (decimal)TargetColorIndex.AddMagnitudeTransform(magnitudeTransformList);
 
@@ -499,7 +517,12 @@ namespace VariScan
             //Checks to see if transform graphs are to be paused
             //  then does so if checked
             Configuration cfg = new Configuration();
-            if (StepTransformsCheckbox.Checked) MessageBox.Show("Transformation Sequence Paused");
+            if (StepTransformsCheckbox.Checked)
+            {
+                //MessageBox.Show("Transformation Sequence Paused");
+                //
+                System.Threading.Thread.Sleep(2000);
+            }
             return;
         }
 
@@ -516,28 +539,34 @@ namespace VariScan
             targetStandardizedMag.Clear();
 
             //Cull Master List to the brightest 2000 field stars (arbitrary just to speed up processing time)
-            masterRegisteredList = Transformation.SortByMagnitude(masterRegisteredList, 2000);
+            // masterRegisteredList = Transformation.SortByMagnitude(masterRegisteredList, 2000);
             int crossRegisteredLightSources = 0;
             int standardMagnitudeCalculated = 0;
+
+            int plsIdx = 0;
+            int dlsIdx = 0;
 
             //Primary field star images  loop
             foreach (StarField.FieldLightSource[] pLS in primaryLightSources)
             {
+                plsIdx++;
                 //Differential field star images loop
-                int? priTgtIndex = Registration.FindRegisteredLightSource(pLS, currentTargetRegistration);
+                //int? priTgtIndex = Registration.FindRegisteredLightSource(pLS, (int)currentTargetRegistration);
+                int? priTgtIndex = Registration.ClosestLightSource(pLS, CurrentTargetData.SourceRA, CurrentTargetData.SourceDec, MinSeparationArcSec);
                 if (priTgtIndex == null)
                 {
-                    LogIt("No target light source found in primary registered image.");
+                    LogIt("No target light source found in primary registered image (P" + (plsIdx - 1).ToString() + ").");
                 }
                 else
                 {
-                    double vVar = pLS[(int)priTgtIndex].InstrumentMagnitude;
                     foreach (StarField.FieldLightSource[] dLS in differentialLightSources)
                     {
-                        int? diffTgtIndex = Registration.FindRegisteredLightSource(dLS, currentTargetRegistration);
+                        dlsIdx++;
+                        //int? diffTgtIndex = Registration.FindRegisteredLightSource(dLS, (int)currentTargetRegistration);
+                        int? diffTgtIndex = Registration.ClosestLightSource(dLS, CurrentTargetData.SourceRA, CurrentTargetData.SourceDec, MinSeparationArcSec);
                         if (diffTgtIndex == null)
                         {
-                            LogIt("No target light source found in differential registered image.");
+                            LogIt("No target light source found in differential registered image (D" + (dlsIdx - 1).ToString() + ").");
                         }
                         else
                         {
@@ -548,27 +577,30 @@ namespace VariScan
                             //  Calculate Δv = vvar – vcomp
                             //  Vvar = Δv + Tv_bv * Δ(B - V) + Vcomp
                             //Compute mean Vvar for all comparison stars
-                            foreach (StarField.FieldLightSource compLS in masterRegisteredList)
+                            foreach (StarField.FieldLightSource compLS in masterLightSources)
                             {
-                                int regNumber = (int)compLS.RegistrationIndex;
-                                int? diffCompIndex = Registration.FindRegisteredLightSource(dLS, regNumber);
-                                int? priCompIndex = Registration.FindRegisteredLightSource(pLS, regNumber);
+                                int? diffCompIndex = Registration.FindRegisteredLightSource(dLS, (int)compLS.RegistrationIndex);
+                                int? priCompIndex = Registration.FindRegisteredLightSource(pLS, (int)compLS.RegistrationIndex);
                                 if (diffCompIndex != null && priCompIndex != null && diffTgtIndex != null && priTgtIndex != null)
                                 {
                                     crossRegisteredLightSources++;
-                                    double bVar = dLS[(int)diffTgtIndex].InstrumentMagnitude;
+                                    double vTgt = pLS[(int)priTgtIndex].InstrumentMagnitude;
+                                    double bTgt = dLS[(int)diffTgtIndex].InstrumentMagnitude;
                                     double bComp = dLS[(int)diffCompIndex].InstrumentMagnitude;
                                     double vComp = pLS[(int)priCompIndex].InstrumentMagnitude;
-                                    double VComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
-                                    if (VComp != 0)
+                                    //double VjComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
+                                    //double BjComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
+                                    double VjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
+                                    double BjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
+                                    if (VjComp != 0)
                                     {
-                                        double deltaInstVarColor = bVar - vVar;
+                                        double deltaInstTgtColor = bTgt - vTgt;
                                         double deltaInstCompColor = bComp - vComp;
-                                        double deltaInstColor = deltaInstVarColor - deltaInstCompColor;
-                                        double tcInst = ColorTransform * deltaInstColor;
-                                        double deltaInstMag = vVar - vComp;
-                                        double varStd = deltaInstMag + MagnitudeTransform * tcInst + VComp;
-                                        targetStandardizedMag.Add(varStd);
+                                        double deltaInstColor = deltaInstTgtColor - deltaInstCompColor;
+                                        double tcInst = CurrentTargetData.ColorTransform * deltaInstColor;
+                                        double deltaInstMag = vTgt - vComp;
+                                        double tgtStd = deltaInstMag + CurrentTargetData.MagnitudeTransform * tcInst + VjComp;
+                                        targetStandardizedMag.Add(tgtStd);
                                         standardMagnitudeCalculated++;
                                     }
                                 }
@@ -958,6 +990,8 @@ namespace VariScan
             //if (UseGaiaBox.Checked)
             //    catName = "Gaia";
             //else catName = "APASS";
+
+
             string priColor = PrimaryColorBox.Text;
             string difColor = DifferentialColorBox.Text;
             string priFilter = PrimaryFilterBox.Text;
@@ -965,16 +999,25 @@ namespace VariScan
 
             List<TargetData> tDataList = new List<TargetData>();
             tDataList = Starchive.RetrievePhotometry(tgt);
-            this.HistoryChart.Series[0].Points.Clear();
-            this.HistoryChart.Series[1].Points.Clear();
+            //Clear HistoryChart data
+            HistoryChart.Series[0].Points.Clear();
+            HistoryChart.Series[1].Points.Clear();
+            HistoryChart.Series[2].Points.Clear();
+            HistoryChart.Series[3].Points.Clear();
+
             HistoryChart.Series[0].ChartType = (SeriesChartType.FastPoint);
             HistoryChart.Series[0].MarkerStyle = MarkerStyle.None;
+            HistoryChart.Series[0].MarkerColor = Color.Blue;
             HistoryChart.Series[1].ChartType = (SeriesChartType.ErrorBar);
             HistoryChart.Series[1].MarkerColor = Color.Blue;
             HistoryChart.Series[2].ChartType = (SeriesChartType.FastPoint);
             HistoryChart.Series[2].MarkerStyle = MarkerStyle.None;
+            HistoryChart.Series[2].MarkerColor = Color.Green;
             HistoryChart.Series[3].ChartType = (SeriesChartType.ErrorBar);
             HistoryChart.Series[3].MarkerColor = Color.Green;
+
+            HistoryChart.Legends[0].Title = CurrentTargetData.TargetName;
+
             foreach (TargetData tData in tDataList)
             {
                 double tgtMag = tData.StandardColorMagnitude;
@@ -1005,48 +1048,55 @@ namespace VariScan
 
         private void TransformTargetImageSet()
         {
-            //returns true if transformed, false otherwise
-            //Build lightsource database
-            bool isTransformed = false;
-            CurrentTargetData.CatalogName = TargetCatalogBox.Text;
-            RegisterLightSources();
-            if (primaryLightSources.Count == 0 || differentialLightSources.Count == 0)
+            //Transform each target/date in SessionList
+            foreach (FormSampleCatalog.TargetShoot session in SessionList)
             {
-                LogIt("Insufficient light sources to process.");
-            }
-            else
-            {
-                if (PresetTransformsBox.Checked)
+                //returns true if transformed, false otherwise
+                //Build lightsource database
+                bool isTransformed = false;
+                CurrentTargetData.TargetName = session.Target;
+                CurrentTargetData.SessionDate = Convert.ToDateTime(session.Date);
+                CurrentTargetData.CatalogName = TargetCatalogBox.Text;
+
+                RegisterLightSources(session);
+                if (primaryLightSources.Count == 0 || differentialLightSources.Count == 0)
                 {
-                    ColorTransform = (double)ManualColorTransformValueBox.Value;
-                    ColorTransformBox.Text = ColorTransform.ToString("0.00");
-                    ColorTransformListBox.Items.Clear();
-                    MagnitudeTransform = (double)ManualMagTransformValueBox.Value;
-                    MagnitudeTransformBox.Text = MagnitudeTransform.ToString("0.00");
-                    MagnitudeTransformListBox.Items.Clear();
-                    CurrentTargetData.ColorTransform = ColorTransform;
-                    CurrentTargetData.MagnitudeTransform = MagnitudeTransform;
+                    LogIt("Insufficient light sources to process.");
                 }
                 else
                 {
-                    CalculateTransforms(CurrentTargetData.CatalogName);
+                    if (PresetTransformsBox.Checked)
+                    {
+                        CurrentTargetData.ColorTransform = (double)ManualColorTransformValueBox.Value;
+                        ColorTransformBox.Text = CurrentTargetData.ColorTransform.ToString("0.00");
+                        ColorTransformListBox.Items.Clear();
+                        CurrentTargetData.MagnitudeTransform = (double)ManualMagTransformValueBox.Value;
+                        MagnitudeTransformBox.Text = CurrentTargetData.MagnitudeTransform.ToString("0.00");
+                        MagnitudeTransformListBox.Items.Clear();
+                        CurrentTargetData.ColorTransform = CurrentTargetData.ColorTransform;
+                        CurrentTargetData.MagnitudeTransform = CurrentTargetData.MagnitudeTransform;
+                    }
+                    else
+                    {
+                        CalculateTransforms(CurrentTargetData.CatalogName);
+                    }
+                    isTransformed = ConvertToColorStandard(CurrentTargetData.CatalogName);
                 }
 
-                isTransformed = ConvertToColorStandard(CurrentTargetData.CatalogName);
-            }
+                if (isTransformed)
+                {
+                    ResultsTargetBox.Text = CurrentTargetData.TargetName;
+                    ResultsDateBox.Text = CurrentTargetData.SessionDate.ToShortDateString();
+                    ResultsPrimaryColorBox.Text = CurrentTargetData.PrimaryStandardColor;
+                    ResultsPrimaryFilterBox.Text = CurrentTargetData.PrimaryImageFilter;
+                    ResultsDifferentialColorBox.Text = CurrentTargetData.DifferentialStandardColor;
+                    ResultsDifferentialFilterBox.Text = CurrentTargetData.DifferentialImageFilter;
+                }
 
-            if (isTransformed)
-            {
-                ResultsTargetBox.Text = CurrentTargetData.TargetName;
-                ResultsDateBox.Text = CurrentTargetData.SessionDate.ToShortDateString();
-                ResultsPrimaryColorBox.Text = CurrentTargetData.PrimaryStandardColor;
-                ResultsPrimaryFilterBox.Text = CurrentTargetData.PrimaryImageFilter;
-                ResultsDifferentialColorBox.Text = CurrentTargetData.DifferentialStandardColor;
-                ResultsDifferentialFilterBox.Text = CurrentTargetData.DifferentialImageFilter;
+                CurrentTargetData.IsTransformed = isTransformed;
+                Starchive.StorePhotometry(CurrentTargetData);
+                PlotPhotometryHistory(CurrentTargetData);
             }
-
-            CurrentTargetData.IsTransformed = isTransformed;
-            Starchive.StorePhotometry(CurrentTargetData);
         }
 
         private string GetSeeingClass(double FWHM, double aperture)
@@ -1083,7 +1133,6 @@ namespace VariScan
                 TargetRA = targetX.RA,
                 TargetDec = targetX.Dec,
                 IsTransformed = false,
-                SessionDate = Convert.ToDateTime(TargetDateSelectBox.SelectedItem.ToString()),
                 PrimaryImageFilter = PrimaryFilterBox.Text,
                 DifferentialImageFilter = DifferentialFilterBox.Text,
                 PrimaryStandardColor = PrimaryColorBox.Text,
@@ -1122,7 +1171,7 @@ namespace VariScan
         {
             Utility.ButtonRed(TransformButton);
             isAnalyzing = true;
-            if (TargetPickListBox.SelectedItem == null)
+            if (SessionList == null)
             {
                 LogIt("Cancelling transformation. No target selected");
                 Utility.ButtonGreen(TransformButton);
@@ -1137,101 +1186,11 @@ namespace VariScan
                 isAnalyzing = false;
                 return;
             }
-            ResetTargetData(TargetPickListBox.SelectedItem.ToString());
-            CurrentTargetData.SessionDate = Convert.ToDateTime(TargetDateSelectBox.Text);
             TargetColorIndex = new ColorIndexing();
 
             TransformTargetImageSet();
-            PlotPhotometryHistory(CurrentTargetData);
 
             Utility.ButtonGreen(TransformButton);
-            isAnalyzing = false;
-            return;
-        }
-
-        private void ClearDateButton_Click(object sender, EventArgs e)
-        {
-            //Remove all entries for the specified session date
-            Utility.ButtonRed(ClearDateButton);
-            isAnalyzing = true;
-            CurrentTargetData.SessionDate = CollectionSessionDateBox.Value;
-            Starchive.ClearStarchiveSession(CurrentTargetData.SessionDate, TargetCatalogBox.Text);
-            Utility.ButtonGreen(ClearDateButton);
-            isAnalyzing = false;
-        }
-
-        private void ClearAllSessionsButton_Click(object sender, EventArgs e)
-        {
-            //Remove all entries for the specified session date
-            Utility.ButtonRed(ClearAllSessionsButton);
-            isAnalyzing = true;
-            Starchive.ClearStarchive();
-            Utility.ButtonGreen(ClearAllSessionsButton);
-            isAnalyzing = false;
-        }
-
-        private void ClearTargetButton_Click(object sender, EventArgs e)
-        {
-            //Remove all entries for the specified catalog
-            Utility.ButtonRed(ClearTargetButton);
-            isAnalyzing = true;
-            Starchive.ClearStarchiveCatalog(TargetCatalogBox.Text);
-            Utility.ButtonGreen(ClearTargetButton);
-            isAnalyzing = false;
-        }
-
-        private void ClearCatButton_Click(object sender, EventArgs e)
-        {
-            //Remove all entries for the specified target and catalog
-            Utility.ButtonRed(ClearTargetButton);
-            isAnalyzing = true;
-            Starchive.ClearStarchiveTarget(CurrentTargetData.TargetName, TargetCatalogBox.Text);
-            Utility.ButtonGreen(ClearTargetButton);
-            isAnalyzing = false;
-        }
-
-        private void ScanImagesButton_Click(object sender, EventArgs e)
-        {
-            Utility.ButtonRed(ScanImagesButton);
-            isAnalyzing = true;
-            //Verify that filters and colors are set to something
-            if (!AreFiltersSet())
-            {
-                LogIt("Cancelling scan.  Improper standard colors or filters selected.");
-                Utility.ButtonGreen(ScanImagesButton);
-                return;
-            }
-            //Initialize a color index for saving transform data
-            TargetColorIndex = new ColorIndexing();
-            //for each target in the target list
-            List<string> tdirs = VariScanFileManager.GetVaultList();
-            foreach (string tpath in tdirs)
-            {
-                //Find the earliest session date from the file list and 
-                string tname = VariScanFileManager.StripPath(tpath);
-                //find and set target list item
-                ResetTargetData(tname);
-                TargetedNameBox.Text = CurrentTargetData.TargetName;
-                TargetedRABox.Text = CurrentTargetData.TargetRA.ToString("0.00000");
-                TargetedDecBox.Text = CurrentTargetData.TargetDec.ToString("0.00000");
-
-                int tidx = TargetPickListBox.FindString(tname);
-                TargetPickListBox.SelectedIndex = tidx;
-                foreach (DateTime dt in VariScanFileManager.SessionDates(tname))
-                {
-                    CurrentTargetData.SessionDate = dt;
-                    LogIt("Looking for images in " + tname + " on " + CurrentTargetData.SessionDate.ToShortDateString());
-                    LogIt("Looking for prior plots in Starchives");
-                    if (!Starchive.HasMatchingPhotometryRecord(CurrentTargetData))
-                    {
-                        LogIt("No prior plots found");
-                        //Build lightsource
-                        TransformTargetImageSet();
-                    }
-                }
-                PlotPhotometryHistory(CurrentTargetData);
-            }
-            Utility.ButtonGreen(ScanImagesButton);
             isAnalyzing = false;
             return;
         }
@@ -1242,12 +1201,6 @@ namespace VariScan
             Configuration cfg = new Configuration();
             cfg.AnalysisFormOnTop = OnTopCheckBox.Checked.ToString();
             this.TopMost = OnTopCheckBox.Checked;
-        }
-
-        private void TargetPickListBox_Click(object sender, EventArgs e)
-        {
-            currentPickIndex = TargetPickListBox.SelectedIndex;
-            return;
         }
 
         private void CloseButton_Click(object sender, EventArgs e)
@@ -1283,59 +1236,24 @@ namespace VariScan
             return;
         }
 
-        private void TargetPickListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (isInitializing || isAnalyzing)
-                return;
-            //Get list of targets
-            ResetTargetData(TargetPickListBox.SelectedItem.ToString());            //Get list of targets
-
-            TargetedNameBox.Text = CurrentTargetData.TargetName;
-            TargetedRABox.Text = CurrentTargetData.TargetRA.ToString("0.00000");
-            TargetedDecBox.Text = CurrentTargetData.TargetDec.ToString("0.00000");
-            FitsNameBox.Items.Clear();
-            foreach (string fName in VariScanFileManager.TargetImageList(CurrentTargetData.TargetName))
-                FitsNameBox.Items.Add(Path.GetFileNameWithoutExtension(fName));
-            FitsNameBox.SelectedIndex = 0;
-
-            TargetDateSelectBox.Items.Clear();
-            SampleManager sm = new SampleManager(TargetPickListBox.SelectedItem.ToString());
-            foreach (DateTime dt in sm.GetTargetSessions())
-                TargetDateSelectBox.Items.Add(dt.ToShortDateString());
-            TargetDateSelectBox.SelectedIndex = 0;
-
-            PrimaryFilterBox.Items.Clear();
-            DifferentialFilterBox.Items.Clear();
-            foreach (string fn in sm.GetTargetSessionFilters(Convert.ToDateTime(TargetDateSelectBox.SelectedItem)))
-            {
-                PrimaryFilterBox.Items.Add(fn);
-                DifferentialFilterBox.Items.Add(fn);
-            }
-            if (PrimaryFilterBox.Items.Count >= 1)
-                PrimaryFilterBox.SelectedIndex = 0;
-            else
-                PrimaryFilterBox.SelectedIndex = 0;
-            if (DifferentialFilterBox.Items.Count >= 2)
-                DifferentialFilterBox.SelectedIndex = 1;
-            else
-                PrimaryFilterBox.SelectedIndex = 0;
-            return;
-        }
 
         private void LogIt(string logLine)
         {
             //Copies logLine into LogBox and eventually into a log file
             LogBox.AppendText(logLine + Environment.NewLine);
             Show();
-            System.Windows.Forms.Application.DoEvents();
             return;
         }
 
-        private void CurveButton_Click(object sender, EventArgs e)
+        private void PlotHistoryButton_Click(object sender, EventArgs e)
         {
-            Utility.ButtonRed(CurveButton);
-            PlotPhotometryHistory(CurrentTargetData);
-            Utility.ButtonGreen(CurveButton);
+            Utility.ButtonRed(PlotHistoryButton);
+            if (TargetPlotBox.SelectedItem != null)
+            {
+                CurrentTargetData.TargetName = TargetPlotBox.SelectedItem.ToString();
+                PlotPhotometryHistory(CurrentTargetData);
+            }
+            Utility.ButtonGreen(PlotHistoryButton);
             return;
         }
 
@@ -1343,10 +1261,12 @@ namespace VariScan
         {
             Utility.ButtonRed(FitsReadButton);
             Configuration cfg = new Configuration();
-            string fitsName = FitsNameBox.SelectedItem.ToString();
-            string fitsPath = cfg.ImageBankFolder + "\\" + CurrentTargetData.TargetName + "\\" + fitsName + ".fit";
-            if (File.Exists(fitsPath))
-                AnalyzeImage(fitsPath);
+
+            string fitsName = FitsNameBox.SelectedItem.ToString() + ".fit";
+            List<string> fp = Directory.GetFiles(cfg.ImageBankFolder, fitsName, SearchOption.AllDirectories).ToList();
+            if (fp.Count == 0)
+                return;
+            AnalyzeImage(fp[0]);
             Utility.ButtonGreen(FitsReadButton);
             return;
         }
@@ -1421,29 +1341,38 @@ namespace VariScan
             return;
         }
 
-        private void TargetDateSelectBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void DisplayGridButton_Click(object sender, EventArgs e)
         {
-            if (!isInitializing)
+            //Open session grid catalog form
+            Utility.ButtonRed(DisplayGridButton);
+            Show();
+            System.Windows.Forms.Application.DoEvents();
+            using (Form scForm = new FormSampleCatalog())
             {
-                DateTime sessionDate = Convert.ToDateTime(TargetDateSelectBox.SelectedItem.ToString());
-                CurrentTargetData.SessionDate = sessionDate;
-                SampleManager ss = new SampleManager(CurrentTargetData.TargetName);
-                foreach (string fn in ss.GetTargetSessionFilters(sessionDate))
+                scForm.ShowDialog();
+                //Upon return, retrieve the session list
+                SessionListTextBox.Clear();
+                SessionList = FormSampleCatalog.SessionList;
+                if (SessionList.Count != null)
+                foreach (FormSampleCatalog.TargetShoot ts in SessionList)
                 {
-                    PrimaryFilterBox.Items.Add(fn);
-                    DifferentialFilterBox.Items.Add(fn);
+                    SessionListTextBox.Text += (ts.Target + " on " + ts.Date + "\r\n");
                 }
-                if (PrimaryFilterBox.Items.Count >= 1)
-                    PrimaryFilterBox.SelectedIndex = 0;
-                if (DifferentialFilterBox.Items.Count >= 2)
-                    DifferentialFilterBox.SelectedIndex = 1;
+                Utility.ButtonGreen(DisplayGridButton);
+                return;
             }
-            return;
-
         }
 
+        private void FitsNameBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
         #endregion
 
+        private void TargetPlotBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

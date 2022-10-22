@@ -44,6 +44,7 @@ namespace VariScan
             System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Title title3 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
@@ -73,10 +74,6 @@ namespace VariScan
             this.label17 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
             this.label20 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
@@ -101,6 +98,8 @@ namespace VariScan
             this.label41 = new System.Windows.Forms.Label();
             this.label42 = new System.Windows.Forms.Label();
             this.label43 = new System.Windows.Forms.Label();
+            this.label45 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.StarADUChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.SeeingGroupBox = new System.Windows.Forms.GroupBox();
             this.AirMassBox = new System.Windows.Forms.TextBox();
@@ -126,7 +125,6 @@ namespace VariScan
             this.FitsDateBox = new System.Windows.Forms.TextBox();
             this.FitsExposureBox = new System.Windows.Forms.TextBox();
             this.FitsReadButton = new System.Windows.Forms.Button();
-            this.ScanImagesButton = new System.Windows.Forms.Button();
             this.SourceCountBox = new System.Windows.Forms.TextBox();
             this.CatalogGroupBox = new System.Windows.Forms.GroupBox();
             this.GaiaStarCountBox = new System.Windows.Forms.TextBox();
@@ -140,16 +138,11 @@ namespace VariScan
             this.FocalRatioBox = new System.Windows.Forms.TextBox();
             this.ApertureBox = new System.Windows.Forms.TextBox();
             this.FocalLengthBox = new System.Windows.Forms.TextBox();
-            this.TargetedRABox = new System.Windows.Forms.TextBox();
-            this.TargetedNameBox = new System.Windows.Forms.TextBox();
-            this.TargetedDecBox = new System.Windows.Forms.TextBox();
             this.OpenImageFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.TargetedVariableGroupBox = new System.Windows.Forms.GroupBox();
-            this.TargetPickListBox = new System.Windows.Forms.ComboBox();
-            this.CurveButton = new System.Windows.Forms.Button();
+            this.TargetCatalogBox = new System.Windows.Forms.ComboBox();
+            this.PlotHistoryButton = new System.Windows.Forms.Button();
             this.HistoryChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.SessionGroupBox = new System.Windows.Forms.GroupBox();
-            this.TargetDateSelectBox = new System.Windows.Forms.ComboBox();
             this.DifferentialColorBox = new System.Windows.Forms.ComboBox();
             this.label25 = new System.Windows.Forms.Label();
             this.PrimaryColorBox = new System.Windows.Forms.ComboBox();
@@ -158,7 +151,6 @@ namespace VariScan
             this.PrimaryFilterBox = new System.Windows.Forms.ComboBox();
             this.label18 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
             this.TransformButton = new System.Windows.Forms.Button();
             this.ReportSaveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.OrphanFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -184,16 +176,12 @@ namespace VariScan
             this.label23 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
             this.StepTransformsCheckbox = new System.Windows.Forms.CheckBox();
-            this.ClearDateButton = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.CollectionSelectionBox = new System.Windows.Forms.ComboBox();
-            this.CollectionSessionDateBox = new System.Windows.Forms.DateTimePicker();
-            this.label44 = new System.Windows.Forms.Label();
-            this.ClearAllSessionsButton = new System.Windows.Forms.Button();
-            this.ClearTargetButton = new System.Windows.Forms.Button();
-            this.ClearCatButton = new System.Windows.Forms.Button();
-            this.TargetCatalogBox = new System.Windows.Forms.ComboBox();
-            this.label45 = new System.Windows.Forms.Label();
+            this.DisplayGridButton = new System.Windows.Forms.Button();
+            this.TargetedVariableGroupBox = new System.Windows.Forms.GroupBox();
+            this.SessionListTextBox = new System.Windows.Forms.TextBox();
+            this.TargetPlotBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.StarADUChart)).BeginInit();
             this.SeeingGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MagnitudeTransformChart)).BeginInit();
@@ -202,7 +190,6 @@ namespace VariScan
             this.CatalogGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ColorTransformChart)).BeginInit();
             this.InstrumentationGroupBox.SuspendLayout();
-            this.TargetedVariableGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.HistoryChart)).BeginInit();
             this.SessionGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TransformedTargetChart)).BeginInit();
@@ -210,6 +197,7 @@ namespace VariScan
             this.ReportGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ManualColorTransformValueBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ManualMagTransformValueBox)).BeginInit();
+            this.TargetedVariableGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // MaxADULabel
@@ -273,7 +261,7 @@ namespace VariScan
             // 
             this.DoneButton.BackColor = System.Drawing.Color.SpringGreen;
             this.DoneButton.ForeColor = System.Drawing.Color.Black;
-            this.DoneButton.Location = new System.Drawing.Point(1495, 621);
+            this.DoneButton.Location = new System.Drawing.Point(1377, 621);
             this.DoneButton.Name = "DoneButton";
             this.DoneButton.Size = new System.Drawing.Size(75, 23);
             this.DoneButton.TabIndex = 25;
@@ -430,49 +418,6 @@ namespace VariScan
             this.AnalysisToolTips.SetToolTip(this.label20, "How far off the TSX Magnitude Zero Point setting is\r\nfrom the value it should hav" +
         "e such that the calculated\r\nmagnitude value is the same as the cateloged value.");
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 75);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(62, 13);
-            this.label1.TabIndex = 93;
-            this.label1.Text = "Claimed RA";
-            this.AnalysisToolTips.SetToolTip(this.label1, "How far off the TSX Magnitude Zero Point setting is\r\nfrom the value it should hav" +
-        "e such that the calculated\r\nmagnitude value is the same as the cateloged value.");
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 47);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 13);
-            this.label2.TabIndex = 95;
-            this.label2.Text = "Name";
-            this.AnalysisToolTips.SetToolTip(this.label2, "How far off the TSX Magnitude Zero Point setting is\r\nfrom the value it should hav" +
-        "e such that the calculated\r\nmagnitude value is the same as the cateloged value.");
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(10, 98);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(67, 13);
-            this.label4.TabIndex = 97;
-            this.label4.Text = "Claimed Dec";
-            this.AnalysisToolTips.SetToolTip(this.label4, "How far off the TSX Magnitude Zero Point setting is\r\nfrom the value it should hav" +
-        "e such that the calculated\r\nmagnitude value is the same as the cateloged value.");
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(10, 21);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(57, 13);
-            this.label7.TabIndex = 72;
-            this.label7.Text = "Target List";
-            this.AnalysisToolTips.SetToolTip(this.label7, "2.76 / Aperture (inches)");
-            // 
             // label16
             // 
             this.label16.AutoSize = true;
@@ -529,7 +474,7 @@ namespace VariScan
             // 
             this.AAVSOButton.BackColor = System.Drawing.Color.SpringGreen;
             this.AAVSOButton.ForeColor = System.Drawing.Color.Black;
-            this.AAVSOButton.Location = new System.Drawing.Point(114, 65);
+            this.AAVSOButton.Location = new System.Drawing.Point(13, 65);
             this.AAVSOButton.Name = "AAVSOButton";
             this.AAVSOButton.Size = new System.Drawing.Size(75, 40);
             this.AAVSOButton.TabIndex = 133;
@@ -542,7 +487,7 @@ namespace VariScan
             // 
             this.SummaryButton.BackColor = System.Drawing.Color.SpringGreen;
             this.SummaryButton.ForeColor = System.Drawing.Color.Black;
-            this.SummaryButton.Location = new System.Drawing.Point(114, 19);
+            this.SummaryButton.Location = new System.Drawing.Point(13, 19);
             this.SummaryButton.Name = "SummaryButton";
             this.SummaryButton.Size = new System.Drawing.Size(75, 40);
             this.SummaryButton.TabIndex = 134;
@@ -731,6 +676,26 @@ namespace VariScan
             this.AnalysisToolTips.SetToolTip(this.label43, "How far off the TSX Magnitude Zero Point setting is\r\nfrom the value it should hav" +
         "e such that the calculated\r\nmagnitude value is the same as the cateloged value.");
             // 
+            // label45
+            // 
+            this.label45.AutoSize = true;
+            this.label45.Location = new System.Drawing.Point(17, 126);
+            this.label45.Name = "label45";
+            this.label45.Size = new System.Drawing.Size(43, 13);
+            this.label45.TabIndex = 111;
+            this.label45.Text = "Catalog";
+            this.AnalysisToolTips.SetToolTip(this.label45, "2.76 / Aperture (inches)");
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(30, 452);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(59, 13);
+            this.label1.TabIndex = 72;
+            this.label1.Text = "Plot Target";
+            this.AnalysisToolTips.SetToolTip(this.label1, "2.76 / Aperture (inches)");
+            // 
             // StarADUChart
             // 
             this.StarADUChart.BackColor = System.Drawing.Color.LightCyan;
@@ -748,7 +713,7 @@ namespace VariScan
             legend1.Enabled = false;
             legend1.Name = "Legend1";
             this.StarADUChart.Legends.Add(legend1);
-            this.StarADUChart.Location = new System.Drawing.Point(1347, 290);
+            this.StarADUChart.Location = new System.Drawing.Point(1228, 282);
             this.StarADUChart.Name = "StarADUChart";
             this.StarADUChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.SeaGreen;
             series1.ChartArea = "ChartArea1";
@@ -778,7 +743,7 @@ namespace VariScan
             this.SeeingGroupBox.Controls.Add(this.MeanEllipsicityLabel);
             this.SeeingGroupBox.Controls.Add(this.SeeingClassLabel);
             this.SeeingGroupBox.Controls.Add(this.SeeingLabel);
-            this.SeeingGroupBox.Location = new System.Drawing.Point(712, 286);
+            this.SeeingGroupBox.Location = new System.Drawing.Point(593, 282);
             this.SeeingGroupBox.Name = "SeeingGroupBox";
             this.SeeingGroupBox.Size = new System.Drawing.Size(224, 172);
             this.SeeingGroupBox.TabIndex = 46;
@@ -835,10 +800,11 @@ namespace VariScan
             chartArea2.AxisY.Title = "B-V";
             chartArea2.Name = "MagnitudeTransformChart";
             this.MagnitudeTransformChart.ChartAreas.Add(chartArea2);
-            this.MagnitudeTransformChart.Location = new System.Drawing.Point(793, 11);
+            this.MagnitudeTransformChart.Location = new System.Drawing.Point(674, 11);
             this.MagnitudeTransformChart.Name = "MagnitudeTransformChart";
             series2.ChartArea = "MagnitudeTransformChart";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series2.MarkerSize = 3;
             series2.Name = "MagTransform";
             series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
             series2.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
@@ -878,7 +844,7 @@ namespace VariScan
             this.SourceGroupBox.Controls.Add(this.MaxADULabel);
             this.SourceGroupBox.Controls.Add(this.Ellipticity);
             this.SourceGroupBox.Controls.Add(this.FWHMLabel);
-            this.SourceGroupBox.Location = new System.Drawing.Point(946, 286);
+            this.SourceGroupBox.Location = new System.Drawing.Point(827, 282);
             this.SourceGroupBox.Name = "SourceGroupBox";
             this.SourceGroupBox.Size = new System.Drawing.Size(212, 172);
             this.SourceGroupBox.TabIndex = 133;
@@ -961,9 +927,10 @@ namespace VariScan
             this.FitsImageDataBox.Controls.Add(this.label17);
             this.FitsImageDataBox.Controls.Add(this.FitsExposureBox);
             this.FitsImageDataBox.Controls.Add(this.ExposureLabel);
-            this.FitsImageDataBox.Location = new System.Drawing.Point(27, 286);
+            this.FitsImageDataBox.Controls.Add(this.FitsReadButton);
+            this.FitsImageDataBox.Location = new System.Drawing.Point(22, 282);
             this.FitsImageDataBox.Name = "FitsImageDataBox";
-            this.FitsImageDataBox.Size = new System.Drawing.Size(398, 172);
+            this.FitsImageDataBox.Size = new System.Drawing.Size(366, 153);
             this.FitsImageDataBox.TabIndex = 48;
             this.FitsImageDataBox.TabStop = false;
             this.FitsImageDataBox.Text = " FITS Image";
@@ -971,14 +938,15 @@ namespace VariScan
             // FitsNameBox
             // 
             this.FitsNameBox.FormattingEnabled = true;
-            this.FitsNameBox.Location = new System.Drawing.Point(126, 16);
+            this.FitsNameBox.Location = new System.Drawing.Point(85, 16);
             this.FitsNameBox.Name = "FitsNameBox";
             this.FitsNameBox.Size = new System.Drawing.Size(184, 21);
             this.FitsNameBox.TabIndex = 94;
+            this.FitsNameBox.SelectedIndexChanged += new System.EventHandler(this.FitsNameBox_SelectedIndexChanged);
             // 
             // FitsFilterBox
             // 
-            this.FitsFilterBox.Location = new System.Drawing.Point(205, 122);
+            this.FitsFilterBox.Location = new System.Drawing.Point(164, 122);
             this.FitsFilterBox.Name = "FitsFilterBox";
             this.FitsFilterBox.Size = new System.Drawing.Size(105, 20);
             this.FitsFilterBox.TabIndex = 93;
@@ -987,7 +955,7 @@ namespace VariScan
             // 
             // FitsTimeBox
             // 
-            this.FitsTimeBox.Location = new System.Drawing.Point(126, 71);
+            this.FitsTimeBox.Location = new System.Drawing.Point(85, 71);
             this.FitsTimeBox.Name = "FitsTimeBox";
             this.FitsTimeBox.Size = new System.Drawing.Size(184, 20);
             this.FitsTimeBox.TabIndex = 85;
@@ -996,7 +964,7 @@ namespace VariScan
             // 
             // FitsDateBox
             // 
-            this.FitsDateBox.Location = new System.Drawing.Point(126, 44);
+            this.FitsDateBox.Location = new System.Drawing.Point(85, 44);
             this.FitsDateBox.Name = "FitsDateBox";
             this.FitsDateBox.Size = new System.Drawing.Size(184, 20);
             this.FitsDateBox.TabIndex = 83;
@@ -1005,7 +973,7 @@ namespace VariScan
             // 
             // FitsExposureBox
             // 
-            this.FitsExposureBox.Location = new System.Drawing.Point(205, 97);
+            this.FitsExposureBox.Location = new System.Drawing.Point(164, 97);
             this.FitsExposureBox.Name = "FitsExposureBox";
             this.FitsExposureBox.Size = new System.Drawing.Size(105, 20);
             this.FitsExposureBox.TabIndex = 76;
@@ -1016,25 +984,13 @@ namespace VariScan
             // 
             this.FitsReadButton.BackColor = System.Drawing.Color.SpringGreen;
             this.FitsReadButton.ForeColor = System.Drawing.Color.Black;
-            this.FitsReadButton.Location = new System.Drawing.Point(443, 369);
+            this.FitsReadButton.Location = new System.Drawing.Point(285, 67);
             this.FitsReadButton.Name = "FitsReadButton";
             this.FitsReadButton.Size = new System.Drawing.Size(66, 23);
             this.FitsReadButton.TabIndex = 117;
             this.FitsReadButton.Text = "Analyze";
             this.FitsReadButton.UseVisualStyleBackColor = false;
             this.FitsReadButton.Click += new System.EventHandler(this.FitsReadButton_Click);
-            // 
-            // ScanImagesButton
-            // 
-            this.ScanImagesButton.BackColor = System.Drawing.Color.SpringGreen;
-            this.ScanImagesButton.ForeColor = System.Drawing.Color.Black;
-            this.ScanImagesButton.Location = new System.Drawing.Point(440, 197);
-            this.ScanImagesButton.Name = "ScanImagesButton";
-            this.ScanImagesButton.Size = new System.Drawing.Size(69, 23);
-            this.ScanImagesButton.TabIndex = 102;
-            this.ScanImagesButton.Text = "Full Scan";
-            this.ScanImagesButton.UseVisualStyleBackColor = false;
-            this.ScanImagesButton.Click += new System.EventHandler(this.ScanImagesButton_Click);
             // 
             // SourceCountBox
             // 
@@ -1056,7 +1012,7 @@ namespace VariScan
             this.CatalogGroupBox.Controls.Add(this.label26);
             this.CatalogGroupBox.Controls.Add(this.GaiaStarCountBox);
             this.CatalogGroupBox.Controls.Add(this.label32);
-            this.CatalogGroupBox.Location = new System.Drawing.Point(1167, 286);
+            this.CatalogGroupBox.Location = new System.Drawing.Point(1048, 282);
             this.CatalogGroupBox.Name = "CatalogGroupBox";
             this.CatalogGroupBox.Size = new System.Drawing.Size(174, 172);
             this.CatalogGroupBox.TabIndex = 89;
@@ -1081,11 +1037,12 @@ namespace VariScan
             chartArea3.AxisY.Title = "B-V";
             chartArea3.Name = "ColorTransformChart";
             this.ColorTransformChart.ChartAreas.Add(chartArea3);
-            this.ColorTransformChart.Location = new System.Drawing.Point(529, 11);
+            this.ColorTransformChart.Location = new System.Drawing.Point(410, 11);
             this.ColorTransformChart.Name = "ColorTransformChart";
             series4.ChartArea = "ColorTransformChart";
             series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
             series4.Legend = "Legend1";
+            series4.MarkerSize = 3;
             series4.Name = "ColorTransform";
             series4.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
             series4.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
@@ -1111,7 +1068,7 @@ namespace VariScan
             // OnTopCheckBox
             // 
             this.OnTopCheckBox.AutoSize = true;
-            this.OnTopCheckBox.Location = new System.Drawing.Point(1384, 625);
+            this.OnTopCheckBox.Location = new System.Drawing.Point(1301, 625);
             this.OnTopCheckBox.Name = "OnTopCheckBox";
             this.OnTopCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.OnTopCheckBox.Size = new System.Drawing.Size(62, 17);
@@ -1134,7 +1091,7 @@ namespace VariScan
             this.InstrumentationGroupBox.Controls.Add(this.label11);
             this.InstrumentationGroupBox.Controls.Add(this.label10);
             this.InstrumentationGroupBox.Controls.Add(this.label3);
-            this.InstrumentationGroupBox.Location = new System.Drawing.Point(529, 286);
+            this.InstrumentationGroupBox.Location = new System.Drawing.Point(410, 282);
             this.InstrumentationGroupBox.Name = "InstrumentationGroupBox";
             this.InstrumentationGroupBox.Size = new System.Drawing.Size(177, 172);
             this.InstrumentationGroupBox.TabIndex = 56;
@@ -1189,73 +1146,33 @@ namespace VariScan
             this.FocalLengthBox.TabIndex = 57;
             this.FocalLengthBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // TargetedRABox
-            // 
-            this.TargetedRABox.Location = new System.Drawing.Point(84, 70);
-            this.TargetedRABox.Name = "TargetedRABox";
-            this.TargetedRABox.Size = new System.Drawing.Size(95, 20);
-            this.TargetedRABox.TabIndex = 94;
-            this.TargetedRABox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // TargetedNameBox
-            // 
-            this.TargetedNameBox.Location = new System.Drawing.Point(50, 45);
-            this.TargetedNameBox.Name = "TargetedNameBox";
-            this.TargetedNameBox.Size = new System.Drawing.Size(129, 20);
-            this.TargetedNameBox.TabIndex = 96;
-            this.TargetedNameBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // TargetedDecBox
-            // 
-            this.TargetedDecBox.Location = new System.Drawing.Point(83, 96);
-            this.TargetedDecBox.Name = "TargetedDecBox";
-            this.TargetedDecBox.Size = new System.Drawing.Size(95, 20);
-            this.TargetedDecBox.TabIndex = 98;
-            this.TargetedDecBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // OpenImageFileDialog
             // 
             this.OpenImageFileDialog.FileName = "OpenImageFile";
             // 
-            // TargetedVariableGroupBox
+            // TargetCatalogBox
             // 
-            this.TargetedVariableGroupBox.Controls.Add(this.TargetCatalogBox);
-            this.TargetedVariableGroupBox.Controls.Add(this.label45);
-            this.TargetedVariableGroupBox.Controls.Add(this.TargetedDecBox);
-            this.TargetedVariableGroupBox.Controls.Add(this.label4);
-            this.TargetedVariableGroupBox.Controls.Add(this.TargetedNameBox);
-            this.TargetedVariableGroupBox.Controls.Add(this.label2);
-            this.TargetedVariableGroupBox.Controls.Add(this.TargetedRABox);
-            this.TargetedVariableGroupBox.Controls.Add(this.TargetPickListBox);
-            this.TargetedVariableGroupBox.Controls.Add(this.label1);
-            this.TargetedVariableGroupBox.Controls.Add(this.label7);
-            this.TargetedVariableGroupBox.Location = new System.Drawing.Point(24, 61);
-            this.TargetedVariableGroupBox.Name = "TargetedVariableGroupBox";
-            this.TargetedVariableGroupBox.Size = new System.Drawing.Size(191, 157);
-            this.TargetedVariableGroupBox.TabIndex = 104;
-            this.TargetedVariableGroupBox.TabStop = false;
-            this.TargetedVariableGroupBox.Text = "Targeted Variable";
+            this.TargetCatalogBox.FormattingEnabled = true;
+            this.TargetCatalogBox.Items.AddRange(new object[] {
+            "APASS",
+            "Gaia"});
+            this.TargetCatalogBox.Location = new System.Drawing.Point(102, 123);
+            this.TargetCatalogBox.Name = "TargetCatalogBox";
+            this.TargetCatalogBox.Size = new System.Drawing.Size(73, 21);
+            this.TargetCatalogBox.TabIndex = 112;
+            this.TargetCatalogBox.Text = "APASS";
             // 
-            // TargetPickListBox
+            // PlotHistoryButton
             // 
-            this.TargetPickListBox.FormattingEnabled = true;
-            this.TargetPickListBox.Location = new System.Drawing.Point(73, 18);
-            this.TargetPickListBox.Name = "TargetPickListBox";
-            this.TargetPickListBox.Size = new System.Drawing.Size(106, 21);
-            this.TargetPickListBox.TabIndex = 110;
-            this.TargetPickListBox.SelectedIndexChanged += new System.EventHandler(this.TargetPickListBox_SelectedIndexChanged);
-            // 
-            // CurveButton
-            // 
-            this.CurveButton.BackColor = System.Drawing.Color.SpringGreen;
-            this.CurveButton.ForeColor = System.Drawing.Color.Black;
-            this.CurveButton.Location = new System.Drawing.Point(443, 551);
-            this.CurveButton.Name = "CurveButton";
-            this.CurveButton.Size = new System.Drawing.Size(66, 23);
-            this.CurveButton.TabIndex = 116;
-            this.CurveButton.Text = "Plot Curve";
-            this.CurveButton.UseVisualStyleBackColor = false;
-            this.CurveButton.Click += new System.EventHandler(this.CurveButton_Click);
+            this.PlotHistoryButton.BackColor = System.Drawing.Color.SpringGreen;
+            this.PlotHistoryButton.ForeColor = System.Drawing.Color.Black;
+            this.PlotHistoryButton.Location = new System.Drawing.Point(289, 445);
+            this.PlotHistoryButton.Name = "PlotHistoryButton";
+            this.PlotHistoryButton.Size = new System.Drawing.Size(66, 23);
+            this.PlotHistoryButton.TabIndex = 116;
+            this.PlotHistoryButton.Text = "Plot";
+            this.PlotHistoryButton.UseVisualStyleBackColor = false;
+            this.PlotHistoryButton.Click += new System.EventHandler(this.PlotHistoryButton_Click);
             // 
             // HistoryChart
             // 
@@ -1264,34 +1181,42 @@ namespace VariScan
             chartArea4.AxisY.MajorGrid.Interval = 0D;
             chartArea4.Name = "VariableHistoryChart";
             this.HistoryChart.ChartAreas.Add(chartArea4);
-            this.HistoryChart.Location = new System.Drawing.Point(530, 477);
+            legend2.Name = "Legend1";
+            legend2.Title = "Target";
+            this.HistoryChart.Legends.Add(legend2);
+            this.HistoryChart.Location = new System.Drawing.Point(411, 477);
             this.HistoryChart.Name = "HistoryChart";
             series6.ChartArea = "VariableHistoryChart";
             series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series6.Legend = "Legend1";
             series6.Name = "APASSMagnitudes";
             series6.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Date;
             series7.ChartArea = "VariableHistoryChart";
             series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.ErrorBar;
+            series7.Legend = "Legend1";
             series7.Name = "APASSErrorBar";
             series7.YValuesPerPoint = 3;
             series8.ChartArea = "VariableHistoryChart";
             series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series8.Legend = "Legend1";
             series8.Name = "GaiaMagnitudes";
             series9.ChartArea = "VariableHistoryChart";
             series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.ErrorBar;
+            series9.Legend = "Legend1";
             series9.Name = "GaiaErrorBar";
             series9.YValuesPerPoint = 3;
             this.HistoryChart.Series.Add(series6);
             this.HistoryChart.Series.Add(series7);
             this.HistoryChart.Series.Add(series8);
             this.HistoryChart.Series.Add(series9);
-            this.HistoryChart.Size = new System.Drawing.Size(811, 167);
+            this.HistoryChart.Size = new System.Drawing.Size(871, 167);
             this.HistoryChart.TabIndex = 105;
             this.HistoryChart.Text = "chart1";
             // 
             // SessionGroupBox
             // 
-            this.SessionGroupBox.Controls.Add(this.TargetDateSelectBox);
+            this.SessionGroupBox.Controls.Add(this.TargetCatalogBox);
+            this.SessionGroupBox.Controls.Add(this.label45);
             this.SessionGroupBox.Controls.Add(this.DifferentialColorBox);
             this.SessionGroupBox.Controls.Add(this.label25);
             this.SessionGroupBox.Controls.Add(this.PrimaryColorBox);
@@ -1300,27 +1225,17 @@ namespace VariScan
             this.SessionGroupBox.Controls.Add(this.PrimaryFilterBox);
             this.SessionGroupBox.Controls.Add(this.label18);
             this.SessionGroupBox.Controls.Add(this.label9);
-            this.SessionGroupBox.Controls.Add(this.label6);
-            this.SessionGroupBox.Location = new System.Drawing.Point(234, 61);
+            this.SessionGroupBox.Location = new System.Drawing.Point(198, 36);
             this.SessionGroupBox.Name = "SessionGroupBox";
             this.SessionGroupBox.Size = new System.Drawing.Size(191, 156);
             this.SessionGroupBox.TabIndex = 106;
             this.SessionGroupBox.TabStop = false;
-            this.SessionGroupBox.Text = "Target Session";
-            // 
-            // TargetDateSelectBox
-            // 
-            this.TargetDateSelectBox.FormattingEnabled = true;
-            this.TargetDateSelectBox.Location = new System.Drawing.Point(75, 19);
-            this.TargetDateSelectBox.Name = "TargetDateSelectBox";
-            this.TargetDateSelectBox.Size = new System.Drawing.Size(98, 21);
-            this.TargetDateSelectBox.TabIndex = 115;
-            this.TargetDateSelectBox.SelectedIndexChanged += new System.EventHandler(this.TargetDateSelectBox_SelectedIndexChanged);
+            this.SessionGroupBox.Text = "Transform Factors";
             // 
             // DifferentialColorBox
             // 
             this.DifferentialColorBox.FormattingEnabled = true;
-            this.DifferentialColorBox.Location = new System.Drawing.Point(100, 113);
+            this.DifferentialColorBox.Location = new System.Drawing.Point(103, 84);
             this.DifferentialColorBox.Name = "DifferentialColorBox";
             this.DifferentialColorBox.Size = new System.Drawing.Size(73, 21);
             this.DifferentialColorBox.TabIndex = 114;
@@ -1329,7 +1244,7 @@ namespace VariScan
             // label25
             // 
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(11, 117);
+            this.label25.Location = new System.Drawing.Point(14, 88);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(84, 13);
             this.label25.TabIndex = 113;
@@ -1338,7 +1253,7 @@ namespace VariScan
             // PrimaryColorBox
             // 
             this.PrimaryColorBox.FormattingEnabled = true;
-            this.PrimaryColorBox.Location = new System.Drawing.Point(100, 69);
+            this.PrimaryColorBox.Location = new System.Drawing.Point(103, 40);
             this.PrimaryColorBox.Name = "PrimaryColorBox";
             this.PrimaryColorBox.Size = new System.Drawing.Size(73, 21);
             this.PrimaryColorBox.TabIndex = 112;
@@ -1346,7 +1261,7 @@ namespace VariScan
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(11, 73);
+            this.label21.Location = new System.Drawing.Point(14, 44);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(68, 13);
             this.label21.TabIndex = 111;
@@ -1355,7 +1270,7 @@ namespace VariScan
             // DifferentialFilterBox
             // 
             this.DifferentialFilterBox.FormattingEnabled = true;
-            this.DifferentialFilterBox.Location = new System.Drawing.Point(100, 91);
+            this.DifferentialFilterBox.Location = new System.Drawing.Point(103, 62);
             this.DifferentialFilterBox.Name = "DifferentialFilterBox";
             this.DifferentialFilterBox.Size = new System.Drawing.Size(73, 21);
             this.DifferentialFilterBox.TabIndex = 109;
@@ -1364,7 +1279,7 @@ namespace VariScan
             // PrimaryFilterBox
             // 
             this.PrimaryFilterBox.FormattingEnabled = true;
-            this.PrimaryFilterBox.Location = new System.Drawing.Point(100, 47);
+            this.PrimaryFilterBox.Location = new System.Drawing.Point(103, 18);
             this.PrimaryFilterBox.Name = "PrimaryFilterBox";
             this.PrimaryFilterBox.Size = new System.Drawing.Size(73, 21);
             this.PrimaryFilterBox.TabIndex = 108;
@@ -1373,7 +1288,7 @@ namespace VariScan
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(11, 95);
+            this.label18.Location = new System.Drawing.Point(14, 66);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(82, 13);
             this.label18.TabIndex = 107;
@@ -1382,28 +1297,19 @@ namespace VariScan
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(11, 51);
+            this.label9.Location = new System.Drawing.Point(14, 22);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(66, 13);
             this.label9.TabIndex = 106;
             this.label9.Text = "Primary Filter";
             // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(11, 24);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(30, 13);
-            this.label6.TabIndex = 105;
-            this.label6.Text = "Date";
-            // 
             // TransformButton
             // 
             this.TransformButton.BackColor = System.Drawing.Color.SpringGreen;
             this.TransformButton.ForeColor = System.Drawing.Color.Black;
-            this.TransformButton.Location = new System.Drawing.Point(440, 166);
+            this.TransformButton.Location = new System.Drawing.Point(46, 206);
             this.TransformButton.Name = "TransformButton";
-            this.TransformButton.Size = new System.Drawing.Size(69, 23);
+            this.TransformButton.Size = new System.Drawing.Size(79, 23);
             this.TransformButton.TabIndex = 115;
             this.TransformButton.Text = "Transform";
             this.TransformButton.UseVisualStyleBackColor = false;
@@ -1426,7 +1332,7 @@ namespace VariScan
             chartArea5.AxisY.Title = "Light Sources";
             chartArea5.Name = "TransformedTargetChart";
             this.TransformedTargetChart.ChartAreas.Add(chartArea5);
-            this.TransformedTargetChart.Location = new System.Drawing.Point(1057, 11);
+            this.TransformedTargetChart.Location = new System.Drawing.Point(938, 11);
             this.TransformedTargetChart.Name = "TransformedTargetChart";
             series10.ChartArea = "TransformedTargetChart";
             series10.Name = "Series3";
@@ -1494,11 +1400,11 @@ namespace VariScan
             // 
             // LogBox
             // 
-            this.LogBox.Location = new System.Drawing.Point(24, 477);
+            this.LogBox.Location = new System.Drawing.Point(22, 477);
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
             this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.LogBox.Size = new System.Drawing.Size(401, 167);
+            this.LogBox.Size = new System.Drawing.Size(369, 167);
             this.LogBox.TabIndex = 151;
             // 
             // TransformResultsBox
@@ -1529,7 +1435,7 @@ namespace VariScan
             this.TransformResultsBox.Controls.Add(this.TargetStdDevBox);
             this.TransformResultsBox.Controls.Add(this.label28);
             this.TransformResultsBox.Controls.Add(this.TargetModeBox);
-            this.TransformResultsBox.Location = new System.Drawing.Point(1328, 9);
+            this.TransformResultsBox.Location = new System.Drawing.Point(1209, 9);
             this.TransformResultsBox.Name = "TransformResultsBox";
             this.TransformResultsBox.Size = new System.Drawing.Size(243, 261);
             this.TransformResultsBox.TabIndex = 152;
@@ -1588,9 +1494,9 @@ namespace VariScan
             // 
             this.ReportGroupBox.Controls.Add(this.AAVSOButton);
             this.ReportGroupBox.Controls.Add(this.SummaryButton);
-            this.ReportGroupBox.Location = new System.Drawing.Point(1371, 477);
+            this.ReportGroupBox.Location = new System.Drawing.Point(1353, 477);
             this.ReportGroupBox.Name = "ReportGroupBox";
-            this.ReportGroupBox.Size = new System.Drawing.Size(199, 121);
+            this.ReportGroupBox.Size = new System.Drawing.Size(99, 121);
             this.ReportGroupBox.TabIndex = 153;
             this.ReportGroupBox.TabStop = false;
             this.ReportGroupBox.Text = "Reports";
@@ -1599,11 +1505,11 @@ namespace VariScan
             // 
             this.PresetTransformsBox.AutoSize = true;
             this.PresetTransformsBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.PresetTransformsBox.Location = new System.Drawing.Point(74, 238);
+            this.PresetTransformsBox.Location = new System.Drawing.Point(333, 211);
             this.PresetTransformsBox.Name = "PresetTransformsBox";
-            this.PresetTransformsBox.Size = new System.Drawing.Size(133, 17);
+            this.PresetTransformsBox.Size = new System.Drawing.Size(56, 17);
             this.PresetTransformsBox.TabIndex = 154;
-            this.PresetTransformsBox.Text = "Use Preset Transforms";
+            this.PresetTransformsBox.Text = "Preset";
             this.PresetTransformsBox.UseVisualStyleBackColor = true;
             // 
             // ManualColorTransformValueBox
@@ -1614,7 +1520,7 @@ namespace VariScan
             0,
             0,
             65536});
-            this.ManualColorTransformValueBox.Location = new System.Drawing.Point(258, 236);
+            this.ManualColorTransformValueBox.Location = new System.Drawing.Point(269, 240);
             this.ManualColorTransformValueBox.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -1643,7 +1549,7 @@ namespace VariScan
             0,
             0,
             65536});
-            this.ManualMagTransformValueBox.Location = new System.Drawing.Point(376, 236);
+            this.ManualMagTransformValueBox.Location = new System.Drawing.Point(269, 210);
             this.ManualMagTransformValueBox.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -1667,7 +1573,7 @@ namespace VariScan
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(221, 240);
+            this.label23.Location = new System.Drawing.Point(210, 242);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(31, 13);
             this.label23.TabIndex = 158;
@@ -1676,7 +1582,7 @@ namespace VariScan
             // label27
             // 
             this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(313, 240);
+            this.label27.Location = new System.Drawing.Point(208, 214);
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(57, 13);
             this.label27.TabIndex = 159;
@@ -1685,7 +1591,8 @@ namespace VariScan
             // StepTransformsCheckbox
             // 
             this.StepTransformsCheckbox.AutoSize = true;
-            this.StepTransformsCheckbox.Location = new System.Drawing.Point(452, 238);
+            this.StepTransformsCheckbox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.StepTransformsCheckbox.Location = new System.Drawing.Point(341, 241);
             this.StepTransformsCheckbox.Margin = new System.Windows.Forms.Padding(1);
             this.StepTransformsCheckbox.Name = "StepTransformsCheckbox";
             this.StepTransformsCheckbox.Size = new System.Drawing.Size(48, 17);
@@ -1694,23 +1601,11 @@ namespace VariScan
             this.StepTransformsCheckbox.UseVisualStyleBackColor = true;
             this.StepTransformsCheckbox.CheckedChanged += new System.EventHandler(this.StepTransformsCheckbox_CheckedChanged);
             // 
-            // ClearDateButton
-            // 
-            this.ClearDateButton.BackColor = System.Drawing.Color.SpringGreen;
-            this.ClearDateButton.ForeColor = System.Drawing.Color.Black;
-            this.ClearDateButton.Location = new System.Drawing.Point(442, 17);
-            this.ClearDateButton.Name = "ClearDateButton";
-            this.ClearDateButton.Size = new System.Drawing.Size(69, 23);
-            this.ClearDateButton.TabIndex = 162;
-            this.ClearDateButton.Text = "Clear Date";
-            this.ClearDateButton.UseVisualStyleBackColor = false;
-            this.ClearDateButton.Click += new System.EventHandler(this.ClearDateButton_Click);
-            // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(18, 18);
+            this.label5.Location = new System.Drawing.Point(17, 10);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(78, 20);
             this.label5.TabIndex = 163;
@@ -1719,104 +1614,65 @@ namespace VariScan
             // CollectionSelectionBox
             // 
             this.CollectionSelectionBox.FormattingEnabled = true;
-            this.CollectionSelectionBox.Location = new System.Drawing.Point(102, 18);
+            this.CollectionSelectionBox.Location = new System.Drawing.Point(101, 9);
             this.CollectionSelectionBox.Name = "CollectionSelectionBox";
             this.CollectionSelectionBox.Size = new System.Drawing.Size(135, 21);
             this.CollectionSelectionBox.TabIndex = 164;
             this.CollectionSelectionBox.SelectedIndexChanged += new System.EventHandler(this.CollectionSelectionBox_SelectedIndexChanged);
             // 
-            // CollectionSessionDateBox
+            // DisplayGridButton
             // 
-            this.CollectionSessionDateBox.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.CollectionSessionDateBox.Location = new System.Drawing.Point(319, 18);
-            this.CollectionSessionDateBox.Name = "CollectionSessionDateBox";
-            this.CollectionSessionDateBox.Size = new System.Drawing.Size(106, 20);
-            this.CollectionSessionDateBox.TabIndex = 165;
-            this.CollectionSessionDateBox.Value = new System.DateTime(2021, 11, 12, 0, 0, 0, 0);
-            this.CollectionSessionDateBox.ValueChanged += new System.EventHandler(this.CollectionSessionDateBox_ValueChanged);
+            this.DisplayGridButton.BackColor = System.Drawing.Color.SpringGreen;
+            this.DisplayGridButton.ForeColor = System.Drawing.Color.Black;
+            this.DisplayGridButton.Location = new System.Drawing.Point(46, 17);
+            this.DisplayGridButton.Name = "DisplayGridButton";
+            this.DisplayGridButton.Size = new System.Drawing.Size(79, 23);
+            this.DisplayGridButton.TabIndex = 169;
+            this.DisplayGridButton.Text = "Session Map";
+            this.DisplayGridButton.UseVisualStyleBackColor = false;
+            this.DisplayGridButton.Click += new System.EventHandler(this.DisplayGridButton_Click);
             // 
-            // label44
+            // TargetedVariableGroupBox
             // 
-            this.label44.AutoSize = true;
-            this.label44.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label44.Location = new System.Drawing.Point(269, 18);
-            this.label44.Name = "label44";
-            this.label44.Size = new System.Drawing.Size(44, 20);
-            this.label44.TabIndex = 116;
-            this.label44.Text = "Date";
+            this.TargetedVariableGroupBox.Controls.Add(this.SessionListTextBox);
+            this.TargetedVariableGroupBox.Controls.Add(this.TransformButton);
+            this.TargetedVariableGroupBox.Controls.Add(this.DisplayGridButton);
+            this.TargetedVariableGroupBox.Location = new System.Drawing.Point(21, 36);
+            this.TargetedVariableGroupBox.Name = "TargetedVariableGroupBox";
+            this.TargetedVariableGroupBox.Size = new System.Drawing.Size(171, 239);
+            this.TargetedVariableGroupBox.TabIndex = 104;
+            this.TargetedVariableGroupBox.TabStop = false;
+            this.TargetedVariableGroupBox.Text = "Selected Sessions";
             // 
-            // ClearAllSessionsButton
+            // SessionListTextBox
             // 
-            this.ClearAllSessionsButton.BackColor = System.Drawing.Color.SpringGreen;
-            this.ClearAllSessionsButton.ForeColor = System.Drawing.Color.Black;
-            this.ClearAllSessionsButton.Location = new System.Drawing.Point(443, 92);
-            this.ClearAllSessionsButton.Name = "ClearAllSessionsButton";
-            this.ClearAllSessionsButton.Size = new System.Drawing.Size(69, 23);
-            this.ClearAllSessionsButton.TabIndex = 166;
-            this.ClearAllSessionsButton.Text = "Clear All";
-            this.ClearAllSessionsButton.UseVisualStyleBackColor = false;
-            this.ClearAllSessionsButton.Click += new System.EventHandler(this.ClearAllSessionsButton_Click);
+            this.SessionListTextBox.Location = new System.Drawing.Point(10, 46);
+            this.SessionListTextBox.Multiline = true;
+            this.SessionListTextBox.Name = "SessionListTextBox";
+            this.SessionListTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.SessionListTextBox.Size = new System.Drawing.Size(151, 152);
+            this.SessionListTextBox.TabIndex = 0;
             // 
-            // ClearTargetButton
+            // TargetPlotBox
             // 
-            this.ClearTargetButton.BackColor = System.Drawing.Color.SpringGreen;
-            this.ClearTargetButton.ForeColor = System.Drawing.Color.Black;
-            this.ClearTargetButton.Location = new System.Drawing.Point(442, 42);
-            this.ClearTargetButton.Name = "ClearTargetButton";
-            this.ClearTargetButton.Size = new System.Drawing.Size(69, 23);
-            this.ClearTargetButton.TabIndex = 167;
-            this.ClearTargetButton.Text = "Clear Tgt";
-            this.ClearTargetButton.UseVisualStyleBackColor = false;
-            this.ClearTargetButton.Click += new System.EventHandler(this.ClearTargetButton_Click);
-            // 
-            // ClearCatButton
-            // 
-            this.ClearCatButton.BackColor = System.Drawing.Color.SpringGreen;
-            this.ClearCatButton.ForeColor = System.Drawing.Color.Black;
-            this.ClearCatButton.Location = new System.Drawing.Point(442, 67);
-            this.ClearCatButton.Name = "ClearCatButton";
-            this.ClearCatButton.Size = new System.Drawing.Size(69, 23);
-            this.ClearCatButton.TabIndex = 168;
-            this.ClearCatButton.Text = "Clear Cat";
-            this.ClearCatButton.UseVisualStyleBackColor = false;
-            this.ClearCatButton.Click += new System.EventHandler(this.ClearCatButton_Click);
-            // 
-            // TargetCatalogBox
-            // 
-            this.TargetCatalogBox.FormattingEnabled = true;
-            this.TargetCatalogBox.Items.AddRange(new object[] {
-            "APASS",
-            "Gaia"});
-            this.TargetCatalogBox.Location = new System.Drawing.Point(84, 121);
-            this.TargetCatalogBox.Name = "TargetCatalogBox";
-            this.TargetCatalogBox.Size = new System.Drawing.Size(95, 21);
-            this.TargetCatalogBox.TabIndex = 112;
-            this.TargetCatalogBox.Text = "APASS";
-            // 
-            // label45
-            // 
-            this.label45.AutoSize = true;
-            this.label45.Location = new System.Drawing.Point(10, 124);
-            this.label45.Name = "label45";
-            this.label45.Size = new System.Drawing.Size(43, 13);
-            this.label45.TabIndex = 111;
-            this.label45.Text = "Catalog";
-            this.AnalysisToolTips.SetToolTip(this.label45, "2.76 / Aperture (inches)");
+            this.TargetPlotBox.FormattingEnabled = true;
+            this.TargetPlotBox.Location = new System.Drawing.Point(95, 447);
+            this.TargetPlotBox.Name = "TargetPlotBox";
+            this.TargetPlotBox.Size = new System.Drawing.Size(146, 21);
+            this.TargetPlotBox.TabIndex = 95;
+            this.TargetPlotBox.SelectedIndexChanged += new System.EventHandler(this.TargetPlotBox_SelectedIndexChanged);
             // 
             // FormTargetImageAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
             this.BackColor = System.Drawing.Color.DarkCyan;
-            this.ClientSize = new System.Drawing.Size(1577, 667);
-            this.Controls.Add(this.ClearCatButton);
-            this.Controls.Add(this.ClearTargetButton);
-            this.Controls.Add(this.ClearAllSessionsButton);
-            this.Controls.Add(this.label44);
-            this.Controls.Add(this.CollectionSessionDateBox);
+            this.ClientSize = new System.Drawing.Size(1463, 659);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.TargetPlotBox);
             this.Controls.Add(this.CollectionSelectionBox);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.ClearDateButton);
             this.Controls.Add(this.StepTransformsCheckbox);
             this.Controls.Add(this.label27);
             this.Controls.Add(this.label23);
@@ -1825,12 +1681,9 @@ namespace VariScan
             this.Controls.Add(this.PresetTransformsBox);
             this.Controls.Add(this.ReportGroupBox);
             this.Controls.Add(this.TransformResultsBox);
-            this.Controls.Add(this.FitsReadButton);
-            this.Controls.Add(this.TransformButton);
             this.Controls.Add(this.LogBox);
-            this.Controls.Add(this.CurveButton);
+            this.Controls.Add(this.PlotHistoryButton);
             this.Controls.Add(this.SeeingGroupBox);
-            this.Controls.Add(this.ScanImagesButton);
             this.Controls.Add(this.CatalogGroupBox);
             this.Controls.Add(this.TransformedTargetChart);
             this.Controls.Add(this.MagnitudeTransformChart);
@@ -1860,8 +1713,6 @@ namespace VariScan
             ((System.ComponentModel.ISupportInitialize)(this.ColorTransformChart)).EndInit();
             this.InstrumentationGroupBox.ResumeLayout(false);
             this.InstrumentationGroupBox.PerformLayout();
-            this.TargetedVariableGroupBox.ResumeLayout(false);
-            this.TargetedVariableGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.HistoryChart)).EndInit();
             this.SessionGroupBox.ResumeLayout(false);
             this.SessionGroupBox.PerformLayout();
@@ -1871,6 +1722,8 @@ namespace VariScan
             this.ReportGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ManualColorTransformValueBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ManualMagTransformValueBox)).EndInit();
+            this.TargetedVariableGroupBox.ResumeLayout(false);
+            this.TargetedVariableGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1925,16 +1778,7 @@ namespace VariScan
         internal System.Windows.Forms.Label label17;
         internal System.Windows.Forms.Label label20;
         private System.Windows.Forms.GroupBox CatalogGroupBox;
-        private System.Windows.Forms.TextBox TargetedRABox;
-        internal System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox TargetedNameBox;
-        internal System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox TargetedDecBox;
-        internal System.Windows.Forms.Label label4;
         private System.Windows.Forms.OpenFileDialog OpenImageFileDialog;
-        private System.Windows.Forms.Button ScanImagesButton;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.GroupBox TargetedVariableGroupBox;
         private System.Windows.Forms.DataVisualization.Charting.Chart HistoryChart;
         private System.Windows.Forms.GroupBox SessionGroupBox;
         private System.Windows.Forms.TextBox FitsFilterBox;
@@ -1954,12 +1798,10 @@ namespace VariScan
         private System.Windows.Forms.TextBox AirMassBox;
         internal System.Windows.Forms.Label label8;
         private System.Windows.Forms.OpenFileDialog OrphanFileDialog;
-        private System.Windows.Forms.ComboBox TargetPickListBox;
         private System.Windows.Forms.ComboBox DifferentialFilterBox;
         private System.Windows.Forms.ComboBox PrimaryFilterBox;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox PrimaryColorBox;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.ComboBox DifferentialColorBox;
@@ -1981,7 +1823,7 @@ namespace VariScan
         internal System.Windows.Forms.Label label40;
         private System.Windows.Forms.ComboBox MagnitudeTransformListBox;
         private System.Windows.Forms.Button TransformButton;
-        private System.Windows.Forms.Button CurveButton;
+        private System.Windows.Forms.Button PlotHistoryButton;
         private System.Windows.Forms.Button FitsReadButton;
         private System.Windows.Forms.ComboBox FitsNameBox;
         private System.Windows.Forms.TextBox LogBox;
@@ -1994,7 +1836,6 @@ namespace VariScan
         private System.Windows.Forms.NumericUpDown ManualMagTransformValueBox;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label27;
-        private System.Windows.Forms.ComboBox TargetDateSelectBox;
         private System.Windows.Forms.TextBox ResultsTargetBox;
         internal System.Windows.Forms.Label label30;
         private System.Windows.Forms.CheckBox StepTransformsCheckbox;
@@ -2010,16 +1851,15 @@ namespace VariScan
         internal System.Windows.Forms.Label label34;
         private System.Windows.Forms.TextBox ResultsDateBox;
         internal System.Windows.Forms.Label label33;
-        private System.Windows.Forms.Button ClearDateButton;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox CollectionSelectionBox;
-        private System.Windows.Forms.DateTimePicker CollectionSessionDateBox;
-        private System.Windows.Forms.Label label44;
-        private System.Windows.Forms.Button ClearAllSessionsButton;
-        private System.Windows.Forms.Button ClearTargetButton;
-        private System.Windows.Forms.Button ClearCatButton;
         private System.Windows.Forms.ComboBox TargetCatalogBox;
         private System.Windows.Forms.Label label45;
+        private System.Windows.Forms.Button DisplayGridButton;
+        private System.Windows.Forms.GroupBox TargetedVariableGroupBox;
+        private System.Windows.Forms.TextBox SessionListTextBox;
+        private System.Windows.Forms.ComboBox TargetPlotBox;
+        private System.Windows.Forms.Label label1;
     }
 }
 

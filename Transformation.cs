@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+
 namespace VariScan
 {
     public class Transformation
@@ -28,46 +29,11 @@ namespace VariScan
 
         private List<StarField.FieldLightSource> masterLightSources;
 
-        public Transformation(List<StarField.FieldLightSource> mLS)
-        {
-            masterLightSources = mLS;
-        }
-
-        private static List<double> Residuals(List<double> xPoint, List<double> yPoint, double slope, double intercept)
-        {
-            List<double> residual = new List<double>();
-            for (int i = 0; i < xPoint.Count; i++)
-            {
-                double deltaX = Math.Abs((xPoint[i] * slope) - intercept) - yPoint[i];
-                residual.Add(deltaX);
-            }
-            return residual;
-        }
-
-
-        public static (double intercept, double slope) ColorTransform(ref List<double> instrumentColorIndex, ref List<double> standardColorIndex)
-        {
-            //Tp_rp 	=> Color Transform is the inverse of the regressed slope of mean (r-p)/(R-P) over images
-            double colorTransformation;
-            (double intercept, double slope) = MathNet.Numerics.Fit.Line(instrumentColorIndex.ToArray(), standardColorIndex.ToArray());
-            colorTransformation = 1 / slope;
-            return (intercept, colorTransformation);
-        }
-
-        public static (double intercept, double slope) MagnitudeTransform(double[] instrumentColorIndex, double[] standardColorIndex)
-        {
-            //Trp 	=> Magnitude Transform is the regressed slope of mean (R-p)/(R-P) over images
-            double magnitudeTransformation;
-            (double intercept, double slope) = MathNet.Numerics.Fit.Line(instrumentColorIndex, standardColorIndex);
-            magnitudeTransformation = slope;
-            return (intercept, magnitudeTransformation);
-        }
-
         public static (double primaryMag, double differentialMag) FormColorIndex(int regIndex, ColorIndexing.ColorDataSource diffColor,
-                                                                                 StarField.FieldLightSource[] differentialFLS,
-                                                                                 ColorIndexing.ColorDataSource priColor,
-                                                                                 StarField.FieldLightSource[] primaryFLS,
-                                                                                 string catalog)
+                                                                                StarField.FieldLightSource[] differentialFLS,
+                                                                                ColorIndexing.ColorDataSource priColor,
+                                                                                StarField.FieldLightSource[] primaryFLS,
+                                                                                string catalog)
         {
             StarField.FieldLightSource pFLS = (from StarField.FieldLightSource p in primaryFLS
                                                where (p.RegistrationIndex == regIndex)
@@ -220,159 +186,87 @@ namespace VariScan
             return (mag);
         }
 
-        public static (List<double> xOut, List<double> yOut) ClusterFinder(List<double> xIn, List<double> yIn)
+        public static (double intercept, double slope) ColorTransform(List<double> xp, List<double> yp)
         {
-            //Removes all points which do not have a neighbor within the mean proximity distance for all points
+            const int thetaCount = 180;
+            const int rangeCount = 1000;
+            (double intercept, double slope) = HoughTransform(xp, yp, thetaCount, rangeCount);
+            return (intercept, slope);
+        }
+
+        public static (double intercept, double slope) MagnitudeTransform(List<double> xp, List<double> yp)
+        {
+            //Trp 	=> Magnitude Transform is the regressed slope of mean (R-p)/(R-P) over images
+            const int thetaCount = 180;
+            const int rangeCount = 1000;
+            (double intercept, double slope) = HoughTransform(xp, yp, thetaCount, rangeCount);
+            return (intercept, slope);
+        }
+
+        public static (double intercept, double slope) HoughTransform(List<double> xP, List<double> yP, int thetaCount, int rangeCount)
+        {
+            //Runs Hough transform on list of diagram points
             //
-            List<double> xOut = new List<double>();
-            List<double> yOut = new List<double>();
-            //Compute mean proximity
-            //For each xIn/XOut find the distance to the nearest other xIn/xOut 
-            //  add to total
-            //const double lowX = 50;
-            //const double highX = 400;
-            //const double lowProx = 1;
-            //const double highProx = .25;
 
-            //double cGradient = ((lowProx - highProx) / (lowX - highX));
-            //double cIntercept = -(cGradient * lowX) + lowProx;
-            //double closeAs = cGradient * xIn.Count + cIntercept;
-            double proximity = 0;
-            List<double> proximityList = new List<double>();
-
-            //Make a list of the distance of each source for every othersource
-            for (int i = 0; i < xIn.Count; i++)
+            //Theta will increment from zero to PI (180 degrees)
+            double thetaIncrement = Math.PI / thetaCount;
+            //The maximum range (r) can be no greater than largest abs(x) + abs(y) value, e.g. r = x cos theta + y sin theta
+            double rangeMax = 0;
+            for (int i = 0; i < xP.Count; i++)
             {
-                double shortestDistance = double.MaxValue;
-                for (int j = 0; j < xIn.Count; j++)
+                double r = Math.Abs(xP[i]) + Math.Abs(yP[i]);
+                if (r > rangeMax)
+                    rangeMax = r;
+            }
+            double rangeMin = -rangeMax; //may chnage this later
+            //Calculate the range value for each incremental index
+            double rangeIncrement = (rangeMax - rangeMin) / rangeCount;
+            //Set accumlator range to +/- maxRange
+            //Create accumulator array size 
+            int[,] accumulator = new int[thetaCount, rangeCount];
+
+            //Convert diagramXY to NormalPoint array
+            for (int p = 0; p < xP.Count; p++)
+            {
+                for (int t = 0; t < thetaCount; t++)
                 {
-                    proximity = DistanceXY(xIn[i], yIn[i], xIn[j], yIn[j]);
-                    if ((i != j) && (proximity < shortestDistance))
+                    double theta = t * thetaIncrement;
+                    double rangePoint = xP[p] * Math.Cos(theta) + yP[p] * Math.Sin(theta);
+                    //the range runs from - rangeMax to + rangeMax
+                    //  the index will be 2 * range/max 
+                    int rangeBucket = Convert.ToInt32((rangePoint - rangeMin) / rangeIncrement);
+                    //Add vote to range/theta
+                    accumulator[t, rangeBucket]++;
+                }
+            }
+            //Find max voted in normal space
+            int maxVote = 0;
+            int currentVote;
+            int votedRangeIndex = 0;
+            int votedThetaIndex = 0;
+            for (int r = 0; r < rangeCount; r++)
+            {
+                for (int t = 1; t < thetaCount; t++) //Ignor omega = 0 to avoid infinite slope
+                {
+                    currentVote = accumulator[t, r];
+                    if (currentVote >= maxVote)
                     {
-                        shortestDistance = proximity;
+                        maxVote = currentVote;
+                        votedRangeIndex = r;
+                        votedThetaIndex = t;
                     }
                 }
-                proximityList.Add(shortestDistance);
             }
-            //Find the average value for nearness of each source to another
-            double meanProximity = proximityList.Average();
-
-            double closeAs = .5;
-
-            //Build output list x, y from all sources that are at least as close as the average
-            for (int i = 0; i < proximityList.Count; i++)
-            {
-                if (proximityList[i] < (meanProximity * closeAs))
-                {
-                    xOut.Add(xIn[i]);
-                    yOut.Add(yIn[i]);
-                }
-            }
-            //if clustered points are found, then return that set,
-            //  otherwise just return the set of input points
-            if (xOut.Count > 0 && yOut.Count > 0)
-                return (xOut, yOut);
-            else
-                return (xIn, yIn);
-        }
-
-        public static (List<double> xOut, List<double> yOut) ClusterFinder2(List<double> xIn, List<double> yIn)
-        {
-            //Removes all points whose average longest distance to all other points exceeds the mean longest distance
-            //
-            List<double> xOut = new List<double>();
-            List<double> yOut = new List<double>();
-            //Compute mean proximity
-            //For each xIn/XOut find the distance to the nearest other xIn/xOut 
-            //  add to total
-
-#pragma warning disable CS0219 // The variable 'closestNode' is assigned but its value is never used
-            int closestNode = 0;
-#pragma warning restore CS0219 // The variable 'closestNode' is assigned but its value is never used
-#pragma warning disable CS0219 // The variable 'proximity' is assigned but its value is never used
-            double proximity = 0;
-#pragma warning restore CS0219 // The variable 'proximity' is assigned but its value is never used
-            List<double> proximityList = new List<double>();
-
-            for (int i = 0; i < xIn.Count; i++)
-            {
-                double distanceSum = 0;
-                for (int j = 0; j < xIn.Count; j++)
-                {
-                    distanceSum += DistanceXY(xIn[i], yIn[i], xIn[j], yIn[j]);
-                }
-                proximityList.Add(distanceSum);
-            }
-            //Take mean
-            double meanDistanceSum = proximityList.Average();
-
-            //Build output list x, y from all input x,y closer than the mean
-            for (int i = 0; i < proximityList.Count; i++)
-            {
-                if (proximityList[i] < meanDistanceSum)
-                {
-                    xOut.Add(xIn[i]);
-                    yOut.Add(yIn[i]);
-                }
-            }
-            return (xOut, yOut);
-        }
-
-        public static (List<double> xs, List<double> ys) TwoPassSlope(List<double> xp, List<double> yp)
-        {
-            //First pass is low density to get an approximate slope
-            //Then use standard deviation to delete all points outside
-            //Second pass is for new slope/intercept
-            (List<double> lowXP, List<double> lowYP) = ClusterFinder(xp, yp);
-            (double interceptLow, double slopeLow) = MathNet.Numerics.Fit.Line(lowXP.ToArray(), lowYP.ToArray());
-            List<double> lowModelY = new List<double>();
-            foreach (double x in xp)
-                lowModelY.Add(x * slopeLow + interceptLow);
-            double xpDevSum = 0;
-            for (int i = 0; i < xp.Count; i++)
-                xpDevSum += Math.Abs(yp[i] - ((xp[i] * slopeLow) + interceptLow));
-            xpDevSum /= xp.Count;
-            List<double> pass2X = new List<double>();
-            List<double> pass2Y = new List<double>();
-            for (int i = 0; i < xp.Count; i++)
-            {
-                if (Math.Abs(yp[i] - lowModelY[i]) < xpDevSum)
-                {
-                    pass2X.Add(xp[i]);
-                    pass2Y.Add(yp[i]);
-                }
-            }
-            return (pass2X, pass2Y);
-        }
-
-        public static List<double> OutlierRemover(List<double> arrayIn)
-        {
-            //Removes all members of arrayIn whose  exceed the mean of the set
-            double arrayMean = MathNet.Numerics.Statistics.ArrayStatistics.Mean(arrayIn.ToArray());
-            double arrayStdDev = MathNet.Numerics.Statistics.ArrayStatistics.StandardDeviation(arrayIn.ToArray());
-            List<double> arrayOut = (from a in arrayIn
-                                     where (Math.Abs(a - arrayMean) <= arrayStdDev)
-                                     select a).ToList();
-            return arrayOut;
-        }
-
-        private static double DistanceXY(double x1, double y1, double x2, double y2)
-        {
-            return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
-        }
-
-        private static double MeanDistanceToNearestStars(double x, double y, List<double> xp, List<double> yp, int meanCount)
-        {
-            //Find the nearest number of meanCount points in xp,yp and average their distance to x,y
-            List<double> proximityList = new List<double>();
-            for (int i = 0; i < xp.Count; i++)
-                for (int j = 0; j < yp.Count; j++)
-                    proximityList.Add(DistanceXY(x, y, xp[i], yp[j]));
-            proximityList.Sort();
-            if (meanCount == 1)
-                return proximityList[0];
-            else
-                return proximityList.GetRange(0, meanCount).Average();
+            //y = (-cotθ)*x + (r*cosecθ)
+            //  m = (-cotθ)
+            //  b = (r * cosecθ)
+            if (maxVote == 0)
+                return (1, 1);
+            double votedTheta = (votedThetaIndex * thetaIncrement);  //in radians
+            double slope = -1.0 / Math.Tan(votedTheta);
+            double votedRange = votedRangeIndex * rangeIncrement + rangeMin;
+            double intercept = votedRange * (1.0 / Math.Sin(votedTheta));
+            return (intercept, slope);
         }
 
         public static List<StarField.FieldLightSource> SortByMagnitude(List<StarField.FieldLightSource> lsList, int brightCount)
@@ -384,7 +278,34 @@ namespace VariScan
             return listOut.GetRange(0, brightCount);
         }
 
-    }
+        public static (List<double>, List<double>) CullOutliers(List<double> xP, List<double> yP, double intercept, double slope)
+        {
+            //Compute standard deviation of x,y datapoints
+            //Build new list of all points that are within the standard deviation of line y = slope X + intercept
+            //Compute the mean deviation for all points w/r/t line defined by slope/intercept
+            List<double> distanceList = new List<double>();
+            List<double> xPout = new List<double>();
+            List<double> yPout = new List<double>();
 
+            double mean = 0;
+            for (int i = 0; i < xP.Count; i++)
+            {
+                double distance = Math.Abs(-slope * xP[i] + yP[i] + (-intercept)) / (Math.Sqrt((-slope * -slope) + 1));
+                distanceList.Add(distance);
+                mean += distance;
+
+            }
+            mean /= xP.Count;
+            for (int i = 0; i < xP.Count; i++)
+            {
+                if (distanceList[i] <= mean)
+                {
+                    xPout.Add(xP[i]);
+                    yPout.Add(yP[i]);
+                }
+            }
+            return (xPout, yPout);
+        }
+    }
 }
 

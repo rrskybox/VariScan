@@ -36,17 +36,27 @@ namespace VariScan
 
         public struct SessionSample
         {
+            public string TargetName;
             public string ImagePath;
             public DateTime ImageDate;
             public string ImageFilter;
             public bool IsRegistrationMaster;
         }
 
+        public SampleManager()
+        {
+            //open an empty list of SampleImages
+            SampleImages = new List<SessionSample>();
+            return;
+        }
+
         public SampleManager(string targetName)
         {
+            //Upon instantiation, create list of all images available for analysis
+            // within a Collection (as defined by ImageBAnkFolder/Configuration.xml)
+            // for a named targetName
             Configuration cfg = new Configuration();
             string targetDirectoryPath = cfg.ImageBankFolder + "\\" + targetName;
-            //Upon instantiation, create list of all images available for analysis
             SampleImages = new List<SessionSample>();
             //Open each of the fits files in target directory
             foreach (string path in Directory.GetFiles(targetDirectoryPath))
@@ -54,6 +64,7 @@ namespace VariScan
                 FitsFileStandAlone fit = new FitsFileStandAlone(path);
                 SessionSample ss = new SessionSample()
                 {
+                    TargetName = targetName,
                     ImagePath = path,
                     ImageDate = fit.FitsLocalDateTime,
                     ImageFilter = fit.Filter
@@ -64,7 +75,59 @@ namespace VariScan
             }
         }
 
-        public List<DateTime> GetTargetSessions()
+        public SampleManager(DateTime targetDate)
+        {
+            //Upon instantiation, create list of all images available for analysis
+            // within a Collection (as defined by ImageBankFolder/Configuration.xml)
+            // for a given targetDate
+            Configuration cfg = new Configuration();
+            SampleImages = new List<SessionSample>();
+            //Get list of image directories for this date
+            List<string> targetDirectories = VariScanFileManager.GetTargetPathList(targetDate);
+            //Open each of the fits files in target directory
+            if (targetDirectories != null)
+                foreach (string targetDir in targetDirectories)
+                    foreach (string targetFilePath in Directory.EnumerateFiles(targetDir))
+                    {
+                        FitsFileStandAlone fit = new FitsFileStandAlone(targetDir);
+                        SessionSample ss = new SessionSample()
+                        {
+                            ImagePath = targetFilePath,
+                            ImageDate = fit.FitsLocalDateTime,
+                            ImageFilter = fit.Filter
+                        };
+                        if (Path.GetExtension(targetFilePath) == ".fit")
+                            SampleImages.Add(ss);
+                    }
+        }
+
+        public SampleManager(string targetName, DateTime targetDate)
+        {
+            //Upon instantiation, create list of all images available for analysis
+            // within a Collection (as defined by ImageBankFolder/Configuration.xml)
+            // for a given target on a given targetDate
+            Configuration cfg = new Configuration();
+            SampleImages = new List<SessionSample>();
+            //Get list of image directories for this target and date
+            List<string> targetDirectories = VariScanFileManager.GetTargetSessionPaths(targetName, targetDate);
+            //Open each of the fits files in target directory
+            if (targetDirectories != null)
+                foreach (string targetFilePath in targetDirectories)
+                {
+                    if (Path.GetExtension(targetFilePath) == ".fit")
+                    {
+                        FitsFileStandAlone fit = new FitsFileStandAlone(targetFilePath);
+                        SampleImages.Add(new SessionSample()
+                        {
+                            ImagePath = targetFilePath,
+                            ImageDate = fit.FitsLocalDateTime,
+                            ImageFilter = fit.Filter
+                        });
+                    }
+                }
+        }
+
+        public List<DateTime> GetSessionDates()
         {
             List<DateTime> dtList = new List<DateTime>();
             foreach (SessionSample ss in SampleImages)
@@ -72,7 +135,7 @@ namespace VariScan
             return dtList.Distinct().ToList();
         }
 
-        public List<string> GetTargetSessionFilters(DateTime sessionDT)
+        public List<string> GetSessionFilters(DateTime sessionDT)
         {
             List<string> dtList = new List<string>();
             List<SessionSample> siList = new List<SessionSample>();
@@ -82,7 +145,7 @@ namespace VariScan
             return dtList.Distinct().ToList();
         }
 
-        public List<SessionSample> GetSessionSamples(DateTime SessionDT, string filter)
+        public List<SessionSample> SelectSessionSamples(DateTime SessionDT, string filter)
         {
             //Extract and organize the images in the target directory which match time and filter
             List<SessionSample> siList = new List<SessionSample>();
@@ -90,47 +153,8 @@ namespace VariScan
             return siList;
         }
 
-        public static List<string> GetSessionTargets(DateTime SessionDT)
-        {
-            List<string> sessionTargets = new List<string>();
-            Configuration cfg = new Configuration();
-            foreach (string tDirPath in Directory.EnumerateDirectories(cfg.ImageBankFolder).ToList())
-            {
-                //Upon instantiation, create list of all images available for analysis
-                List<SessionSample> sampleImages = new List<SessionSample>();
-                //Open each of the fits files in target directory
-                foreach (string fPath in Directory.GetFiles(tDirPath))
-                {
-                    FitsFileStandAlone fit = new FitsFileStandAlone(fPath);
-                    SessionSample ss = new SessionSample()
-                    {
-                        ImagePath = fPath,
-                        ImageDate = fit.FitsLocalDateTime,
-                        ImageFilter = fit.Filter
-                    };
-                    sampleImages.Add(ss);
-                }
-                List<SessionSample> siList = new List<SessionSample>();
-                siList = sampleImages.FindAll(x => Utility.NightTest(x.ImageDate, SessionDT));
-                List<string> tList = new List<string>();
-                if (tList.Count > 0)
-                    sessionTargets.Add(Path.GetFileNameWithoutExtension(tDirPath));
-            }
-            return sessionTargets;
-        }
-
-        public List<string> GetSessionFilters(DateTime SessionDT, string filter)
-        {
-            List<SessionSample> siList = new List<SessionSample>();
-            siList = SampleImages.FindAll(x => Utility.NightTest(x.ImageDate, SessionDT));
-            List<string> tList = new List<string>();
-            foreach (SessionSample ss in siList)
-                if (!tList.Contains(ss.ImageFilter))
-                    tList.Add(Path.GetFileNameWithoutExtension(ss.ImageFilter));
-            return tList;
-        }
-
     }
 }
+
 
 

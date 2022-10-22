@@ -104,6 +104,7 @@ namespace VariScan
             }
             catch (Exception ex)
             {
+
                 IsImageLinked = false;
                 return null;
             }
@@ -260,6 +261,21 @@ namespace VariScan
                 }
             }
             return fc;
+        }
+
+        public static CatalogData GetCatalogData(FieldLightSource lightSource)
+        {
+            //Adds cataloged data for stars from the lightSource registration
+            //fill the fields
+            if (lightSource.StandardMagnitudes != null)
+                return (CatalogData)lightSource.StandardMagnitudes;
+            else
+                return new CatalogData()
+                {
+                    IsAPASSCataloged = false,
+                    IsGAIACataloged = false,
+                    IsGCVSCataloged = false
+                };
         }
 
         public static (double, double) CalculateSeparations(TargetData tgt)

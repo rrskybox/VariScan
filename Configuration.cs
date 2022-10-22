@@ -95,7 +95,7 @@ namespace VariScan
             {
                 Directory.CreateDirectory(ssdir);
             }
-            
+
             //The configuration file is set at in the VariScan directory, if not there than create it with defaults.
             if (!File.Exists(ssdir + "\\" + ScanConfigurationFilename))
             {

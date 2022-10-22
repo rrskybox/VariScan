@@ -49,7 +49,7 @@ namespace VariScan
             System.IO.StreamWriter sys_sw;
             if (!File.Exists(logfilepath))
                 sys_sw = File.CreateText(logfilepath);
-            else 
+            else
                 sys_sw = new System.IO.StreamWriter(logfilepath, true);
             sys_sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " :: " + upd);
             sys_sw.Close();
