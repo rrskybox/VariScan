@@ -242,7 +242,7 @@ namespace VariScan
                 ApassStarCount = Convert.ToInt32(FetchX(xData, APASSFieldStarCountX, "0")),
                 GaiaStarCount = Convert.ToInt32(FetchX(xData, GaiaFieldStarCountX, "0")),
                 AirMass = Convert.ToDouble(FetchX(xData, AirMassX, "0")),
-                Catalog = new StarField.CatalogData(),
+                MasterCatalogInfo = new StarField.CatalogData(),
             };
 
             return tData;

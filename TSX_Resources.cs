@@ -64,21 +64,30 @@ namespace VariScan
             return;
         }
 
-        public static void CenterStarChart(ccdsoftImage TSX_Image, TargetData targetData)
+        public static double ImageWidth (ccdsoftImage TSX_Image)
+        {
+            double scale = TSX_Resources.GetFOVImageScale();
+            double pixWidth = (double)TSX_Image.WidthInPixels;
+            double imageWidthInArcSec = scale * pixWidth;
+            return imageWidthInArcSec;
+        }
+
+
+        public static void CenterStarChart(ccdsoftImage TSX_Image, double ra, double dec, double imageWidthInArcSec)
         {
             //Center the skychart on the ra/dec coordinates
             //Set the star chart size to 1.5 times the image width (fits the whole thing on, persumably
             //double scale = (double)TSX_Image.ScaleInArcsecondsPerPixel;
-            double scale = TSX_Resources.GetFOVImageScale();
-            double pixWidth = (double)TSX_Image.WidthInPixels;
-            double imageWidthInArcSec = scale * pixWidth;
+            //double scale = TSX_Resources.GetFOVImageScale();
+            //double pixWidth = (double)TSX_Image.WidthInPixels;
+            //double imageWidthInArcSec = scale * pixWidth;
 
             sky6StarChart tsxc = new sky6StarChart
             {
-                RightAscension = targetData.TargetRA,
-                Declination = targetData.TargetDec,
-                //FieldOfView = (imageWidthInArcSec * 1.5) / 3600  //in degrees
-                FieldOfView = 1
+                RightAscension = ra,
+                Declination = dec,
+                FieldOfView = (imageWidthInArcSec * 1.5) / 3600  //in degrees
+                //FieldOfView = 1
             };
             return;
         }

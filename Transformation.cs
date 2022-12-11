@@ -27,8 +27,6 @@ namespace VariScan
     public class Transformation
     {
 
-        private List<StarField.FieldLightSource> masterLightSources;
-
         public static (double primaryMag, double differentialMag) FormColorIndex(int regIndex, ColorIndexing.ColorDataSource diffColor,
                                                                                 StarField.FieldLightSource[] differentialFLS,
                                                                                 ColorIndexing.ColorDataSource priColor,
@@ -39,9 +37,9 @@ namespace VariScan
                                                where (p.RegistrationIndex == regIndex)
                                                select p).FirstOrDefault();
             StarField.FieldLightSource dFLS = (from StarField.FieldLightSource d in differentialFLS
-                                               where (d.RegistrationIndex == regIndex)
+                                               where (d.RegistrationIndex == regIndex )
                                                select d).FirstOrDefault();
-            if (pFLS.StandardMagnitudes == null || dFLS.StandardMagnitudes == null)
+            if (pFLS.CatalogInfo == null || dFLS.CatalogInfo == null)
                 return (0, 0);
             else
                 return (GetCatalogedMagnitude(priColor, pFLS, catalog), GetCatalogedMagnitude(diffColor, dFLS, catalog));
@@ -55,64 +53,64 @@ namespace VariScan
             {
                 case ColorIndexing.ColorDataSource.Instrument:
                     {
-                        mag = fls.InstrumentMagnitude;
+                        mag = fls.LightSourceInstMag;
                         break;
                     }
                 case ColorIndexing.ColorDataSource.Bj:
                     {
                         if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Bj,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeG,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGbp,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGrp);
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeG,
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeGbp,
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeGrp);
                         else
-                            mag = fls.StandardMagnitudes.Value.APASSCatalogMagnitudeB;
+                            mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeB;
                         break;
                     }
                 case ColorIndexing.ColorDataSource.Vj:
                     {
                         if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Vj,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeG,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGbp,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGrp);
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeG,
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeGbp,
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeGrp);
                         else
-                            mag = fls.StandardMagnitudes.Value.APASSCatalogMagnitudeV; break;
+                            mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeV; break;
                     }
                 case ColorIndexing.ColorDataSource.Rc:
                     {
                         if (catalog == "Gaia")
                             mag = ColorIndexing.GaiaToJohnson(ColorIndexing.StandardColors.Rc,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeG,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGbp,
-                                                              fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGrp);
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeG,
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeGbp,
+                                                              fls.CatalogInfo.Value.GAIACatalogMagnitudeGrp);
                         else
-                            mag = fls.StandardMagnitudes.Value.APASSCatalogMagnitudeR;
+                            mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeR;
                         break;
                     }
                 case ColorIndexing.ColorDataSource.Ic:
                     {
-                        mag = fls.StandardMagnitudes.Value.APASSCatalogMagnitudeI;
+                        mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeI;
                         break;
                     }
                 case ColorIndexing.ColorDataSource.Uc:
                     {
-                        mag = fls.StandardMagnitudes.Value.APASSCatalogMagnitudeU;
+                        mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeU;
                         break;
                     }
                 case ColorIndexing.ColorDataSource.Gp:
                     {
-                        mag = fls.StandardMagnitudes.Value.GAIACatalogMagnitudeG;
+                        mag = fls.CatalogInfo.Value.GAIACatalogMagnitudeG;
                         break;
                     }
                 case ColorIndexing.ColorDataSource.GBp:
                     {
-                        mag = fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGbp;
+                        mag = fls.CatalogInfo.Value.GAIACatalogMagnitudeGbp;
                         break;
                     }
                 case ColorIndexing.ColorDataSource.GRp:
                     {
-                        mag = fls.StandardMagnitudes.Value.GAIACatalogMagnitudeGrp;
+                        mag = fls.CatalogInfo.Value.GAIACatalogMagnitudeGrp;
                         break;
                     }
             }
@@ -234,7 +232,9 @@ namespace VariScan
                     double rangePoint = xP[p] * Math.Cos(theta) + yP[p] * Math.Sin(theta);
                     //the range runs from - rangeMax to + rangeMax
                     //  the index will be 2 * range/max 
-                    int rangeBucket = Convert.ToInt32((rangePoint - rangeMin) / rangeIncrement);
+                    int rangeBucket = (int)Math.Floor((rangePoint - rangeMin) / rangeIncrement);
+                    if (rangeBucket >= rangeCount)
+                        rangeBucket = rangeCount - 1;
                     //Add vote to range/theta
                     accumulator[t, rangeBucket]++;
                 }
@@ -274,7 +274,7 @@ namespace VariScan
             //Find the ten brightest stars
             if (lsList.Count < brightCount)
                 brightCount = lsList.Count;
-            List<StarField.FieldLightSource> listOut = lsList.OrderByDescending(a => a.InstrumentMagnitude, new SpecialComparer()).ToList();
+            List<StarField.FieldLightSource> listOut = lsList.OrderByDescending(a => a.LightSourceInstMag, new SpecialComparer()).ToList();
             return listOut.GetRange(0, brightCount);
         }
 

@@ -29,9 +29,9 @@ namespace VariScan
 
         public bool IsImageLinked = false;
 
-        public List<TargetData> LightSourceStars;
-        public List<TargetData> validAPASSCatalogedStars;
-        public List<TargetData> validGAIACatalogedStars;
+        //public List<TargetData> LightSourceStars;
+        //public List<TargetData> validAPASSCatalogedStars;
+        //public List<TargetData> validGAIACatalogedStars;
 
         private object[] lsInvMagArr;
         private object[] lsInvFWHMArr;
@@ -39,14 +39,11 @@ namespace VariScan
         private object[] lsInvXPosArr;
         private object[] lsInvYPosArr;
 
-        private static double fieldOfView;
-        private static double rightAscension;
-        private static double declination;
+        //private static double fieldOfView;
+        //private static double rightAscension;
+        //private static double declination;
 
         public DateTime ImageDateTime;
-
-        //public TargetData ImageTarget { get; set; }
-        //private List<LightSourceInventory> fieldInventory;
 
         public StarField(ccdsoftImage tsx_Image, SampleManager.SessionSample sample)
         {
@@ -128,18 +125,20 @@ namespace VariScan
             return fieldInventory;
         }
 
-        public List<FieldLightSource> LocateLightSources(List<LightSourceInventory> fieldInventory)
+        public List<FieldLightSource> PositionLightSources(List<LightSourceInventory> fieldInventory)
         {
             Configuration cfg = new Configuration();
-            double nonLinearADU = Convert.ToDouble(cfg.ADUMax);
+            //Set the maximum ADU to be the maximum imaging ADU + 10% just to make sure that brighter
+            //  stars don't get discarded (like the target star) because of a roundoff error
+            double nonLinearADU = Convert.ToDouble(cfg.ADUMax) * 1.1;
             //Center the skychart on the ra/dec coordinates
             //Set the star chart size to 1.5 times the image width (fits the whole thing on, persumably
-            ImageLinkResults tsxilr = new ImageLinkResults();
-            rightAscension = tsxilr.imageCenterRAJ2000;
-            declination = tsxilr.imageCenterDecJ2000;
-            fieldOfView = (((double)TSX_Image.ScaleInArcsecondsPerPixel * (double)TSX_Image.WidthInPixels) * 1.5) / 3600; //in degrees
+            //ImageLinkResults tsxilr = new ImageLinkResults();
+            //rightAscension = tsxilr.imageCenterRAJ2000;
+            //declination = tsxilr.imageCenterDecJ2000;
+            //fieldOfView = (((double)TSX_Image.ScaleInArcsecondsPerPixel * (double)TSX_Image.WidthInPixels) * 1.5) / 3600; //in degrees
 
-            CenterSkyChart();
+            //CenterSkyChart();
 
             List<FieldLightSource> lsStars = new List<FieldLightSource>();
             if (fieldInventory == null || fieldInventory.Count == 0)
@@ -157,31 +156,47 @@ namespace VariScan
                 double decStar = (double)TSX_Image.XYToRADecResultDec();
                 FieldLightSource starData = new FieldLightSource()
                 {
-                    SourceRA = raStar,
-                    SourceDec = decStar,
-                    InstrumentMagnitude = ls.Magnitude
+                    LightSourceRA = raStar,
+                    LightSourceDec = decStar,
+                    LightSourceInstMag = ls.Magnitude,
+                    LightSourceFWHM = ls.FWHM,
+                    LightSourceEllipticity = ls.Ellipticity
                 };
 
                 //Get ADU at image X,Y position
                 //  Note: the Zero Y line is the top line of the image
+                //  Note: ran across an instance where x position exceeded max bound
+                //      This info comes from SEXtractor, so it's unfixable
+                //      must apply exception handler -- catch but drop starData
+                //      as if it were saturated
                 int xPos = (int)ls.XPosition;
                 int yPos = (int)ls.YPosition;
                 object[] xDataLine = TSX_Image.scanLine(yPos);
-                int xyADU = (int)xDataLine[xPos];
-                starData.SourceADU = xyADU;
-                //Remove saturated and antibloomed stars
-                if (xyADU < nonLinearADU)
+                int xyADU = int.MaxValue;
+                try { xyADU = (int)xDataLine[xPos]; }
+                catch (Exception ex) { }
+                starData.LightSourceADU = xyADU;
+                starData.SourceInventory = ls;
+                //Remove saturated and antibloomed stars and crop image by 1/2
+                if (xyADU < nonLinearADU && InsideCrop(starData))
                     lsStars.Add(starData);
             };
             return lsStars;
         }
 
-        public static CatalogData GetCatalogData(double ra, double dec)
+        public static CatalogData ClickFindCatalogData(double ra, double dec)
         {
             //Adds cataloged data for stars very near the input catalog data
 
-            //Center and frame star chart
-            CenterSkyChart();
+            //It is assumed that the star chart is centered and framed before calling this method
+
+            //The method first converts the ra/dec location to xy coordinates on the starchart.
+            //  then a clickfind is executed which returns a set of cataloged stars near that location
+            //  the cataloged location and magnitudes are acquired for the first APASS entry
+            //  and the first Gaia entry.
+            //  In the case of multiple APASS (improbable) or Gaia (probable), the method assumes
+            //  that the first entry for each is the closest entry for that catalog
+            //  Upon completion a CatalogData object for that light source is returned.
 
             sky6ObjectInformation tsxod = new sky6ObjectInformation();
 
@@ -203,116 +218,137 @@ namespace VariScan
             {
                 IsAPASSCataloged = false,
                 IsGAIACataloged = false,
-                IsGCVSCataloged = false
             };
             for (int i = 0; i < objcnt; i++)
             {
                 tsxod.Index = i;
-                tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_NAME1);
-                string catalogedName = tsxod.ObjInfoPropOut;
-                tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_MAG);
-                var catalogMag = tsxod.ObjInfoPropOut;
-                tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_RA_2000);
-                var catalogRA = tsxod.ObjInfoPropOut;
-                tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DEC_2000);
-                var catalogDec = tsxod.ObjInfoPropOut;
-                if (catalogedName.Contains("Gaia"))
+                if (!fc.IsAPASSCataloged || !fc.IsGAIACataloged)
                 {
-                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_1); //FIlter G
-                    var catalogMagG = Convert.ToDouble(tsxod.ObjInfoPropOut);
-                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_2); //Filter Gbp
-                    var catalogMagGbp = Convert.ToDouble(tsxod.ObjInfoPropOut);
-                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_3);  //Filter Gbr
-                    var catalogMagGrp = Convert.ToDouble(tsxod.ObjInfoPropOut);
+                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_NAME1);
+                    string catalogedName = tsxod.ObjInfoPropOut;
+                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_MAG);
+                    var catalogMag = tsxod.ObjInfoPropOut;
+                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_RA_2000);
+                    var catalogRA = tsxod.ObjInfoPropOut;
+                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DEC_2000);
+                    var catalogDec = tsxod.ObjInfoPropOut;
+                    if (catalogedName.Contains("Gaia"))
+                    {
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_1); //FIlter G
+                        var catalogMagG = Convert.ToDouble(tsxod.ObjInfoPropOut);
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_2); //Filter Gbp
+                        var catalogMagGbp = Convert.ToDouble(tsxod.ObjInfoPropOut);
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_3);  //Filter Gbr
+                        var catalogMagGrp = Convert.ToDouble(tsxod.ObjInfoPropOut);
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_4);  //Filter Gbr
+                        var catalogStellarTemp = Convert.ToDouble(tsxod.ObjInfoPropOut);
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_5);  //Filter Gbr
+                        var catalogPhotoVar = Convert.ToString(tsxod.ObjInfoPropOut);
 
-                    fc.IsGAIACataloged = true;
-                    fc.GAIACatalogName = catalogedName;
-                    fc.GAIACatalogRA = catalogRA;
-                    fc.GAIACatalogDec = catalogDec;
-                    fc.GAIACatalogMagnitudeG = catalogMagG;
-                    fc.GAIACatalogMagnitudeGbp = catalogMagGbp;
-                    fc.GAIACatalogMagnitudeGrp = catalogMagGrp;
-                }
-                else if (catalogedName.Contains("APASS"))
-                {
-                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_STAR_MAGB);
-                    var catalogMagB = tsxod.ObjInfoPropOut;
-                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_STAR_MAGV);
-                    var catalogMagV = tsxod.ObjInfoPropOut;
-                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_STAR_MAGR);
-                    var catalogMagR = tsxod.ObjInfoPropOut;
-                    tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_4);
-                    char[] s = new char[] { ' ' };
-                    var catalogMagG = Convert.ToDouble(tsxod.ObjInfoPropOut.Split(s, StringSplitOptions.RemoveEmptyEntries)[0]);
+                        fc.IsGAIACataloged = true;
+                        fc.GAIACatalogName = catalogedName;
+                        fc.GAIACatalogRA = catalogRA;
+                        fc.GAIACatalogDec = catalogDec;
+                        fc.GAIACatalogMagnitudeG = catalogMagG;
+                        fc.GAIACatalogMagnitudeGbp = catalogMagGbp;
+                        fc.GAIACatalogMagnitudeGrp = catalogMagGrp;
+                        fc.GAIACatalogStellarTemp = catalogStellarTemp;
+                        fc.GAIACatalogPhotoVar = catalogPhotoVar;
+                    }
+                    else if (catalogedName.Contains("APASS"))
+                    {
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_STAR_MAGB);
+                        var catalogMagB = tsxod.ObjInfoPropOut;
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_STAR_MAGV);
+                        var catalogMagV = tsxod.ObjInfoPropOut;
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_STAR_MAGR);
+                        var catalogMagR = tsxod.ObjInfoPropOut;
+                        tsxod.Property(TheSky64Lib.Sk6ObjectInformationProperty.sk6ObjInfoProp_DB_FIELD_4);
+                        char[] s = new char[] { ' ' };
+                        var catalogMagG = Convert.ToDouble(tsxod.ObjInfoPropOut.Split(s, StringSplitOptions.RemoveEmptyEntries)[0]);
 
-                    fc.IsAPASSCataloged = true;
-                    fc.APASSCatalogName = catalogedName;
-                    fc.APASSCatalogRA = catalogRA;
-                    fc.APASSCatalogDec = catalogDec;
-                    fc.APASSCatalogMagnitudeB = catalogMagB;
-                    fc.APASSCatalogMagnitudeV = catalogMagV;
-                    fc.APASSCatalogMagnitudeR = catalogMagR;
-                    //fc.APASSCatalogMagnitudeI = catalogMagI;
-                    //fc.APASSCatalogMagnitudeU = catalogMagU;
-                }
-                else if (catalogedName.Contains("GCVS"))
-                {
-                    fc.IsGCVSCataloged = true;
+                        fc.IsAPASSCataloged = true;
+                        fc.APASSCatalogName = catalogedName;
+                        fc.APASSCatalogRA = catalogRA;
+                        fc.APASSCatalogDec = catalogDec;
+                        fc.APASSCatalogMagnitudeB = catalogMagB;
+                        fc.APASSCatalogMagnitudeV = catalogMagV;
+                        fc.APASSCatalogMagnitudeR = catalogMagR;
+                        //fc.APASSCatalogMagnitudeI = catalogMagI;
+                        //fc.APASSCatalogMagnitudeU = catalogMagU;
+                    }
                 }
             }
             return fc;
         }
 
-        public static CatalogData GetCatalogData(FieldLightSource lightSource)
+        public static CatalogData ReadCatalogData(FieldLightSource lightSource)
         {
             //Adds cataloged data for stars from the lightSource registration
+
             //fill the fields
-            if (lightSource.StandardMagnitudes != null)
-                return (CatalogData)lightSource.StandardMagnitudes;
+            if (lightSource.CatalogInfo != null)
+                return (CatalogData)lightSource.CatalogInfo;
             else
                 return new CatalogData()
                 {
                     IsAPASSCataloged = false,
                     IsGAIACataloged = false,
-                    IsGCVSCataloged = false
                 };
         }
 
-        public static (double, double) CalculateSeparations(TargetData tgt)
+        public static (double, double) CalculateSeparations(CatalogData tgtCatEntry, double ra, double dec)
         {
             //Determine separation between source and APASS, and source and GAIA in arcsec?
             sky6Utils tsxu = new sky6Utils();
-            tsxu.ComputeAngularSeparation(tgt.Catalog.APASSCatalogRA, tgt.Catalog.APASSCatalogDec, tgt.SourceRA, tgt.SourceDec);
+            tsxu.ComputeAngularSeparation(tgtCatEntry.APASSCatalogRA, tgtCatEntry.APASSCatalogDec, ra, dec);
             double currentAPASSseparation = tsxu.dOut0;
-            tsxu.ComputeAngularSeparation(tgt.Catalog.GAIACatalogRA, tgt.Catalog.GAIACatalogDec, tgt.SourceRA, tgt.SourceDec);
+            tsxu.ComputeAngularSeparation(tgtCatEntry.GAIACatalogRA, tgtCatEntry.GAIACatalogDec, ra, dec);
             double currentGAIAseparation = tsxu.dOut0;
             return (currentAPASSseparation, currentGAIAseparation);
         }
 
-        private static void CenterSkyChart()
+        public bool InsideCrop(FieldLightSource ls)
         {
-            //Center the skychart on the ra/dec coordinates
-            //Set the star chart size to 1.5 times the image width (fits the whole thing on, persumably
-            sky6StarChart tsxc = new sky6StarChart
-            {
-                RightAscension = rightAscension,
-                Declination = declination,
-                FieldOfView = fieldOfView
-            };
+            //Returns true if the light source is inside the cropped region
+            //  as defined by 1/2 of the field of view
+            int pWidth = TSX_Image.WidthInPixels;
+            int pHeight = TSX_Image.HeightInPixels;
+            double xMin = pWidth * .25;
+            double xMax = pWidth * .75;
+            double yMin = pHeight * .25;
+            double yMax = pHeight * .75;
+            double x = ls.SourceInventory.XPosition;
+            double y = ls.SourceInventory.YPosition;
+            if (x >= xMin && x <= xMax && y >= yMin && y <= yMax)
+                return true;
+            else
+                return false;
         }
+
+        //private static void CenterSkyChart()
+        //{
+        //    //Center the skychart on the ra/dec coordinates
+        //    //Set the star chart size to 1.5 times the image width (fits the whole thing on, persumably
+        //    sky6StarChart tsxc = new sky6StarChart
+        //    {
+        //        RightAscension = rightAscension,
+        //        Declination = declination,
+        //        FieldOfView = fieldOfView
+        //    };
+        //}
 
         public void Close()
         {
             if (TSX_Image != null) VariScanFileManager.CloseImageFile(TSX_Image);
         }
 
-
-        public TargetData LoadTargetFromLightSourceInventory(TargetData lightSource)
+        public TargetData FlushOutTargetDataFields(TargetData tgtData)
         {
             //Gets location and magnitude data on light source closest to light source RA/Dec
             sky6Utils tsxu = new sky6Utils();
-            double ra = lightSource.TargetRA;
-            double dec = lightSource.TargetDec;
+            double ra = tgtData.TargetRA;
+            double dec = tgtData.TargetDec;
             double currentSeparation = double.MaxValue;
             double minimumSeparation = double.MaxValue;
             int sIndex = -1;
@@ -328,16 +364,16 @@ namespace VariScan
                     minimumSeparation = currentSeparation;
                     sIndex = iSource;
                     //populate lightSource targetData in anticipation...
-                    lightSource.InventoryArrayIndex = sIndex;
-                    lightSource.TargetToSourcePositionError = minimumSeparation * 3600.0;
-                    lightSource.SourceRA = raSrc;
-                    lightSource.SourceDec = decSrc;
-                    lightSource.SourceX = (double)lsInvXPosArr[sIndex];
-                    lightSource.SourceY = (double)lsInvYPosArr[sIndex];
-                    lightSource.SourceInstrumentMagnitude = (double)lsInvMagArr[sIndex];
+                    tgtData.InventoryArrayIndex = sIndex;
+                    tgtData.TargetToSourcePositionError = minimumSeparation * 3600.0;
+                    tgtData.SourceRA = raSrc;
+                    tgtData.SourceDec = decSrc;
+                    tgtData.SourceX = (double)lsInvXPosArr[sIndex];
+                    tgtData.SourceY = (double)lsInvYPosArr[sIndex];
+                    tgtData.SourceInstrumentMagnitude = (double)lsInvMagArr[sIndex];
                 }
             }
-            return lightSource;
+            return tgtData;
         }
 
         public double? FWHMAvg_Pixels
@@ -393,47 +429,47 @@ namespace VariScan
                 {
                     case ColorIndexing.ColorDataSource.Instrument:
                         {
-                            mag = this.InstrumentMagnitude;
+                            mag = this.LightSourceInstMag;
                             break;
                         }
                     case ColorIndexing.ColorDataSource.Bj:
                         {
-                            mag = this.StandardMagnitudes.Value.APASSCatalogMagnitudeB;
+                            mag = this.CatalogInfo.Value.APASSCatalogMagnitudeB;
                             break;
                         }
                     case ColorIndexing.ColorDataSource.Vj:
                         {
-                            mag = this.StandardMagnitudes.Value.APASSCatalogMagnitudeV;
+                            mag = this.CatalogInfo.Value.APASSCatalogMagnitudeV;
                             break;
                         }
                     case ColorIndexing.ColorDataSource.Rc:
                         {
-                            mag = this.StandardMagnitudes.Value.APASSCatalogMagnitudeR;
+                            mag = this.CatalogInfo.Value.APASSCatalogMagnitudeR;
                             break;
                         }
                     case ColorIndexing.ColorDataSource.Ic:
                         {
-                            mag = this.StandardMagnitudes.Value.APASSCatalogMagnitudeI;
+                            mag = this.CatalogInfo.Value.APASSCatalogMagnitudeI;
                             break;
                         }
                     case ColorIndexing.ColorDataSource.Uc:
                         {
-                            mag = this.StandardMagnitudes.Value.APASSCatalogMagnitudeU;
+                            mag = this.CatalogInfo.Value.APASSCatalogMagnitudeU;
                             break;
                         }
                     case ColorIndexing.ColorDataSource.Gp:
                         {
-                            mag = this.StandardMagnitudes.Value.GAIACatalogMagnitudeG;
+                            mag = this.CatalogInfo.Value.GAIACatalogMagnitudeG;
                             break;
                         }
                     case ColorIndexing.ColorDataSource.GBp:
                         {
-                            mag = this.StandardMagnitudes.Value.GAIACatalogMagnitudeGbp;
+                            mag = this.CatalogInfo.Value.GAIACatalogMagnitudeGbp;
                             break;
                         }
                     case ColorIndexing.ColorDataSource.GRp:
                         {
-                            mag = this.StandardMagnitudes.Value.GAIACatalogMagnitudeGrp;
+                            mag = this.CatalogInfo.Value.GAIACatalogMagnitudeGrp;
                             break;
                         }
                 }
@@ -442,11 +478,14 @@ namespace VariScan
             }
 
             public int? RegistrationIndex { get; set; }
-            public double SourceRA { get; set; }
-            public double SourceDec { get; set; }
-            public double InstrumentMagnitude { get; set; }
-            public double SourceADU { get; set; }
-            public CatalogData? StandardMagnitudes { get; set; }
+            public double LightSourceRA { get; set; }
+            public double LightSourceDec { get; set; }
+            public double LightSourceInstMag { get; set; }
+            public double LightSourceADU { get; set; }
+            public double LightSourceEllipticity { get; set; }
+            public double LightSourceFWHM { get; set; }
+            public CatalogData? CatalogInfo { get; set; }
+            public LightSourceInventory SourceInventory { get; set; }
         }
 
         public struct CatalogData
@@ -468,7 +507,8 @@ namespace VariScan
             public double GAIACatalogMagnitudeG { get; set; }
             public double GAIACatalogMagnitudeGbp { get; set; }
             public double GAIACatalogMagnitudeGrp { get; set; }
-            public bool IsGCVSCataloged { get; set; }
+            public double GAIACatalogStellarTemp { get; set; }
+            public string GAIACatalogPhotoVar { get; set; }
         }
     }
 }

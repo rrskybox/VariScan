@@ -28,7 +28,8 @@ namespace VariScan
         public bool IsImageLinked { get; set; }
         public bool IsTransformed { get; set; }
         public string CatalogName { get; set; }
-        public int Registration { get; set; }
+        public int MasterRegistrationIndex { get; set; }
+        public StarField.CatalogData MasterCatalogInfo { get; set; }
         public int InventoryArrayIndex { get; set; }
         public double TargetRA { get; set; }
         public double TargetDec { get; set; }
@@ -43,13 +44,13 @@ namespace VariScan
         public double SourceInstrumentMagnitude { get; set; }
         public double StandardColorMagnitude { get; set; }
         public double StandardMagnitudeError { get; set; }
-        public StarField.CatalogData Catalog { get; set; }
         public double SourceToAPASSCatalogPositionError { get; set; }
         public double SourceToGAIACatalogPositionError { get; set; }
         public int ApassStarCount { get; set; }
         public int GaiaStarCount { get; set; }
         public DateTime SessionDate { get; set; }
         public DateTime ImageDate { get; set; }
+        public double ImageWidthInArcSec { get; set; }
         public string PrimaryImageFilter { get; set; }
         public string DifferentialImageFilter { get; set; }
         public string PrimaryStandardColor { get; set; }

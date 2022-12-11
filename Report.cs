@@ -96,13 +96,15 @@ namespace VariScan
             const string DATE = "#DATE";
             const string OBSTYPE = "#OBSTYPE";
 
+            const string HEADERLINE = "#NAME,DATE,MAG,MERR,FILT,TRANS,MTYPE,CNAME,CMAG,KNAME,KMAG,AMASS,GROUP,CHART,NOTES";
             //Form Header
             string header = TYPE + "=" + EXTENDED + "\n" +
                             OBSCODE + "=" + AAVSO_Observers_Code + "\n" +
                             SOFTWARE + "=" + VARSURVEYNAME + "\n" +
                             DELIM + "=" + DELIMITER + "\n" +
                             DATE + "=" + EXCELDATETYPE + "\n" +
-                            OBSTYPE + "=" + OBSTYPECODE;
+                            OBSTYPE + "=" + OBSTYPECODE + "\n" +
+                            HEADERLINE;
 
             StreamWriter csvFile = File.CreateText(textFilePath);
             //write header
@@ -114,6 +116,7 @@ namespace VariScan
                 if (tData.IsTransformed)
                 {
                     string bline = tData.TargetName + DELIMITER; //STARID
+                    string cline = tData.PrimaryStandardColor + "/" + tData.DifferentialStandardColor;
                     bline += tData.ImageDate.ToString() + DELIMITER; //DATE
                     bline += tData.StandardColorMagnitude + DELIMITER; //MAGNITUDE
                     bline += tData.StandardMagnitudeError + DELIMITER;//MAGERR
@@ -126,8 +129,8 @@ namespace VariScan
                     bline += "ensemble" + DELIMITER; //KMAG
                     bline += tData.AirMass.ToString("0.000") + DELIMITER; //AIRMASS
                     bline += "na" + DELIMITER; //GROUP
-                    bline += tData.CatalogName + " Full Frame" + DELIMITER; //CHART
-                    bline += "Full frame light source calibration using " + tData.ApassStarCount.ToString("0") + " " +
+                    bline += tData.CatalogName + "(" + cline + ")" + DELIMITER; //CHART
+                    bline += "Full frame light source calibration via differential transformation using " + tData.ApassStarCount.ToString("0") + " " +
                              tData.CatalogName + " cataloged stars to transform " +
                              "Primary " + tData.PrimaryImageFilter + "/" +
                              "Differential " + tData.DifferentialImageFilter +

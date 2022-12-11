@@ -203,7 +203,7 @@ namespace VariScan
             List<string> imageBankDirs = Directory.GetDirectories(iBank).ToList();
             List<string> targetDirNames = new List<string>();
             foreach (string iDir in imageBankDirs)
-                if (Directory.GetFiles(iDir,"*.fit").Length > 0)
+                if (Directory.GetFiles(iDir, "*.fit").Length > 0)
                     targetDirNames.Add(Path.GetFileNameWithoutExtension(iDir));
             //cull duplicates and sort alphabetically
             targetDirNames.Distinct().ToList().Sort();
@@ -236,7 +236,7 @@ namespace VariScan
             //Get list of imagefile out of each target directory
             foreach (string nonEmptyDirectory in GetTargetPathList())
             {
-                foreach (string path in Directory.GetFiles(nonEmptyDirectory,"*.fit").ToList())
+                foreach (string path in Directory.GetFiles(nonEmptyDirectory, "*.fit").ToList())
                 {
                     (string tName, string iD, string iF, string iC) =
                             ParseImageFileName(Path.GetFileNameWithoutExtension(path));
@@ -258,7 +258,7 @@ namespace VariScan
             //Get list of imagefile out of each target directory
             foreach (string nonEmptyDirectory in GetTargetPathList())
             {
-                foreach (string path in Directory.GetFiles(nonEmptyDirectory,"*.fit").ToList())
+                foreach (string path in Directory.GetFiles(nonEmptyDirectory, "*.fit").ToList())
                 {
                     (string n, string iD, string iF, string iC) =
                             ParseImageFileName(Path.GetFileNameWithoutExtension(path));
@@ -287,7 +287,7 @@ namespace VariScan
             //take a look in the iBankName target directory
             string iBankDir = iBank + "\\" + targetName;
             //parse and convert each dir name to a date, then add to list
-            foreach (string f in Directory.GetFiles(iBankDir,"*.fit").ToList())
+            foreach (string f in Directory.GetFiles(iBankDir, "*.fit").ToList())
             {
                 (string tName, string iDate, string iFilter, string iSeq) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
                 DateTime fileDate = Convert.ToDateTime(iDate);
@@ -313,7 +313,7 @@ namespace VariScan
             //take a look in the iBankName target directory
             string iBankDir = iBank + "\\" + targetName;
             //parse and convert each dir name to a date, then add to list
-            foreach (string f in Directory.GetFiles(iBankDir,"*.fit").ToList())
+            foreach (string f in Directory.GetFiles(iBankDir, "*.fit").ToList())
             {
                 (string tName, string iDate, string iFilter, string iSeq) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
                 //if (Utility.NightTest(Convert.ToDateTime(iDate), sessionDate) && iFilter == filter)
@@ -338,7 +338,7 @@ namespace VariScan
             }
             //take a look in the iBankName target directory
             string iBankDir = iBank + "\\" + targetName;
-            List<string> datedFiles = Directory.GetFiles(iBankDir,"*.fit").ToList();
+            List<string> datedFiles = Directory.GetFiles(iBankDir, "*.fit").ToList();
             //parse and convert each dir name to a date, then add to list
             foreach (string f in datedFiles)
             {

@@ -85,7 +85,7 @@ namespace VariScan
         const string CLSReductionX = "CLSReduction";
 
         string ssdir;  //VariScan Root directory
-        string cmdir;  //Current Collection directory
+        //string cmdir;  //Current Collection directory
 
         public Configuration()
         {
@@ -162,17 +162,19 @@ namespace VariScan
         {
             string cfgfilename = ssdir + "\\" + ScanConfigurationFilename;
             XElement cfgXf = XElement.Load(cfgfilename);
-            if (cfgXf.Element(elementName) == null || cfgXf.Element(elementName).Value == "")
+            if (cfgXf.Element(elementName) == null)
             {
                 cfgXf.Add(new XElement(elementName, defaultValue));
                 cfgXf.Save(cfgfilename);
-                return (defaultValue);
+                return defaultValue;
             }
-            else
+            else if (cfgXf.Element(elementName).Value == "")
             {
-                return (cfgXf.Element(elementName).Value);
+                cfgXf.Element(elementName).ReplaceWith(new XElement(elementName, defaultValue));
+                cfgXf.Save(cfgfilename);
+                return defaultValue;
             }
-
+            else return (cfgXf.Element(elementName).Value);
         }
 
         private void SetConfig(string elementName, string value)

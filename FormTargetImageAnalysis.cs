@@ -31,52 +31,49 @@ namespace VariScan
 {
     public partial class FormTargetImageAnalysis : Form
     {
-        public const double MinSeparationArcSec = 5;
-        public const double NyquistMinimumSamples = 2;
-        public bool isInitializing;
-        public bool isAnalyzing;
-
-        public SampleManager SampleSet;
-
+        //common constants
         public const double maxMagVal = 21;
         public const double minMagVal = 4;
-
-        public int? currentTargetRegistration;
-
-        public double Xcen;
-        public double Ycen;
-
-        public List<int> magAArrPlotIndex;
-        public List<int> magGArrPlotIndex;
-
-        //List of light source targets
-        public TargetData CurrentTargetData { get; set; }
-        public ccdsoftImage TSX_Image { get; set; }
-        public FitsFileTSX FITImage { get; set; }
-        public ImageLink TSXimglnk { get; set; }
-        public double SaturationADU { get; set; }
-        public double NonLinearADU { get; set; }
-        public double FocalRatio { get; set; }
-        public double PixelScale_arcsec { get; set; }
+        public const double MinSeparationArcSec = 5;
+        public const double NyquistMinimumSamples = 2;
+        //common procedure flags
+        public bool IsInitializing { get; set; }
+        public bool IsAnalyzing { get; set; }
         public bool FitsIsOpen { get; set; }
-        public double FWHMSeeing_arcsec { get; set; }
-        public ColorIndexing TargetColorIndex { get; set; }
+        //common TSX server objects
+        public ccdsoftImage TSX_Image { get; set; }
+        public ImageLink TSXimglnk { get; set; }
 
+        //List of paths to target image bank folders for a processing session
+        List<FormSampleCatalog.TargetShoot> SessionList = new List<FormSampleCatalog.TargetShoot>();
+        //Descriptors for data on the target currently being processed
+        public TargetData CurrentTargetData { get; set; }
+        public int? currentTargetRegistration { get; set; }
+        //Lists of descriptors for light sources and associated catalog information from images
         StarField.FieldLightSource[] masterLightSources;
         List<StarField.FieldLightSource[]> primaryLightSources = new List<StarField.FieldLightSource[]>();
         List<StarField.FieldLightSource[]> differentialLightSources = new List<StarField.FieldLightSource[]>();
 
+        //Color Indexing and Transformation data
+        ColorIndexing TargetColorIndex;
+        List<double> targetStandardizedMag = new List<double>();
         List<double> colorTransformList = new List<double>();
         List<double> magnitudeTransformList = new List<double>();
 
-        List<double> targetStandardizedMag = new List<double>();
-        List<FormSampleCatalog.TargetShoot> SessionList = new List<FormSampleCatalog.TargetShoot>();
-
+        //FITS file processing fields
+        FitsFileTSX FITImage { get; set; }
+        //Derived device parameters
+        public string ImageFilter { get; set; }
+        public double SaturationADU { get; set; }
+        public double NonLinearADU { get; set; }
+        public double FocalRatio { get; set; }
+        public double PixelScale_arcsec { get; set; }
+        public double FWHMSeeing_arcsec { get; set; }
 
         public FormTargetImageAnalysis()
         {
             Configuration cfg = new Configuration();
-            isInitializing = true;
+            IsInitializing = true;
             InitializeComponent();
             //Color the group box titles as Visual Studio doesn't seem to get this done on its own
             SeeingGroupBox.ForeColor = Color.White;
@@ -92,7 +89,7 @@ namespace VariScan
             ReportGroupBox.ForeColor = Color.White;
 
             Utility.ButtonGreen(DoneButton);
-            Utility.ButtonGreen(DisplayGridButton);
+            Utility.ButtonGreen(SelectSessionsButton);
 
             // Acquire the version information and put it in the form header
             try { this.Text = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString(); }
@@ -106,8 +103,8 @@ namespace VariScan
             //Set window position based on ontopcheckbox
             OnTopCheckBox.Checked = Convert.ToBoolean(cfg.AnalysisFormOnTop);
             this.TopMost = OnTopCheckBox.Checked;
-            isInitializing = false;
-            isAnalyzing = false;
+            IsInitializing = false;
+            IsAnalyzing = false;
             return;
         }
 
@@ -176,6 +173,7 @@ namespace VariScan
 
 
         #region analysis
+
         public void RegisterLightSources(FormSampleCatalog.TargetShoot tgtShot)
         {
             LogIt("Registering " + tgtShot.Target + " on " + tgtShot.Date);
@@ -209,9 +207,6 @@ namespace VariScan
             }
 
             #region acquireImageLightSources
-            //Center the skychart on the ra/dec coordinates
-            //Set the star chart size to 1.5 times the image width (fits the whole thing on, persumably
-            TSX_Resources.CenterStarChart(TSX_Image, CurrentTargetData);
             //Image link then list light source date for each primary image
             int ith = 0;  //counter
             foreach (SampleManager.SessionSample sample in priFiles)
@@ -222,9 +217,11 @@ namespace VariScan
                 //Pick up the last date time of the primary images
                 CurrentTargetData.ImageDate = sf.FitsImageDateTime();
                 CurrentTargetData.AirMass = sf.AirMass();
+                //Center star chart and set fov for click find
+                //TSX_Resources.CenterStarChart(TSX_Image, CurrentTargetData.SourceRA, CurrentTargetData.SourceDec);
                 //Add the lightsource array
                 TSX_Process.MinimizeTSX();
-                List<StarField.FieldLightSource> unregList = sf.LocateLightSources(sf.AssembleLightSources());
+                List<StarField.FieldLightSource> unregList = sf.PositionLightSources(sf.AssembleLightSources());
                 DisplayCatalogData();
                 TSX_Process.NormalizeTSX();
                 if (unregList.Count > 0)
@@ -235,6 +232,7 @@ namespace VariScan
                 }
                 else
                     LogIt("Primary image failed Image Link");
+                CurrentTargetData.ImageWidthInArcSec = TSX_Resources.ImageWidth(TSX_Image);
                 sf.Close();
             }
             //Check for results -- if no light sources then return
@@ -244,15 +242,17 @@ namespace VariScan
                 return;
             }
             //
-            //Image link then list light source date for each differential image
+            //Image link then list light source data for each differential image
             ith = 0; //counter
             foreach (SampleManager.SessionSample sample in difFiles)
             {
                 LogIt("Image Linking " + Path.GetFileName(sample.ImagePath));
                 StarField sf = new StarField(TSX_Image, sample);
                 //Add the lightsource array
+                //Center star chart and set fov for click find
+                //TSX_Resources.CenterStarChart(TSX_Image, CurrentTargetData.SourceRA, CurrentTargetData.SourceDec);
                 TSX_Process.MinimizeTSX();
-                List<StarField.FieldLightSource> unregList = sf.LocateLightSources(sf.AssembleLightSources());
+                List<StarField.FieldLightSource> unregList = sf.PositionLightSources(sf.AssembleLightSources());
                 DisplayCatalogData();
                 TSX_Process.NormalizeTSX();
                 if (unregList.Count > 0)
@@ -268,7 +268,7 @@ namespace VariScan
             //Check for results -- if no light sources then return
             if (unregisteredDLS.Count < 1)
             {
-                LogIt("Insufficient primary light sources");
+                LogIt("Insufficient differential light sources");
                 return;
             }
             #endregion
@@ -277,23 +277,41 @@ namespace VariScan
             masterLightSources = unregisteredPLS.First().ToArray();
             LogIt("Acquiring catalog data for light sources");
 
-            //Populate the master sample image with APASS, GAIA and GCVS data, as available
+            //Load up target data
+            LogIt("Finding coordinates for " + tgtShot.Target);
+            (double tRA, double tDec) = TSX_Resources.FindTarget(tgtShot.Target);
+            CurrentTargetData.TargetRA = tRA;
+            CurrentTargetData.TargetDec = tDec;
+            //Populate the master sample image with APASS, GAIA data, as available
+            SourceCountBox.Text = "0/0";
+            ApassStarCountBox.Text = "0";
+            GaiaStarCountBox.Text = "0";
+            //Starchart must be centered and sized for ClickFind to work
+            TSX_Resources.CenterStarChart(TSX_Image,
+                                            CurrentTargetData.TargetRA,
+                                            CurrentTargetData.TargetDec,
+                                            CurrentTargetData.ImageWidthInArcSec);
+
             TSX_Process.MinimizeTSX();
             for (int i = 0; i < masterLightSources.Length; i++)
             {
-                SourceCountBox.Text = i.ToString() + " / " + masterLightSources.Length.ToString();
-                StarField.CatalogData catDat = StarField.GetCatalogData(masterLightSources[i].SourceRA, masterLightSources[i].SourceDec);
-                masterLightSources[i].StandardMagnitudes = catDat;
+                StarField.CatalogData catDat = StarField.ClickFindCatalogData(masterLightSources[i].LightSourceRA, masterLightSources[i].LightSourceDec);
+                masterLightSources[i].CatalogInfo = catDat;
                 //Set registration index for each master light source -- but may not need this
                 masterLightSources[i].RegistrationIndex = i;
+                //Update count boxes
+                SourceCountBox.Text = i.ToString() + " / " + masterLightSources.Length.ToString();
+                if (catDat.IsAPASSCataloged)
+                    ApassStarCountBox.Text = ((Convert.ToInt32(ApassStarCountBox.Text)) + 1).ToString();
+                if (catDat.IsGAIACataloged)
+                    GaiaStarCountBox.Text = ((Convert.ToInt32(GaiaStarCountBox.Text)) + 1).ToString();
             }
+            TSX_Process.NormalizeTSX();
 
             //Get target registration index
             //  use Find function rather than believing the AAVSO fields
             //  if a cataloged star is not located close to the location of a light source
             //  then quit
-            LogIt("Finding coordinates for " + tgtShot.Target);
-            (double tRA, double tDec) = TSX_Resources.FindTarget(tgtShot.Target);
             LogIt("Assigning light source to cataloged star");
             currentTargetRegistration = Registration.ClosestLightSource(masterLightSources, tRA, tDec, MinSeparationArcSec);
             if (currentTargetRegistration == null)
@@ -301,8 +319,10 @@ namespace VariScan
                 LogIt("Cannot register light source to cataloged target star");
                 return;
             }
-            //Create master registration list (has data for all targets on first primary image
-            //masterRegisteredList = masterLightSources.ToList<StarField.FieldLightSource>();
+            CurrentTargetData.MasterRegistrationIndex = (int)currentTargetRegistration;
+            CurrentTargetData.SourceRA = masterLightSources[(int)currentTargetRegistration].LightSourceRA;
+            CurrentTargetData.SourceDec = masterLightSources[(int)currentTargetRegistration].LightSourceDec;
+            CurrentTargetData.MasterCatalogInfo = StarField.ReadCatalogData(masterLightSources[(int)currentTargetRegistration]);
 
             //To align all the field light source arrays based on registration number
             //Register other primary samples and differential samples against master sample, including the image data selected for the master sample
@@ -313,21 +333,17 @@ namespace VariScan
                 differentialLightSources.Add(Registration.RegisterLightSources(masterLightSources, unregisteredDLS[i], MinSeparationArcSec));
             LogIt("Registration Complete");
 
-            CurrentTargetData.Registration = (int)currentTargetRegistration;
-            CurrentTargetData.SourceRA = masterLightSources[(int)currentTargetRegistration].SourceRA;
-            CurrentTargetData.SourceDec = masterLightSources[(int)currentTargetRegistration].SourceDec;
-            CurrentTargetData.Catalog = StarField.GetCatalogData(masterLightSources[(int)currentTargetRegistration]);
-
             //DO NOT remove target from master list after recording target information
             // masterRegisteredList.RemoveAll(x => x.RegistrationIndex == currentTargetRegistration);
             //masterRegisteredList.RemoveAll(x => ((StarField.CatalogData)x.StandardMagnitudes).IsGCVSCataloged);
             CurrentTargetData.ApassStarCount = (from a in masterLightSources
-                                                where a.StandardMagnitudes != null && a.StandardMagnitudes.Value.APASSCatalogName != null
+                                                where a.CatalogInfo != null && a.CatalogInfo.Value.APASSCatalogName != null
                                                 select a).Count();
             CurrentTargetData.GaiaStarCount = (from a in masterLightSources
-                                               where a.StandardMagnitudes != null && a.StandardMagnitudes.Value.GAIACatalogName != null
+                                               where a.CatalogInfo != null && a.CatalogInfo.Value.GAIACatalogName != null
                                                select a).Count();
-            (CurrentTargetData.SourceToAPASSCatalogPositionError, CurrentTargetData.SourceToGAIACatalogPositionError) = StarField.CalculateSeparations(CurrentTargetData);
+            (CurrentTargetData.SourceToAPASSCatalogPositionError, CurrentTargetData.SourceToGAIACatalogPositionError) =
+                StarField.CalculateSeparations(CurrentTargetData.MasterCatalogInfo, CurrentTargetData.SourceRA, CurrentTargetData.SourceDec);
             DisplayCatalogData();
             DisplayLightSourceData();
             Show();
@@ -379,22 +395,23 @@ namespace VariScan
                     List<double> instrumentColorIndexList = new List<double>();
                     foreach (StarField.FieldLightSource compStar in masterLightSources)
                     {
-                        //Calculate Color Transform for each comparison star
-                        //  First calculate B minus V :  we'll do this every time although it is not necessary
-                        var magBV = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, targetStandardColor, pLS, catalog);
-                        var magbv = Transformation.FormColorIndex((int)compStar.RegistrationIndex, instrumentColor, dLS, instrumentColor, pLS, catalog);
-                        //if any value is 0 then stack it -- meaning that both light source arrays don't share a registered star
-                        double instColorIndex = magbv.differentialMag - magbv.primaryMag;
-                        double stdColorIndex = magBV.differentialMag - magBV.primaryMag;
-                        bool nonZeroMags = !(magbv.primaryMag == 0 || magbv.differentialMag == 0 || magBV.primaryMag == 0 || magBV.differentialMag == 0);
-                        bool nonZeroIndex = !(Math.Abs(instColorIndex) == 0 || Math.Abs(stdColorIndex) == 0);
-
-                        if (nonZeroIndex)
-                        { }
-                        if (nonZeroMags && nonZeroIndex)
+                        if (compStar.CatalogInfo.Value.GAIACatalogPhotoVar != "Variable")
                         {
-                            instrumentColorIndexList.Add(instColorIndex);
-                            standardColorIndexList.Add(stdColorIndex);
+                            //Calculate Color Transform for each comparison star
+                            //  First calculate B minus V :  we'll do this every time although it is not necessary
+                            var magBV = Transformation.FormColorIndex((int)compStar.RegistrationIndex, differentialColor, pLS, targetStandardColor, pLS, catalog);
+                            var magbv = Transformation.FormColorIndex((int)compStar.RegistrationIndex, instrumentColor, dLS, instrumentColor, pLS, catalog);
+                            //if any value is 0 then stack it -- meaning that both light source arrays don't share a registered star
+                            double instColorIndex = magbv.differentialMag - magbv.primaryMag;
+                            double stdColorIndex = magBV.differentialMag - magBV.primaryMag;
+                            bool nonZeroMags = !(magbv.primaryMag == 0 || magbv.differentialMag == 0 || magBV.primaryMag == 0 || magBV.differentialMag == 0);
+                            bool nonZeroIndex = !(Math.Abs(instColorIndex) == 0 || Math.Abs(stdColorIndex) == 0);
+
+                            if (nonZeroMags && nonZeroIndex)
+                            {
+                                instrumentColorIndexList.Add(instColorIndex);
+                                standardColorIndexList.Add(stdColorIndex);
+                            }
                         }
                     }
 
@@ -550,9 +567,8 @@ namespace VariScan
             foreach (StarField.FieldLightSource[] pLS in primaryLightSources)
             {
                 plsIdx++;
+                int? priTgtIndex = Registration.FindRegisteredLightSource(pLS, CurrentTargetData.MasterRegistrationIndex);
                 //Differential field star images loop
-                //int? priTgtIndex = Registration.FindRegisteredLightSource(pLS, (int)currentTargetRegistration);
-                int? priTgtIndex = Registration.ClosestLightSource(pLS, CurrentTargetData.SourceRA, CurrentTargetData.SourceDec, MinSeparationArcSec);
                 if (priTgtIndex == null)
                 {
                     LogIt("No target light source found in primary registered image (P" + (plsIdx - 1).ToString() + ").");
@@ -562,8 +578,7 @@ namespace VariScan
                     foreach (StarField.FieldLightSource[] dLS in differentialLightSources)
                     {
                         dlsIdx++;
-                        //int? diffTgtIndex = Registration.FindRegisteredLightSource(dLS, (int)currentTargetRegistration);
-                        int? diffTgtIndex = Registration.ClosestLightSource(dLS, CurrentTargetData.SourceRA, CurrentTargetData.SourceDec, MinSeparationArcSec);
+                        int? diffTgtIndex = Registration.FindRegisteredLightSource(dLS, CurrentTargetData.MasterRegistrationIndex);
                         if (diffTgtIndex == null)
                         {
                             LogIt("No target light source found in differential registered image (D" + (dlsIdx - 1).ToString() + ").");
@@ -579,29 +594,32 @@ namespace VariScan
                             //Compute mean Vvar for all comparison stars
                             foreach (StarField.FieldLightSource compLS in masterLightSources)
                             {
-                                int? diffCompIndex = Registration.FindRegisteredLightSource(dLS, (int)compLS.RegistrationIndex);
-                                int? priCompIndex = Registration.FindRegisteredLightSource(pLS, (int)compLS.RegistrationIndex);
-                                if (diffCompIndex != null && priCompIndex != null && diffTgtIndex != null && priTgtIndex != null)
+                                if (compLS.CatalogInfo.Value.GAIACatalogPhotoVar != "Variable")
                                 {
-                                    crossRegisteredLightSources++;
-                                    double vTgt = pLS[(int)priTgtIndex].InstrumentMagnitude;
-                                    double bTgt = dLS[(int)diffTgtIndex].InstrumentMagnitude;
-                                    double bComp = dLS[(int)diffCompIndex].InstrumentMagnitude;
-                                    double vComp = pLS[(int)priCompIndex].InstrumentMagnitude;
-                                    //double VjComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
-                                    //double BjComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
-                                    double VjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
-                                    double BjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
-                                    if (VjComp != 0)
+                                    int? diffCompIndex = Registration.FindRegisteredLightSource(dLS, (int)compLS.RegistrationIndex);
+                                    int? priCompIndex = Registration.FindRegisteredLightSource(pLS, (int)compLS.RegistrationIndex);
+                                    if (diffCompIndex != null && priCompIndex != null && diffTgtIndex != null && priTgtIndex != null)
                                     {
-                                        double deltaInstTgtColor = bTgt - vTgt;
-                                        double deltaInstCompColor = bComp - vComp;
-                                        double deltaInstColor = deltaInstTgtColor - deltaInstCompColor;
-                                        double tcInst = CurrentTargetData.ColorTransform * deltaInstColor;
-                                        double deltaInstMag = vTgt - vComp;
-                                        double tgtStd = deltaInstMag + CurrentTargetData.MagnitudeTransform * tcInst + VjComp;
-                                        targetStandardizedMag.Add(tgtStd);
-                                        standardMagnitudeCalculated++;
+                                        crossRegisteredLightSources++;
+                                        double vTgt = pLS[(int)priTgtIndex].LightSourceInstMag;
+                                        double bTgt = dLS[(int)diffTgtIndex].LightSourceInstMag;
+                                        double bComp = dLS[(int)diffCompIndex].LightSourceInstMag;
+                                        double vComp = pLS[(int)priCompIndex].LightSourceInstMag;
+                                        //double VjComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
+                                        //double BjComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
+                                        double VjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
+                                        double BjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
+                                        if (VjComp != 0)
+                                        {
+                                            double deltaInstTgtColor = bTgt - vTgt;
+                                            double deltaInstCompColor = bComp - vComp;
+                                            double deltaInstColor = deltaInstTgtColor - deltaInstCompColor;
+                                            double tcInst = CurrentTargetData.ColorTransform * deltaInstColor;
+                                            double deltaInstMag = vTgt - vComp;
+                                            double tgtStd = deltaInstMag + CurrentTargetData.MagnitudeTransform * tcInst + VjComp;
+                                            targetStandardizedMag.Add(tgtStd);
+                                            standardMagnitudeCalculated++;
+                                        }
                                     }
                                 }
 
@@ -688,59 +706,56 @@ namespace VariScan
             PixSizeArcSecBox.Text = (ConvertToArcSec((double)FITImage.PixSize, (double)FITImage.FocalLength)).ToString("0.00");
             MaxResolutionArcSecBox.Text = ((ConvertToArcSec((double)FITImage.PixSize, (double)FITImage.FocalLength)) * 3.3).ToString("0.00");
             AirMassBox.Text = ((double)(FITImage.FitsAirMass ?? 0)).ToString("0.000");
-            double fWHMAvg_pixels = sf.FWHMAvg_Pixels ?? 0.0;
-            double ellipticityAvg = sf.EllipticityAvg ?? 0.0;
-            double FWHMAvg_arcsec = fWHMAvg_pixels * TSX_Image.ScaleInArcsecondsPerPixel;
-            double FWHMAvg_micron = fWHMAvg_pixels * (double)FITImage.PixSize;
-            MeanFWHMBox.Text = FWHMAvg_arcsec.ToString("0.00");
-            FWHMSeeing_arcsec = FWHMAvg_micron * 206.3 / ((double)FITImage.FocalLength);
-            SeeingClassBox.Text = GetSeeingClass(FWHMAvg_arcsec, (double)FITImage.Aperture);
-            SeeingMeanEllipticityBox.Text = ellipticityAvg.ToString("0.00");
+            MeanFWHMBox.Text = (sf.FWHMAvg_Pixels ?? 0.0 * TSX_Image.ScaleInArcsecondsPerPixel).ToString("0.00");
+            FWHMSeeing_arcsec = (sf.FWHMAvg_Pixels ?? 0.0 * (double)FITImage.PixSize) * 206.3 / ((double)FITImage.FocalLength);
+            SeeingClassBox.Text = GetSeeingClass(sf.FWHMAvg_Pixels ?? 0.0 * TSX_Image.ScaleInArcsecondsPerPixel, (double)FITImage.Aperture);
+            SeeingMeanEllipticityBox.Text = (sf.EllipticityAvg ?? 0.0).ToString("0.00");
             //FitsNameBox.Text = FITImage.FitsTarget;
             FitsDateBox.Text = FITImage.FitsUTCDate;
             FitsTimeBox.Text = FITImage.FitsUTCTime;
-            double backgroundADU = TSX_Image.Background;
-            SourceBackgroundADUBox.Text = backgroundADU.ToString("0");
-            FitsExposureBox.Text = ((double)FITImage.Exposure).ToString("0.0");
             FitsFilterBox.Text = FITImage.Filter;
+            SourceBackgroundADUBox.Text = TSX_Image.Background.ToString("0");
+            FitsExposureBox.Text = ((double)FITImage.Exposure).ToString("0.0");
 
             Show();
             System.Windows.Forms.Application.DoEvents();
             return;
         }
 
-        private void AnalyzeImage(string fitsFilePath)
+        private void AnalyzeFitsImage(string fitsFilePath)
         {
+            //Use fits field parameters for target info storage
+            //Use local variables for additional target information
+            double targetRA;
+            double targetDec;
+
             //The current image in TSX is activated and FITS information acquired.
             //  The image is { sent through image link to compute WCS information for each star.
             //  The results are sorted by magnitude, averaged, seeing estimated and results displayed.
             //
             Configuration cfg = new Configuration();
 
+
             //Housekeeping
             //Clear any existing SRC files, as they might be locked and TSX will quietly crash
             TSX_Process.DeleteSRC(cfg.ImageBankFolder);
-            //close the current tsx image if one is open
 
-            //Center the skychart on the ra/dec coordinates
-            //Set the star chart size to 1.5 times the image width (fits the whole thing on, persumably
-            TSX_Resources.CenterStarChart(TSX_Image, CurrentTargetData);
-
+            //Read the fits file into a starfield image object
             StarField sf = new StarField(TSX_Image, fitsFilePath);
-
-            string path = TSX_Image.Path;
-
-            StarField.FieldLightSource[] sfLSArray = (sf.LocateLightSources(sf.AssembleLightSources())).ToArray();
-            CurrentTargetData.IsImageLinked = sf.IsImageLinked;
-            if (CurrentTargetData.IsImageLinked)
-                CurrentTargetData = sf.LoadTargetFromLightSourceInventory(CurrentTargetData);
-
-            CurrentTargetData.Catalog = StarField.GetCatalogData(CurrentTargetData.SourceRA, CurrentTargetData.SourceDec);
-            (CurrentTargetData.SourceToAPASSCatalogPositionError, CurrentTargetData.SourceToGAIACatalogPositionError) = StarField.CalculateSeparations(CurrentTargetData);
-
-            //Using FITS file information...
+            //Using open FITS file information...
             FITImage = new FitsFileTSX(TSX_Image);
             DisplayFITS(sf);
+
+            //Get the target ra and dec from the fits file and load catalog coordinates
+            (targetRA, targetDec) = TSX_Resources.FindTarget(FITImage.FitsTarget);
+
+            //Image Link the fits and create array of light sources, set flag if successful, return if not
+            StarField.FieldLightSource[] sfLSArray = (sf.PositionLightSources(sf.AssembleLightSources())).ToArray();
+            if (sfLSArray.Length == 0)
+            {
+                LogIt("Attempted Image Link of FITS image is unsuccessful");
+                return;
+            }
 
             //Compute pixel scale = 206.256 * pixel size (in microns) / focal length
             //Set initial values in case the FITS words aren't there
@@ -748,16 +763,19 @@ namespace VariScan
             FITImage.FocalLength = FITImage.FocalLength ?? 2563; //mm
             FITImage.Aperture = FITImage.Aperture ?? 356.0; //mm
             FITImage.Exposure = FITImage.Exposure ?? 0;
-            CurrentTargetData.PrimaryImageFilter = FITImage.Filter[0].ToString();
-            CurrentTargetData.ImageDate = FITImage.FitsUTCDateTime;
-            CurrentTargetData.AirMass = (double)(FITImage.FitsAirMass ?? 0);
+            FitsDateBox.Text = FITImage.FitsUTCDate;
+            FitsTimeBox.Text = FITImage.FitsUTCTime;
+
+            // ImageFilter = FITImage.Filter[0].ToString();
+            //CurrentTargetData.ImageDate = FITImage.FitsUTCDateTime;
+            //CurrentTargetData.AirMass = (double)(FITImage.FitsAirMass ?? 0);
 
             //  focal length must be set to correct value in FITS header -- comes from camera set up in TSX
             FocalRatio = (double)FITImage.FocalLength / (double)FITImage.Aperture;
             PixelScale_arcsec = ConvertToArcSec((double)FITImage.PixSize, (double)FITImage.FocalLength);
 
-            //Set the pixel scale for an InsertWCS image linking
-            TSX_Image.ScaleInArcsecondsPerPixel = PixelScale_arcsec;
+            ////Set the pixel scale for an InsertWCS image linking
+            //TSX_Image.ScaleInArcsecondsPerPixel = PixelScale_arcsec;
 
             //set saturation threshold
             SaturationADU = Math.Pow(2, (double)FITImage.PixBits) * 0.95;
@@ -770,7 +788,6 @@ namespace VariScan
             PixSizeMicronBox.Text = ((double)FITImage.PixSize).ToString("0.0");
             PixSizeArcSecBox.Text = (ConvertToArcSec((double)FITImage.PixSize, (double)FITImage.FocalLength)).ToString("0.00");
             MaxResolutionArcSecBox.Text = ((ConvertToArcSec((double)FITImage.PixSize, (double)FITImage.FocalLength)) * 3.3).ToString("0.00");
-
             AirMassBox.Text = ((double)(FITImage.FitsAirMass ?? 0)).ToString("0.000");
 
             double fWHMAvg_pixels = sf.FWHMAvg_Pixels ?? 0.0;
@@ -779,54 +796,71 @@ namespace VariScan
             double FWHMAvg_micron = fWHMAvg_pixels * (double)FITImage.PixSize;
             MeanFWHMBox.Text = FWHMAvg_arcsec.ToString("0.00");
             FWHMSeeing_arcsec = FWHMAvg_micron * 206.3 / ((double)FITImage.FocalLength);
-
-            CurrentTargetData.ComputedSeeing = GetSeeingClass(FWHMAvg_arcsec, (double)FITImage.Aperture);
-            SeeingClassBox.Text = CurrentTargetData.ComputedSeeing;
+            SeeingClassBox.Text = GetSeeingClass(FWHMAvg_arcsec, (double)FITImage.Aperture);
             SeeingMeanEllipticityBox.Text = ellipticityAvg.ToString("0.00");
 
             //Create new target data for this variable target
-            if (CurrentTargetData.IsImageLinked)
+
+            DisplayCatalogData();
+            Show();
+            if (FitsIsOpen)
             {
-                CurrentTargetData = sf.LoadTargetFromLightSourceInventory(CurrentTargetData);
-                SourceRATextBox.Text = Utility.SexidecimalRADec(CurrentTargetData.SourceRA, true);
-                SourceDecTextBox.Text = Utility.SexidecimalRADec(CurrentTargetData.SourceDec, false);
-                DisplayLightSourceData();
-                DisplayCatalogData();
-                Show();
-                if (FitsIsOpen)
-                {
-                    //Done
-                    //Display target, date and time for fits file
-                    //FitsNameBox.Text = FITImage.FitsTarget;
-                    FitsDateBox.Text = FITImage.FitsUTCDate;
-                    FitsTimeBox.Text = FITImage.FitsUTCTime;
-                    double backgroundADU = TSX_Image.Background;
-                    SourceBackgroundADUBox.Text = backgroundADU.ToString("0");
-                    FitsExposureBox.Text = ((double)FITImage.Exposure).ToString("0.0");
-                    FitsFilterBox.Text = FITImage.Filter;
-                }
-                ApassStarCountBox.Text = "";
-                GaiaStarCountBox.Text = "";
-
-                TSX_Process.MinimizeTSX();
-                for (int i = 0; i < sfLSArray.Count(); i++)
-                {
-                    sfLSArray[i].StandardMagnitudes = StarField.GetCatalogData(sfLSArray[i].SourceRA, sfLSArray[i].SourceDec);
-                    SourceCountBox.Text = i.ToString();
-                }
-                TSX_Process.NormalizeTSX();
-
-                //Light source data:
-                SourceCountBox.Text = sfLSArray.Count().ToString();
-                ApassStarCountBox.Text = (from a in sfLSArray
-                                          where a.StandardMagnitudes != null && a.StandardMagnitudes.Value.APASSCatalogName != null
-                                          select a).Count().ToString();
-                GaiaStarCountBox.Text = (from a in sfLSArray
-                                         where a.StandardMagnitudes != null && a.StandardMagnitudes.Value.GAIACatalogName != null
-                                         select a).Count().ToString();
-                //Graph the target star
-                CurrentTargetData = GraphSource(CurrentTargetData, sf);
+                //Done
+                //Display target, date and time for fits file
+                //FitsNameBox.Text = FITImage.FitsTarget;
+                double backgroundADU = TSX_Image.Background;
+                SourceBackgroundADUBox.Text = backgroundADU.ToString("0");
+                FitsExposureBox.Text = ((double)FITImage.Exposure).ToString("0.0");
+                FitsFilterBox.Text = FITImage.Filter;
             }
+            //Zero out the count and error boxes
+            ApassStarCountBox.Text = "0";
+            GaiaStarCountBox.Text = "0";
+            ApassToSourcePositionErrorBox.Text = "";
+            GaiaToSourcePositionErrorBox.Text = "";
+
+            double imas = TSX_Resources.ImageWidth(TSX_Image);
+            TSX_Resources.CenterStarChart(TSX_Image, targetRA, targetDec, imas);
+
+            TSX_Process.MinimizeTSX();
+            for (int i = 0; i < sfLSArray.Count(); i++)
+            {
+                sfLSArray[i].CatalogInfo = StarField.ClickFindCatalogData(sfLSArray[i].LightSourceRA, sfLSArray[i].LightSourceDec);
+                SourceCountBox.Text = i.ToString() + "/" + sfLSArray.Count().ToString();
+                if (sfLSArray[i].CatalogInfo.Value.APASSCatalogName != null)
+                    ApassStarCountBox.Text = (Convert.ToInt32(ApassStarCountBox.Text) + 1).ToString();
+                if (sfLSArray[i].CatalogInfo.Value.GAIACatalogName != null)
+                    GaiaStarCountBox.Text = (Convert.ToInt32(GaiaStarCountBox.Text) + 1).ToString();
+            }
+            TSX_Process.NormalizeTSX();
+ 
+            //Find the closest light source to the target coordinates
+            int? currentTargetLSIndex = Registration.ClosestLightSource(sfLSArray, targetRA, targetDec, MinSeparationArcSec);
+            //if no target is found then return
+            if (currentTargetLSIndex == null)
+            {
+                LogIt("Could not locate a light source at the target coordinates in fits image");
+                return;
+            }
+            CurrentTargetData.MasterRegistrationIndex = (int)currentTargetLSIndex;
+            StarField.FieldLightSource tgtLightSource = sfLSArray[(int)currentTargetLSIndex];
+
+            //Load the CurrentTargetData descriptor from the registered target star light source
+            //Find and load the catalog data for the cataloged star closest to the target light source
+            (double apassError, double gaiaError) =
+                    StarField.CalculateSeparations((StarField.CatalogData)tgtLightSource.CatalogInfo, tgtLightSource.LightSourceRA, tgtLightSource.LightSourceDec);
+            ApassToSourcePositionErrorBox.Text = (apassError * 3600).ToString("0.0");
+            GaiaToSourcePositionErrorBox.Text = (gaiaError * 3600).ToString("0.0");
+            SourceRATextBox.Text = Utility.SexidecimalRADec(tgtLightSource.LightSourceRA, true);
+            SourceDecTextBox.Text = Utility.SexidecimalRADec(tgtLightSource.LightSourceDec, false);
+            SourceMagBox.Text = tgtLightSource.LightSourceInstMag.ToString("0.00");
+            SourcePeakADUBox.Text = tgtLightSource.LightSourceADU.ToString("0.00");
+            SourceFWHMBox.Text = tgtLightSource.LightSourceFWHM.ToString("0.00");
+            SourceEllipticityBox.Text = tgtLightSource.LightSourceEllipticity.ToString("0.00");
+
+            //Graph the target star
+            GraphSource(CurrentTargetData, sf);
+
             return;
         }
 
@@ -850,20 +884,19 @@ namespace VariScan
             SourceEllipticityBox.Text = "";
             Show();
             return;
-
         }
 
         private void DisplayCatalogData()
         {
             //Fills out Catalog Data group from Current Target Data
-            if (CurrentTargetData.Catalog.IsAPASSCataloged)
+            if (CurrentTargetData.MasterCatalogInfo.IsAPASSCataloged)
                 ApassToSourcePositionErrorBox.Text = (CurrentTargetData.SourceToAPASSCatalogPositionError * 3600).ToString("0.0");
             else
-                ApassToSourcePositionErrorBox.Text = "N/A";
-            if (CurrentTargetData.Catalog.IsGAIACataloged)
+                ApassToSourcePositionErrorBox.Text = "No Cat";
+            if (CurrentTargetData.MasterCatalogInfo.IsGAIACataloged)
                 GaiaToSourcePositionErrorBox.Text = (CurrentTargetData.SourceToGAIACatalogPositionError * 3600).ToString("0.0");
             else
-                GaiaToSourcePositionErrorBox.Text = "N/A";
+                GaiaToSourcePositionErrorBox.Text = "No Cat";
             ApassStarCountBox.Text = CurrentTargetData.ApassStarCount.ToString();
             GaiaStarCountBox.Text = CurrentTargetData.GaiaStarCount.ToString();
             Show();
@@ -883,7 +916,7 @@ namespace VariScan
 
         }
 
-        private TargetData GraphSource(TargetData sourceStar, StarField starField)
+        private void GraphSource(TargetData sourceStar, StarField starField)
         {
             //This routine produces a 3D graph of a star//s astrometric information, from the center out to twice the FWHM radius.
             // using the Source Inventory as at the inventory Index
@@ -891,7 +924,8 @@ namespace VariScan
             //Check to see if the star was in the inventory array
             // if not, then just return
             int inventoryIndex = sourceStar.InventoryArrayIndex;
-            if (inventoryIndex < 0) return sourceStar;
+            if (inventoryIndex < 0)
+                return;
 
             StarField.LightSourceInventory lsi = starField.GetLightSourceInventory(inventoryIndex);
             //Get the star center (x,y) and 2xFWHM (in pixels), as well as the maximum X and Y values
@@ -925,7 +959,7 @@ namespace VariScan
             sourceStar.SourceDec = TSX_Image.XYToRADecResultDec();
 
             //Cataloged star should have already been found during Analysis
-            StarADUChart.Titles[0].Text = sourceStar.Catalog.APASSCatalogName;
+            StarADUChart.Titles[0].Text = sourceStar.MasterCatalogInfo.APASSCatalogName;
             //PhotometryCatMagBox.Text = sourceStar.CatMagnitude.ToString("0.00");
             //PhotometrySourceMagBox.Text = ((double)MagArr[inventoryIndex]).ToString("0.00");
             //PhotometryAllCatalogCorrectedMagBox.Text = ((double)MagArr[inventoryIndex] + MeanMagDelta).ToString("0.00");
@@ -978,7 +1012,7 @@ namespace VariScan
             SourcePeakADUBox.Text = maxStarADU.ToString("0");
             sourceStar.SourceADU = maxStarADU;
             //All done
-            return sourceStar;
+            return;
         }
 
         private void PlotPhotometryHistory(TargetData tgt)
@@ -1165,17 +1199,27 @@ namespace VariScan
         }
         #endregion
 
+        #region logging
+        private void LogIt(string logLine)
+        {
+            //Copies logLine into LogBox and eventually into a log file
+            LogBox.AppendText(logLine + Environment.NewLine);
+            Show();
+            return;
+        }
+        #endregion
+
         #region clickevents
 
         private void TransformButton_Click(object sender, EventArgs e)
         {
             Utility.ButtonRed(TransformButton);
-            isAnalyzing = true;
+            IsAnalyzing = true;
             if (SessionList == null)
             {
                 LogIt("Cancelling transformation. No target selected");
                 Utility.ButtonGreen(TransformButton);
-                isAnalyzing = false;
+                IsAnalyzing = false;
                 return;
             }
             //Verify that filters and colors are set to something
@@ -1183,7 +1227,7 @@ namespace VariScan
             {
                 LogIt("Cancelling transformation.  Improper standard colors or filters selected.");
                 Utility.ButtonGreen(TransformButton);
-                isAnalyzing = false;
+                IsAnalyzing = false;
                 return;
             }
             TargetColorIndex = new ColorIndexing();
@@ -1191,7 +1235,7 @@ namespace VariScan
             TransformTargetImageSet();
 
             Utility.ButtonGreen(TransformButton);
-            isAnalyzing = false;
+            IsAnalyzing = false;
             return;
         }
 
@@ -1236,15 +1280,6 @@ namespace VariScan
             return;
         }
 
-
-        private void LogIt(string logLine)
-        {
-            //Copies logLine into LogBox and eventually into a log file
-            LogBox.AppendText(logLine + Environment.NewLine);
-            Show();
-            return;
-        }
-
         private void PlotHistoryButton_Click(object sender, EventArgs e)
         {
             Utility.ButtonRed(PlotHistoryButton);
@@ -1266,24 +1301,24 @@ namespace VariScan
             List<string> fp = Directory.GetFiles(cfg.ImageBankFolder, fitsName, SearchOption.AllDirectories).ToList();
             if (fp.Count == 0)
                 return;
-            AnalyzeImage(fp[0]);
+            AnalyzeFitsImage(fp[0]);
             Utility.ButtonGreen(FitsReadButton);
             return;
         }
 
         private void CollectionSessionDateBox_ValueChanged(object sender, EventArgs e)
         {
-            if (!isInitializing)
+            if (!IsInitializing)
             {
                 //Pick another collection to analyze
-                if (!isInitializing)
+                if (!IsInitializing)
                 {
                     Configuration cfg = new Configuration();
                     cfg.TargetListPath = CollectionManagement.OpenCollection(CollectionSelectionBox.SelectedItem.ToString());
 
-                    isInitializing = true;
+                    IsInitializing = true;
                     InitializeCollectionData();
-                    isInitializing = false;
+                    IsInitializing = false;
                 }
                 return;
             }
@@ -1292,28 +1327,28 @@ namespace VariScan
 
         private void PrimaryFilterBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!isInitializing)
+            if (!IsInitializing)
                 CurrentTargetData.PrimaryImageFilter = PrimaryFilterBox.Text;
             return;
         }
 
         private void DifferentialFilterBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!isInitializing)
+            if (!IsInitializing)
                 CurrentTargetData.DifferentialImageFilter = DifferentialFilterBox.Text;
             return;
         }
 
         private void PrimaryColorBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!isInitializing)
+            if (!IsInitializing)
                 CurrentTargetData.PrimaryStandardColor = PrimaryColorBox.Text;
             return;
         }
 
         private void DifferentialColorBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!isInitializing)
+            if (!IsInitializing)
                 CurrentTargetData.DifferentialStandardColor = DifferentialColorBox.Text;
             return;
         }
@@ -1322,7 +1357,7 @@ namespace VariScan
         {
             //Sets flag to pause execution after updating each transform graph
             Configuration cfg = new Configuration();
-            if (!isInitializing)
+            if (!IsInitializing)
                 cfg.StepTransforms = StepTransformsCheckbox.Checked.ToString();
             return;
         }
@@ -1330,21 +1365,21 @@ namespace VariScan
         private void CollectionSelectionBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Pick another collection to analyze
-            if (!isInitializing)
+            if (!IsInitializing)
             {
                 Configuration cfg = new Configuration();
                 cfg.TargetListPath = CollectionManagement.OpenCollection(CollectionSelectionBox.SelectedItem.ToString());
-                isInitializing = true;
+                IsInitializing = true;
                 InitializeCollectionData();
-                isInitializing = false;
+                IsInitializing = false;
             }
             return;
         }
 
-        private void DisplayGridButton_Click(object sender, EventArgs e)
+        private void SelectSessionsButton_Click(object sender, EventArgs e)
         {
             //Open session grid catalog form
-            Utility.ButtonRed(DisplayGridButton);
+            Utility.ButtonRed(SelectSessionsButton);
             Show();
             System.Windows.Forms.Application.DoEvents();
             using (Form scForm = new FormSampleCatalog())
@@ -1353,12 +1388,12 @@ namespace VariScan
                 //Upon return, retrieve the session list
                 SessionListTextBox.Clear();
                 SessionList = FormSampleCatalog.SessionList;
-                if (SessionList.Count != null)
-                foreach (FormSampleCatalog.TargetShoot ts in SessionList)
-                {
-                    SessionListTextBox.Text += (ts.Target + " on " + ts.Date + "\r\n");
-                }
-                Utility.ButtonGreen(DisplayGridButton);
+                if (SessionList.Count != 0)
+                    foreach (FormSampleCatalog.TargetShoot ts in SessionList)
+                    {
+                        SessionListTextBox.Text += (ts.Target + " on " + ts.Date + "\r\n");
+                    }
+                Utility.ButtonGreen(SelectSessionsButton);
                 return;
             }
         }
@@ -1367,12 +1402,26 @@ namespace VariScan
         {
 
         }
-        #endregion
 
         private void TargetPlotBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //Unless we are initializing, then a new target has been selected for history plotting.
+            //  Do the same thing as the plot history button, if it still exists
+            if (!IsInitializing)
+            {
+                Utility.ButtonRed(PlotHistoryButton);
+                if (TargetPlotBox.SelectedItem != null)
+                {
+                    CurrentTargetData.TargetName = TargetPlotBox.SelectedItem.ToString();
+                    PlotPhotometryHistory(CurrentTargetData);
+                }
+                Utility.ButtonGreen(PlotHistoryButton);
+                return;
+            }
 
         }
+        #endregion
+
     }
 }
 

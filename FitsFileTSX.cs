@@ -25,31 +25,31 @@ namespace VariScan
 {
     public class FitsFileTSX
     {
-        public double? PixSize { get; set; }
-        public double? Gain { get; set; }
-        public double? Aperture { get; set; }
-        public double? FocalLength { get; set; }
-        public double? Exposure { get; set; }
-        public string Filter { get; set; }
-        public int? PixBits { get; set; }
-        public int? ImagePixWidth { get; set; }
-        public int? ImagePixHeight { get; set; }
-        public int? BinX { get; set; }
-        public int? BinY { get; set; }
-        public int? Pedistal { get; set; }
-        public string FitsTarget { get; set; }
-        public string FitsUTCDate { get; set; }
-        public string FitsUTCTime { get; set; }
-        public DateTime FitsUTCDateTime { get; set; }
-        public double? FitsAirMass { get; set; }
-        public double? FitsRA { get; set; }
-        public double? FitsDec { get; set; }
-        public DateTime FitsLocalTime { get; set; }
+        public string? FitsTarget;
+        public double? PixSize;
+        public double? Gain;
+        public double? Aperture;
+        public double? FocalLength;
+        public double? Exposure;
+        public string Filter;
+        public int? PixBits;
+        public int? ImagePixWidth;
+        public int? ImagePixHeight;
+        public int? BinX;
+        public int? BinY;
+        public int? Pedistal;
+        public string FitsUTCDate;
+        public string FitsUTCTime;
+        public DateTime FitsUTCDateTime;
+        public double? FitsAirMass;
+        public double? FitsRA;
+        public double? FitsDec;
+        public DateTime FitsLocalTime;
 
 
         public FitsFileTSX(ccdsoftImage tsximg)
         {
-            //Using FITS file information...
+            //Using open FITS file information...
             //Compute pixel scale = 206.256 * pixel size (in microns) / focal length
             FitsTarget = GetFitsString(tsximg, "OBJECT");
             string fitsUDT = GetFitsString(tsximg, "DATE-OBS").Split('.')[0];

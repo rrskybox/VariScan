@@ -125,12 +125,18 @@ namespace VariScan
             }
             this.Text = "VariScan V" + this.Text;
 
+            //Make sure all fields have been logged and saved before proceeding.
+            Application.DoEvents();
+            System.Threading.Thread.Sleep(1000);
+
             //Check for number of targets
             varList = new TargetXList();
             CurrentTargetCount.Text = varList.TargetXCount.ToString();
+
             LogEventHandler("");
-            LogEventHandler("\r\n" + "********** Initiating VariScan **********");
-            LogEventHandler("Found " + CurrentTargetCount.Text + " prospective targets -- not all will be qualified.");
+            LogEventHandler("\r\n" + "********** Initiating VariScan Session **********");
+            LogEventHandler("********** for " + CollectionGroupBox.Text + " Collection **********");
+            LogEventHandler("Found " + CurrentTargetCount.Text + " available targets.\r\n");
             return;
         }
 
@@ -351,17 +357,17 @@ namespace VariScan
 
         }
 
-        private void WeatherManagement(DeviceControl ss_hwp, bool IsActive)
+        private void WeatherManagement(DeviceControl ss_hwp, bool inSession)
         {
             //Check weather conditions, if enabled
-            //  if unsafe then spin until it is safe or endingtime occurs.
+            //  if unsafe AND a session is underway, then spin until it is safe or endingtime occurs.
             Configuration cfg = new Configuration();
             if (WatchWeatherCheckBox.Checked)
             {
                 LogEventHandler("Checking Weather");
                 if (!IsWeatherSafe())
                 {
-                    if (IsActive)
+                    if (inSession)
                     {
                         LogEventHandler("Waiting on unsafe weather conditions...");
                         LogEventHandler("Parking telescope");
@@ -369,7 +375,12 @@ namespace VariScan
                         else LogEventHandler("Mount park failed");
 
                         LogEventHandler("Closing Dome");
-                        if (Convert.ToBoolean(cfg.UsesDome)) DomeControl.CloseDome(HomeAZ);
+                        if (Convert.ToBoolean(cfg.UsesDome))
+                        {
+                            int homeStatus = DomeControl.CloseDome(HomeAZ);
+                            if (homeStatus != 0)
+                                LogEventHandler("As expected, TSX reports dome homing failure: Error " + homeStatus.ToString());
+                        }
                     }
                     else LogEventHandler("Waiting on unsafe weather conditions...");
                     do
@@ -382,7 +393,7 @@ namespace VariScan
                     { return; };
                     if (IsWeatherSafe())
                     {
-                        if (IsActive)
+                        if (inSession)
                         {
                             LogEventHandler("Weather conditions safe");
                             LogEventHandler("Opening Dome");
@@ -448,6 +459,7 @@ namespace VariScan
                 FormAutoRun ss_asf = new FormAutoRun();
                 ss_asf.ShowDialog();
                 cfg.AutoStart = "True";
+                LogEventHandler("\r\n");
                 {
                     if (Convert.ToBoolean(cfg.StageSystemOn)) { LogEventHandler("Staging set for " + cfg.StageSystemTime); }
                     if (Convert.ToBoolean(cfg.StartUpOn)) { LogEventHandler("Start up set for " + cfg.StartUpTime); }

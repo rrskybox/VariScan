@@ -178,7 +178,7 @@ namespace VariScan
             this.StepTransformsCheckbox = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
             this.CollectionSelectionBox = new System.Windows.Forms.ComboBox();
-            this.DisplayGridButton = new System.Windows.Forms.Button();
+            this.SelectSessionsButton = new System.Windows.Forms.Button();
             this.TargetedVariableGroupBox = new System.Windows.Forms.GroupBox();
             this.SessionListTextBox = new System.Windows.Forms.TextBox();
             this.TargetPlotBox = new System.Windows.Forms.ComboBox();
@@ -950,7 +950,7 @@ namespace VariScan
             this.FitsFilterBox.Name = "FitsFilterBox";
             this.FitsFilterBox.Size = new System.Drawing.Size(105, 20);
             this.FitsFilterBox.TabIndex = 93;
-            this.FitsFilterBox.Text = "R";
+            this.FitsFilterBox.Text = "TBD";
             this.FitsFilterBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // FitsTimeBox
@@ -1620,23 +1620,23 @@ namespace VariScan
             this.CollectionSelectionBox.TabIndex = 164;
             this.CollectionSelectionBox.SelectedIndexChanged += new System.EventHandler(this.CollectionSelectionBox_SelectedIndexChanged);
             // 
-            // DisplayGridButton
+            // SelectSessionsButton
             // 
-            this.DisplayGridButton.BackColor = System.Drawing.Color.SpringGreen;
-            this.DisplayGridButton.ForeColor = System.Drawing.Color.Black;
-            this.DisplayGridButton.Location = new System.Drawing.Point(46, 17);
-            this.DisplayGridButton.Name = "DisplayGridButton";
-            this.DisplayGridButton.Size = new System.Drawing.Size(79, 23);
-            this.DisplayGridButton.TabIndex = 169;
-            this.DisplayGridButton.Text = "Session Map";
-            this.DisplayGridButton.UseVisualStyleBackColor = false;
-            this.DisplayGridButton.Click += new System.EventHandler(this.DisplayGridButton_Click);
+            this.SelectSessionsButton.BackColor = System.Drawing.Color.SpringGreen;
+            this.SelectSessionsButton.ForeColor = System.Drawing.Color.Black;
+            this.SelectSessionsButton.Location = new System.Drawing.Point(46, 17);
+            this.SelectSessionsButton.Name = "SelectSessionsButton";
+            this.SelectSessionsButton.Size = new System.Drawing.Size(79, 23);
+            this.SelectSessionsButton.TabIndex = 169;
+            this.SelectSessionsButton.Text = "Session Map";
+            this.SelectSessionsButton.UseVisualStyleBackColor = false;
+            this.SelectSessionsButton.Click += new System.EventHandler(this.SelectSessionsButton_Click);
             // 
             // TargetedVariableGroupBox
             // 
             this.TargetedVariableGroupBox.Controls.Add(this.SessionListTextBox);
             this.TargetedVariableGroupBox.Controls.Add(this.TransformButton);
-            this.TargetedVariableGroupBox.Controls.Add(this.DisplayGridButton);
+            this.TargetedVariableGroupBox.Controls.Add(this.SelectSessionsButton);
             this.TargetedVariableGroupBox.Location = new System.Drawing.Point(21, 36);
             this.TargetedVariableGroupBox.Name = "TargetedVariableGroupBox";
             this.TargetedVariableGroupBox.Size = new System.Drawing.Size(171, 239);
@@ -1855,7 +1855,7 @@ namespace VariScan
         private System.Windows.Forms.ComboBox CollectionSelectionBox;
         private System.Windows.Forms.ComboBox TargetCatalogBox;
         private System.Windows.Forms.Label label45;
-        private System.Windows.Forms.Button DisplayGridButton;
+        private System.Windows.Forms.Button SelectSessionsButton;
         private System.Windows.Forms.GroupBox TargetedVariableGroupBox;
         private System.Windows.Forms.TextBox SessionListTextBox;
         private System.Windows.Forms.ComboBox TargetPlotBox;
