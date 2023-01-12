@@ -270,8 +270,9 @@ namespace VariScan
                     }
                 case StandardColors.Bj:
                     {
-                        double gmR = GaiaMagnitudeTransform(gGbp - gGrp, GmR_GbpGrp);
-                        filterValOut = gG - gmR;
+                        //This isn't correct, nor even doable -- dont' try to convert Gaia to Bj
+                        //double gmR = GaiaMagnitudeTransform(gGbp - gGrp, GmR_GbpGrp);
+                        //filterValOut = gG - gmR;
                         break;
                     }
                 case StandardColors.Vj:
@@ -288,6 +289,8 @@ namespace VariScan
                     }
                 case StandardColors.Ic:
                     {
+                        double gmI = GaiaMagnitudeTransform(gGbp - gGrp, GmI_GbpGrp);
+                        filterValOut = gG - gmI;
                         break;
                     }
                 default:

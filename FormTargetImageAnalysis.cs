@@ -150,12 +150,19 @@ namespace VariScan
             CurrentTargetData.DifferentialImageFilter = DifferentialFilterBox.Text;
 
             //Set ManualTransformValues to last set calculated
-            ColorIndexing ci = new ColorIndexing();
-            (double, double) trans = ci.GetAverageTransforms();
-            ManualColorTransformValueBox.Value = (decimal)trans.Item1;
-            ManualMagTransformValueBox.Value = (decimal)trans.Item2;
-
+            //ColorIndexing ci = new ColorIndexing();
+            //(double, double) trans = ci.GetAverageTransforms();
             CurrentTargetData.CatalogName = TargetCatalogBox.Text;
+            if (TargetCatalogBox.Text == "APASS")
+            {
+                PresetColorTransformBox.Value = Convert.ToDecimal(cfg.ApassColorTransform);
+                PresetMagnitudeTransformBox.Value = Convert.ToDecimal(cfg.ApassMagnitudeTransform);
+            }
+            else
+            {
+                PresetColorTransformBox.Value = Convert.ToDecimal(cfg.GaiaColorTransform);
+                PresetMagnitudeTransformBox.Value = Convert.ToDecimal(cfg.GaiaMagnitudeTransform);
+            }
             //Populate Fits Name list
             FitsNameBox.Items.Clear();
             foreach (string f in VariScanFileManager.GetCollectionFilenameList())
@@ -168,6 +175,7 @@ namespace VariScan
                 TargetPlotBox.Items.Add(f);
             if (TargetPlotBox.Items.Count > 0)
                 TargetPlotBox.SelectedIndex = 0;
+
             return;
         }
 
@@ -512,7 +520,7 @@ namespace VariScan
             ColorTransformListBox.SelectedIndex = 0;
 
             //add the color transform list to the color transform data and update the preset
-            ManualColorTransformValueBox.Value = (decimal)TargetColorIndex.AddColorTransform(colorTransformList);
+            PresetColorTransformBox.Value = (decimal)TargetColorIndex.AddColorTransform(colorTransformList);
 
             //Choose Magnitude transform from list
             if (magnitudeTransformList.Count == 1)
@@ -523,7 +531,7 @@ namespace VariScan
             MagnitudeTransformListBox.SelectedIndex = 0;
 
             //add the color transform list to the color transform data and update the preset
-            ManualMagTransformValueBox.Value = (decimal)TargetColorIndex.AddMagnitudeTransform(magnitudeTransformList);
+            PresetMagnitudeTransformBox.Value = (decimal)TargetColorIndex.AddMagnitudeTransform(magnitudeTransformList);
 
             Show();
             System.Windows.Forms.Application.DoEvents();
@@ -642,12 +650,14 @@ namespace VariScan
             double hWidth = 3.49 * sStdDev / (Math.Pow(targetStandardizedMag.Count, 0.3));
             double maxVal = targetStandardizedMag.Max();
             double minVal = targetStandardizedMag.Min();
-            int scottsRuleBuckets = (int)Math.Ceiling((maxVal - minVal) / hWidth);
+            int scottsRuleBuckets = 1;
+            if (hWidth > 0)
+                scottsRuleBuckets = (int)Math.Ceiling((maxVal - minVal) / hWidth);
             // Algorithm that picks the number of buckets based on Rick's Rule, i.e. 100 buckets
             int ricksRuleBuckets = 100;
             // Pick a bucket Rule
             int bucketRule = ricksRuleBuckets;
-            MathNet.Numerics.Statistics.Histogram histBuckets = new MathNet.Numerics.Statistics.Histogram(targetStandardizedMag, scottsRuleBuckets);
+            MathNet.Numerics.Statistics.Histogram histBuckets = new MathNet.Numerics.Statistics.Histogram(targetStandardizedMag, bucketRule);
             MathNet.Numerics.Statistics.Bucket bigBucket = Utility.FullestBucket(histBuckets);
             //Find the statistical median of the bigBucket
             double median = (bigBucket.UpperBound + bigBucket.LowerBound) / 2;
@@ -669,10 +679,12 @@ namespace VariScan
             }
             //Mode-based averages -- old algo
             (double fieldmean, double fieldstddev) = MathNet.Numerics.Statistics.ArrayStatistics.MeanStandardDeviation(targetStandardizedMag.ToArray());
-            CurrentTargetData.StandardColorMagnitude = fieldmean;
-            CurrentTargetData.StandardMagnitudeError = fieldstddev;
-            TargetModeBox.Text = fieldmean.ToString("0.000");
-            TargetStdDevBox.Text = fieldstddev.ToString("0.000");
+            //CurrentTargetData.StandardColorMagnitude = fieldmean;
+            //CurrentTargetData.StandardMagnitudeError = fieldstddev;
+            CurrentTargetData.StandardColorMagnitude = bbmean;
+            CurrentTargetData.StandardMagnitudeError = bbmstddev;
+            TargetModeBox.Text = bbmean.ToString("0.000");
+            TargetStdDevBox.Text = bbmstddev.ToString("0.000");
             return true;
         }
 
@@ -833,7 +845,7 @@ namespace VariScan
                     GaiaStarCountBox.Text = (Convert.ToInt32(GaiaStarCountBox.Text) + 1).ToString();
             }
             TSX_Process.NormalizeTSX();
- 
+
             //Find the closest light source to the target coordinates
             int? currentTargetLSIndex = Registration.ClosestLightSource(sfLSArray, targetRA, targetDec, MinSeparationArcSec);
             //if no target is found then return
@@ -1101,10 +1113,10 @@ namespace VariScan
                 {
                     if (PresetTransformsBox.Checked)
                     {
-                        CurrentTargetData.ColorTransform = (double)ManualColorTransformValueBox.Value;
+                        CurrentTargetData.ColorTransform = (double)PresetColorTransformBox.Value;
                         ColorTransformBox.Text = CurrentTargetData.ColorTransform.ToString("0.00");
                         ColorTransformListBox.Items.Clear();
-                        CurrentTargetData.MagnitudeTransform = (double)ManualMagTransformValueBox.Value;
+                        CurrentTargetData.MagnitudeTransform = (double)PresetMagnitudeTransformBox.Value;
                         MagnitudeTransformBox.Text = CurrentTargetData.MagnitudeTransform.ToString("0.00");
                         MagnitudeTransformListBox.Items.Clear();
                         CurrentTargetData.ColorTransform = CurrentTargetData.ColorTransform;
@@ -1418,11 +1430,47 @@ namespace VariScan
                 Utility.ButtonGreen(PlotHistoryButton);
                 return;
             }
-
         }
+
+        private void SetTransformsButton_Click(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            if (!IsInitializing)
+                if (TargetCatalogBox.Text == "APASS")
+                {
+                    cfg.ApassColorTransform = PresetColorTransformBox.Value.ToString();
+                    cfg.ApassMagnitudeTransform = PresetMagnitudeTransformBox.Value.ToString();
+                }
+                else
+                {
+                    cfg.GaiaColorTransform = PresetColorTransformBox.Value.ToString();
+                    cfg.GaiaMagnitudeTransform = PresetMagnitudeTransformBox.Value.ToString();
+                }
+            return;
+        }
+
+        private void TargetCatalogBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //When the catalog type box changes then reload the preset transforms accordingly
+            Configuration cfg = new Configuration();
+            if (!IsInitializing)
+            {
+                if (TargetCatalogBox.Text == "APASS")
+                {
+                    PresetColorTransformBox.Value = Convert.ToDecimal(cfg.ApassColorTransform);
+                    PresetMagnitudeTransformBox.Value = Convert.ToDecimal(cfg.ApassMagnitudeTransform);
+                }
+                else
+                {
+                    PresetColorTransformBox.Value = Convert.ToDecimal(cfg.GaiaColorTransform);
+                    PresetMagnitudeTransformBox.Value = Convert.ToDecimal(cfg.GaiaMagnitudeTransform);
+                }
+            }
+        }
+
         #endregion
 
-    }
+     }
 }
 
 

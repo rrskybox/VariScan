@@ -128,14 +128,21 @@ namespace VariScan
             return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
         }
 
-        public static double ParseRADecString(string radec)
+        public static double? ParseRADecString(string radec)
         {
             //Converts a string in either decimal or sexidecimal format to a double
             //if the string splits because it has internal spaces, then treat as sexidecimal
             //  otherwise treat as decimal 
-            char[] remChar = { 'h', 'm', 's', 'd' };
+            //Supported formats are: hh mm ss, hh'h' mm'm' ss's', hh mm ss, hh:mm:ss, dd mm ss, dd'd' mm'm' ss's', dd:mm:ss, h.hhhh, d.dddd
+            //
+            //Initially remove leading and trailing spaces, convert semicolons to spaces and remove any quotes
+            //If the string in contains a character (h, d, m, s) then is is treated as a three group string
+            //If the string does not contain those characters then it is treated as a double formated string
+            char[] remChar = { 'h', 'd', 'm', 's', ' ' };
+            radec = radec.TrimEnd(' ').TrimStart(' ');
             radec = radec.Replace(':', ' ');
-            for (int i = 0; i < radec.Length; i++) if (radec[i] == '\"') radec = radec.Remove(i, 1);
+            for (int i = 0; i < radec.Length; i++)
+                if (radec[i] == '\"') radec = radec.Remove(i, 1);
             string[] radecSplit = radec.Split(' ');
             if (radecSplit.Length == 1) return Convert.ToDouble(radec);
             else
@@ -144,9 +151,14 @@ namespace VariScan
                 for (int i = 0; i < 3; i++) radecSplit[i] = radecSplit[i].TrimEnd(remChar);
                 int radecsign = 1;
                 if (radecSplit[0].Contains("-")) radecsign = -1;
-                double radecDouble = radecsign *
-                    (Math.Abs(Convert.ToDouble(radecSplit[0])) + Convert.ToDouble(radecSplit[1]) / 60.0 + Convert.ToDouble(radecSplit[2]) / 3600.0);
-                return radecDouble;
+                try
+                {
+                    double? radecDouble = radecsign *
+                       (Math.Abs(Convert.ToDouble(radecSplit[0])) + Convert.ToDouble(radecSplit[1]) / 60.0 + Convert.ToDouble(radecSplit[2]) / 3600.0);
+                    return radecDouble;
+                }
+                catch (Exception ex)
+                { return null; };
             }
         }
 

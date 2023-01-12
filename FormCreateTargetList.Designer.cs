@@ -34,7 +34,7 @@ namespace VariScan
             this.DoneButton = new System.Windows.Forms.Button();
             this.FilterListBox = new System.Windows.Forms.CheckedListBox();
             this.FilterListGroup = new System.Windows.Forms.GroupBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.CreateAAVSOListButton = new System.Windows.Forms.Button();
             this.FilterListGroup.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,7 +46,7 @@ namespace VariScan
             this.ImportCSVButton.Name = "ImportCSVButton";
             this.ImportCSVButton.Size = new System.Drawing.Size(118, 24);
             this.ImportCSVButton.TabIndex = 3;
-            this.ImportCSVButton.Text = "Convert Target List";
+            this.ImportCSVButton.Text = "Import CSV List";
             this.ImportCSVButton.UseVisualStyleBackColor = false;
             this.ImportCSVButton.Click += new System.EventHandler(this.ImportCSVButton_Click);
             // 
@@ -85,17 +85,17 @@ namespace VariScan
             this.FilterListGroup.TabStop = false;
             this.FilterListGroup.Text = "Filter List";
             // 
-            // button1
+            // CreateAAVSOListButton
             // 
-            this.button1.BackColor = System.Drawing.Color.LightGreen;
-            this.button1.ForeColor = System.Drawing.Color.Black;
-            this.button1.Location = new System.Drawing.Point(22, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(118, 24);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "Create Target List";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.CreateAAVSOListButton.BackColor = System.Drawing.Color.LightGreen;
+            this.CreateAAVSOListButton.ForeColor = System.Drawing.Color.Black;
+            this.CreateAAVSOListButton.Location = new System.Drawing.Point(22, 12);
+            this.CreateAAVSOListButton.Name = "CreateAAVSOListButton";
+            this.CreateAAVSOListButton.Size = new System.Drawing.Size(118, 24);
+            this.CreateAAVSOListButton.TabIndex = 9;
+            this.CreateAAVSOListButton.Text = "Create AAVSO List";
+            this.CreateAAVSOListButton.UseVisualStyleBackColor = false;
+            this.CreateAAVSOListButton.Click += new System.EventHandler(this.CreateAAVSOTargetList_Button);
             // 
             // FormCreateTargetList
             // 
@@ -103,7 +103,7 @@ namespace VariScan
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightSeaGreen;
             this.ClientSize = new System.Drawing.Size(167, 361);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.CreateAAVSOListButton);
             this.Controls.Add(this.FilterListGroup);
             this.Controls.Add(this.DoneButton);
             this.Controls.Add(this.ImportCSVButton);
@@ -111,7 +111,6 @@ namespace VariScan
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Create Target List";
             this.TopMost = true;
-            this.Load += new System.EventHandler(this.FormCreateTargetList_Load);
             this.FilterListGroup.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -123,6 +122,6 @@ namespace VariScan
         private System.Windows.Forms.Button DoneButton;
         private System.Windows.Forms.CheckedListBox FilterListBox;
         private System.Windows.Forms.GroupBox FilterListGroup;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button CreateAAVSOListButton;
     }
 }

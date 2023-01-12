@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Windows.Forms;
 using TheSky64Lib;
 
 namespace VariScan
@@ -115,28 +116,39 @@ namespace VariScan
             string[] lineElements;
             XElement tgtXFile;
             tgtXFile = new XElement(TargetListRootX);
-
-            TextReader tgtTextFile = File.OpenText(textFilePath);
+            TextReader tgtTextFile;
+            try { tgtTextFile = File.OpenText(textFilePath); }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
             textLine = tgtTextFile.ReadLine();  //Header line -- skip
 
             while (tgtTextFile.Peek() != -1) //skip non entry lines
             {
                 //next entry
                 textLine = tgtTextFile.ReadLine();
-                if (textLine.Contains(","))
+                if (textLine.Contains(",") && !textLine.Contains("["))
                 {
                     lineElements = textLine.Split(',');
                     //Calculate RA and Dec -> decimal values
-                    string nameString = Utility.ParseNameString(lineElements[0].Replace(":", " "));
-                    double raDouble = Utility.ParseRADecString(lineElements[1]);
-                    double decDouble = Utility.ParseRADecString(lineElements[2]);
-                    //Load up xelement
-                    XElement varTarget = new XElement(TargetListRecordX,
-                        new XElement(NameX, nameString),
-                        new XElement(RAX, raDouble.ToString()),
-                        new XElement(DecX, decDouble.ToString()),
-                        new XElement(LastDateX, DateTime.MinValue));
-                    tgtXFile.Add(varTarget);
+                    if (lineElements.Length >= 3)
+                    {
+                        string nameString = Utility.ParseNameString(lineElements[0].Replace(":", " "));
+                        double? raDouble = Utility.ParseRADecString(lineElements[1]);
+                        double? decDouble = Utility.ParseRADecString(lineElements[2]);
+                        //Load up xelement
+                        if (raDouble != null && decDouble != null)
+                        {
+                            XElement varTarget = new XElement(TargetListRecordX,
+                                new XElement(NameX, nameString),
+                                new XElement(RAX, raDouble.ToString()),
+                                new XElement(DecX, decDouble.ToString()),
+                                new XElement(LastDateX, DateTime.MinValue));
+                            tgtXFile.Add(varTarget);
+                        }
+                    }
                 }
             }
             //Save file

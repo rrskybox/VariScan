@@ -84,6 +84,12 @@ namespace VariScan
         const string UseCLSX = "UseCLS";
         const string CLSReductionX = "CLSReduction";
 
+        const string ApassColorTransformX = "ApassColorTransform";
+        const string GaiaColorTransformX = "GaiaColorTransform";
+        const string ApassMagnitudeTransformX = "ApassMagnitudeTransform";
+        const string GaiaMagnitudeTransformX = "GaiaMagnitudeTransform";
+
+
         string ssdir;  //VariScan Root directory
         //string cmdir;  //Current Collection directory
 
@@ -138,7 +144,11 @@ namespace VariScan
                     new XElement(UseCLSX, "True"),
                     new XElement(CLSReductionX, "None"),
                     new XElement(ScanUseGaiaX, "False"),
-                    new XElement(ScanStepTransformsX, "False"));
+                    new XElement(ScanStepTransformsX, "False"),
+                    new XElement(ApassColorTransformX, "0.0"),
+                    new XElement(GaiaColorTransformX, "0.0"),
+                    new XElement(ApassMagnitudeTransformX, "0.0"),
+                    new XElement(GaiaMagnitudeTransformX, "0.0"));
 
                 cDefaultX.Save(ssdir + "\\" + ScanConfigurationFilename);
             }
@@ -421,5 +431,26 @@ namespace VariScan
             get { return GetConfig(CLSReductionX, "None"); }
             set { SetConfig(CLSReductionX, value); }
         }
+        public string ApassColorTransform
+        {
+            get { return GetConfig(ApassColorTransformX, "0,0"); }
+            set { SetConfig(ApassColorTransformX, value); }
+        }
+        public string GaiaColorTransform
+        {
+            get { return GetConfig(GaiaColorTransformX, "0,0"); }
+            set { SetConfig(GaiaColorTransformX, value); }
+        }
+        public string ApassMagnitudeTransform
+        {
+            get { return GetConfig(ApassMagnitudeTransformX, "0,0"); }
+            set { SetConfig(ApassMagnitudeTransformX, value); }
+        }
+        public string GaiaMagnitudeTransform
+        {
+            get { return GetConfig(GaiaMagnitudeTransformX, "0,0"); }
+            set { SetConfig(GaiaMagnitudeTransformX, value); }
+        }
+
     }
 }

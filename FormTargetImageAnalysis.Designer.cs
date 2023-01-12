@@ -171,8 +171,8 @@ namespace VariScan
             this.ResultsTargetBox = new System.Windows.Forms.TextBox();
             this.ReportGroupBox = new System.Windows.Forms.GroupBox();
             this.PresetTransformsBox = new System.Windows.Forms.CheckBox();
-            this.ManualColorTransformValueBox = new System.Windows.Forms.NumericUpDown();
-            this.ManualMagTransformValueBox = new System.Windows.Forms.NumericUpDown();
+            this.PresetColorTransformBox = new System.Windows.Forms.NumericUpDown();
+            this.PresetMagnitudeTransformBox = new System.Windows.Forms.NumericUpDown();
             this.label23 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
             this.StepTransformsCheckbox = new System.Windows.Forms.CheckBox();
@@ -182,6 +182,7 @@ namespace VariScan
             this.TargetedVariableGroupBox = new System.Windows.Forms.GroupBox();
             this.SessionListTextBox = new System.Windows.Forms.TextBox();
             this.TargetPlotBox = new System.Windows.Forms.ComboBox();
+            this.SetTransformsButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.StarADUChart)).BeginInit();
             this.SeeingGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MagnitudeTransformChart)).BeginInit();
@@ -195,8 +196,8 @@ namespace VariScan
             ((System.ComponentModel.ISupportInitialize)(this.TransformedTargetChart)).BeginInit();
             this.TransformResultsBox.SuspendLayout();
             this.ReportGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ManualColorTransformValueBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ManualMagTransformValueBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PresetColorTransformBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PresetMagnitudeTransformBox)).BeginInit();
             this.TargetedVariableGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -524,17 +525,17 @@ namespace VariScan
             this.label28.Name = "label28";
             this.label28.Size = new System.Drawing.Size(34, 13);
             this.label28.TabIndex = 140;
-            this.label28.Text = "Mean";
+            this.label28.Text = "Mode";
             this.AnalysisToolTips.SetToolTip(this.label28, "Full Width Half Maximum of selected star image");
             // 
             // label31
             // 
             this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(123, 234);
+            this.label31.Location = new System.Drawing.Point(130, 234);
             this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(46, 13);
+            this.label31.Size = new System.Drawing.Size(57, 13);
             this.label31.TabIndex = 142;
-            this.label31.Text = "Std Dev";
+            this.label31.Text = "Mode Dev";
             this.AnalysisToolTips.SetToolTip(this.label31, "Full Width Half Maximum of selected star image");
             // 
             // label37
@@ -679,7 +680,7 @@ namespace VariScan
             // label45
             // 
             this.label45.AutoSize = true;
-            this.label45.Location = new System.Drawing.Point(17, 126);
+            this.label45.Location = new System.Drawing.Point(208, 174);
             this.label45.Name = "label45";
             this.label45.Size = new System.Drawing.Size(43, 13);
             this.label45.TabIndex = 111;
@@ -1156,11 +1157,12 @@ namespace VariScan
             this.TargetCatalogBox.Items.AddRange(new object[] {
             "APASS",
             "Gaia"});
-            this.TargetCatalogBox.Location = new System.Drawing.Point(102, 123);
+            this.TargetCatalogBox.Location = new System.Drawing.Point(257, 171);
             this.TargetCatalogBox.Name = "TargetCatalogBox";
-            this.TargetCatalogBox.Size = new System.Drawing.Size(73, 21);
+            this.TargetCatalogBox.Size = new System.Drawing.Size(61, 21);
             this.TargetCatalogBox.TabIndex = 112;
             this.TargetCatalogBox.Text = "APASS";
+            this.TargetCatalogBox.SelectedIndexChanged += new System.EventHandler(this.TargetCatalogBox_SelectedIndexChanged);
             // 
             // PlotHistoryButton
             // 
@@ -1215,8 +1217,6 @@ namespace VariScan
             // 
             // SessionGroupBox
             // 
-            this.SessionGroupBox.Controls.Add(this.TargetCatalogBox);
-            this.SessionGroupBox.Controls.Add(this.label45);
             this.SessionGroupBox.Controls.Add(this.DifferentialColorBox);
             this.SessionGroupBox.Controls.Add(this.label25);
             this.SessionGroupBox.Controls.Add(this.PrimaryColorBox);
@@ -1227,7 +1227,7 @@ namespace VariScan
             this.SessionGroupBox.Controls.Add(this.label9);
             this.SessionGroupBox.Location = new System.Drawing.Point(198, 36);
             this.SessionGroupBox.Name = "SessionGroupBox";
-            this.SessionGroupBox.Size = new System.Drawing.Size(191, 156);
+            this.SessionGroupBox.Size = new System.Drawing.Size(191, 118);
             this.SessionGroupBox.TabIndex = 106;
             this.SessionGroupBox.TabStop = false;
             this.SessionGroupBox.Text = "Transform Factors";
@@ -1257,6 +1257,7 @@ namespace VariScan
             this.PrimaryColorBox.Name = "PrimaryColorBox";
             this.PrimaryColorBox.Size = new System.Drawing.Size(73, 21);
             this.PrimaryColorBox.TabIndex = 112;
+            this.PrimaryColorBox.SelectedIndexChanged += new System.EventHandler(this.PrimaryColorBox_SelectedIndexChanged);
             // 
             // label21
             // 
@@ -1360,9 +1361,9 @@ namespace VariScan
             // 
             // TargetStdDevBox
             // 
-            this.TargetStdDevBox.Location = new System.Drawing.Point(175, 231);
+            this.TargetStdDevBox.Location = new System.Drawing.Point(186, 231);
             this.TargetStdDevBox.Name = "TargetStdDevBox";
-            this.TargetStdDevBox.Size = new System.Drawing.Size(57, 20);
+            this.TargetStdDevBox.Size = new System.Drawing.Size(46, 20);
             this.TargetStdDevBox.TabIndex = 141;
             this.TargetStdDevBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -1505,66 +1506,68 @@ namespace VariScan
             // 
             this.PresetTransformsBox.AutoSize = true;
             this.PresetTransformsBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.PresetTransformsBox.Location = new System.Drawing.Point(333, 211);
+            this.PresetTransformsBox.Checked = true;
+            this.PresetTransformsBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.PresetTransformsBox.Location = new System.Drawing.Point(263, 201);
             this.PresetTransformsBox.Name = "PresetTransformsBox";
             this.PresetTransformsBox.Size = new System.Drawing.Size(56, 17);
             this.PresetTransformsBox.TabIndex = 154;
             this.PresetTransformsBox.Text = "Preset";
             this.PresetTransformsBox.UseVisualStyleBackColor = true;
             // 
-            // ManualColorTransformValueBox
+            // PresetColorTransformBox
             // 
-            this.ManualColorTransformValueBox.DecimalPlaces = 2;
-            this.ManualColorTransformValueBox.Increment = new decimal(new int[] {
+            this.PresetColorTransformBox.DecimalPlaces = 2;
+            this.PresetColorTransformBox.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.ManualColorTransformValueBox.Location = new System.Drawing.Point(269, 240);
-            this.ManualColorTransformValueBox.Maximum = new decimal(new int[] {
+            this.PresetColorTransformBox.Location = new System.Drawing.Point(269, 226);
+            this.PresetColorTransformBox.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-            this.ManualColorTransformValueBox.Minimum = new decimal(new int[] {
+            this.PresetColorTransformBox.Minimum = new decimal(new int[] {
             1000,
             0,
             0,
             -2147483648});
-            this.ManualColorTransformValueBox.Name = "ManualColorTransformValueBox";
-            this.ManualColorTransformValueBox.Size = new System.Drawing.Size(49, 20);
-            this.ManualColorTransformValueBox.TabIndex = 155;
-            this.ManualColorTransformValueBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.ManualColorTransformValueBox.Value = new decimal(new int[] {
+            this.PresetColorTransformBox.Name = "PresetColorTransformBox";
+            this.PresetColorTransformBox.Size = new System.Drawing.Size(49, 20);
+            this.PresetColorTransformBox.TabIndex = 155;
+            this.PresetColorTransformBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.PresetColorTransformBox.Value = new decimal(new int[] {
             59,
             0,
             0,
             131072});
             // 
-            // ManualMagTransformValueBox
+            // PresetMagnitudeTransformBox
             // 
-            this.ManualMagTransformValueBox.DecimalPlaces = 2;
-            this.ManualMagTransformValueBox.Increment = new decimal(new int[] {
+            this.PresetMagnitudeTransformBox.DecimalPlaces = 2;
+            this.PresetMagnitudeTransformBox.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.ManualMagTransformValueBox.Location = new System.Drawing.Point(269, 210);
-            this.ManualMagTransformValueBox.Maximum = new decimal(new int[] {
+            this.PresetMagnitudeTransformBox.Location = new System.Drawing.Point(269, 253);
+            this.PresetMagnitudeTransformBox.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-            this.ManualMagTransformValueBox.Minimum = new decimal(new int[] {
+            this.PresetMagnitudeTransformBox.Minimum = new decimal(new int[] {
             1000,
             0,
             0,
             -2147483648});
-            this.ManualMagTransformValueBox.Name = "ManualMagTransformValueBox";
-            this.ManualMagTransformValueBox.Size = new System.Drawing.Size(49, 20);
-            this.ManualMagTransformValueBox.TabIndex = 157;
-            this.ManualMagTransformValueBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.ManualMagTransformValueBox.Value = new decimal(new int[] {
+            this.PresetMagnitudeTransformBox.Name = "PresetMagnitudeTransformBox";
+            this.PresetMagnitudeTransformBox.Size = new System.Drawing.Size(49, 20);
+            this.PresetMagnitudeTransformBox.TabIndex = 157;
+            this.PresetMagnitudeTransformBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.PresetMagnitudeTransformBox.Value = new decimal(new int[] {
             10,
             0,
             0,
@@ -1573,7 +1576,7 @@ namespace VariScan
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(210, 242);
+            this.label23.Location = new System.Drawing.Point(208, 228);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(31, 13);
             this.label23.TabIndex = 158;
@@ -1582,7 +1585,7 @@ namespace VariScan
             // label27
             // 
             this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(208, 214);
+            this.label27.Location = new System.Drawing.Point(206, 257);
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(57, 13);
             this.label27.TabIndex = 159;
@@ -1592,7 +1595,7 @@ namespace VariScan
             // 
             this.StepTransformsCheckbox.AutoSize = true;
             this.StepTransformsCheckbox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.StepTransformsCheckbox.Location = new System.Drawing.Point(341, 241);
+            this.StepTransformsCheckbox.Location = new System.Drawing.Point(340, 173);
             this.StepTransformsCheckbox.Margin = new System.Windows.Forms.Padding(1);
             this.StepTransformsCheckbox.Name = "StepTransformsCheckbox";
             this.StepTransformsCheckbox.Size = new System.Drawing.Size(48, 17);
@@ -1662,6 +1665,19 @@ namespace VariScan
             this.TargetPlotBox.TabIndex = 95;
             this.TargetPlotBox.SelectedIndexChanged += new System.EventHandler(this.TargetPlotBox_SelectedIndexChanged);
             // 
+            // SetTransformsButton
+            // 
+            this.SetTransformsButton.BackColor = System.Drawing.Color.SpringGreen;
+            this.SetTransformsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SetTransformsButton.ForeColor = System.Drawing.Color.Black;
+            this.SetTransformsButton.Location = new System.Drawing.Point(340, 239);
+            this.SetTransformsButton.Name = "SetTransformsButton";
+            this.SetTransformsButton.Size = new System.Drawing.Size(35, 21);
+            this.SetTransformsButton.TabIndex = 170;
+            this.SetTransformsButton.Text = "Set";
+            this.SetTransformsButton.UseVisualStyleBackColor = false;
+            this.SetTransformsButton.Click += new System.EventHandler(this.SetTransformsButton_Click);
+            // 
             // FormTargetImageAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1669,6 +1685,9 @@ namespace VariScan
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.DarkCyan;
             this.ClientSize = new System.Drawing.Size(1463, 659);
+            this.Controls.Add(this.SetTransformsButton);
+            this.Controls.Add(this.TargetCatalogBox);
+            this.Controls.Add(this.label45);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.TargetPlotBox);
             this.Controls.Add(this.CollectionSelectionBox);
@@ -1676,8 +1695,8 @@ namespace VariScan
             this.Controls.Add(this.StepTransformsCheckbox);
             this.Controls.Add(this.label27);
             this.Controls.Add(this.label23);
-            this.Controls.Add(this.ManualMagTransformValueBox);
-            this.Controls.Add(this.ManualColorTransformValueBox);
+            this.Controls.Add(this.PresetMagnitudeTransformBox);
+            this.Controls.Add(this.PresetColorTransformBox);
             this.Controls.Add(this.PresetTransformsBox);
             this.Controls.Add(this.ReportGroupBox);
             this.Controls.Add(this.TransformResultsBox);
@@ -1720,8 +1739,8 @@ namespace VariScan
             this.TransformResultsBox.ResumeLayout(false);
             this.TransformResultsBox.PerformLayout();
             this.ReportGroupBox.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.ManualColorTransformValueBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ManualMagTransformValueBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PresetColorTransformBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PresetMagnitudeTransformBox)).EndInit();
             this.TargetedVariableGroupBox.ResumeLayout(false);
             this.TargetedVariableGroupBox.PerformLayout();
             this.ResumeLayout(false);
@@ -1832,8 +1851,8 @@ namespace VariScan
         private System.Windows.Forms.TextBox GaiaToSourcePositionErrorBox;
         internal System.Windows.Forms.Label label13;
         private System.Windows.Forms.CheckBox PresetTransformsBox;
-        private System.Windows.Forms.NumericUpDown ManualColorTransformValueBox;
-        private System.Windows.Forms.NumericUpDown ManualMagTransformValueBox;
+        private System.Windows.Forms.NumericUpDown PresetColorTransformBox;
+        private System.Windows.Forms.NumericUpDown PresetMagnitudeTransformBox;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.TextBox ResultsTargetBox;
@@ -1860,6 +1879,7 @@ namespace VariScan
         private System.Windows.Forms.TextBox SessionListTextBox;
         private System.Windows.Forms.ComboBox TargetPlotBox;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button SetTransformsButton;
     }
 }
 

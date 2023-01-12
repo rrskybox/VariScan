@@ -42,7 +42,12 @@ namespace VariScan
             if (pFLS.CatalogInfo == null || dFLS.CatalogInfo == null)
                 return (0, 0);
             else
-                return (GetCatalogedMagnitude(priColor, pFLS, catalog), GetCatalogedMagnitude(diffColor, dFLS, catalog));
+            {
+                double pri = GetCatalogedMagnitude(priColor, pFLS, catalog);
+                double dif = GetCatalogedMagnitude(diffColor, dFLS, catalog);
+                return (pri,dif);
+                //return (GetCatalogedMagnitude(priColor, pFLS, catalog), GetCatalogedMagnitude(diffColor, dFLS, catalog));
+            }
         }
 
         public static double GetCatalogedMagnitude(ColorIndexing.ColorDataSource cds, StarField.FieldLightSource fls, string catalog)

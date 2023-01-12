@@ -38,6 +38,14 @@ namespace VariScan
             {
                 FilterListBox.Items.AddRange(zeroBasedFilters);
             }
+            Utility.ButtonGreen(DoneButton);
+            DoneButton.Text = "Cancel";
+        }
+
+        private void CreateAAVSOTargetList_Button(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://filtergraph.com/aavso/default/index");
+            DoneButton.Text = "Cancel";
         }
 
         private void ImportCSVButton_Click(object sender, EventArgs e)
@@ -51,6 +59,8 @@ namespace VariScan
                 TargetXList.CreateXList(textFileName, cfg.TargetListPath);
             }
             Utility.ButtonGreen(ImportCSVButton);
+            DoneButton.Text = "Compile";
+            return;
         }
 
         private void DoneButton_Click(object sender, EventArgs e)
@@ -70,15 +80,6 @@ namespace VariScan
             this.Close();
         }
 
-        private void FormCreateTargetList_Load(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://filtergraph.com/aavso/default/index");
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-        }
 
         //private void PrimaryFilterBox_SelectedIndexChanged(object sender, EventArgs e)
         //{
