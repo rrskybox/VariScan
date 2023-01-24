@@ -64,7 +64,7 @@ namespace VariScan
             return;
         }
 
-        public static double ImageWidth (ccdsoftImage TSX_Image)
+        public static double ImageWidth(ccdsoftImage TSX_Image)
         {
             double scale = TSX_Resources.GetFOVImageScale();
             double pixWidth = (double)TSX_Image.WidthInPixels;

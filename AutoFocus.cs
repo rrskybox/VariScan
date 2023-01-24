@@ -135,14 +135,8 @@ namespace VariScan
 
             if (File.Exists(focDataFilePath))
             {
-                try
-                {
-                    ft.initialize();
-                }
-                catch (Exception ex)
-                {
-                    return false;
-                }
+                try { ft.initialize(); }
+                catch { return false; }
                 tsxc.focTemperatureCompensationMode = ccdsoftfocTempCompMode.cdfocTempCompMode_A;
                 return true;
             }

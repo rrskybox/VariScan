@@ -37,12 +37,7 @@ namespace VariScan
             //Find the filter name for the filter filter Number
             ccdsoftCamera tsxc = new ccdsoftCamera();
             try { tsxc.Connect(); }
-#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-            catch (Exception ex)
-#pragma warning restore CS0168 // The variable 'ex' is declared but never used
-            {
-                return null;
-            }
+            catch { return null; }
             int filterCount = tsxc.lNumberFilters;
             string[] TSXFilterList = new string[filterCount];
             for (int f = 0; f < filterCount; f++)

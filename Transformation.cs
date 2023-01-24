@@ -37,7 +37,7 @@ namespace VariScan
                                                where (p.RegistrationIndex == regIndex)
                                                select p).FirstOrDefault();
             StarField.FieldLightSource dFLS = (from StarField.FieldLightSource d in differentialFLS
-                                               where (d.RegistrationIndex == regIndex )
+                                               where (d.RegistrationIndex == regIndex)
                                                select d).FirstOrDefault();
             if (pFLS.CatalogInfo == null || dFLS.CatalogInfo == null)
                 return (0, 0);
@@ -45,7 +45,7 @@ namespace VariScan
             {
                 double pri = GetCatalogedMagnitude(priColor, pFLS, catalog);
                 double dif = GetCatalogedMagnitude(diffColor, dFLS, catalog);
-                return (pri,dif);
+                return (pri, dif);
                 //return (GetCatalogedMagnitude(priColor, pFLS, catalog), GetCatalogedMagnitude(diffColor, dFLS, catalog));
             }
         }

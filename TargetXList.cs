@@ -22,8 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml.Linq;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using TheSky64Lib;
 
 namespace VariScan
@@ -155,15 +155,14 @@ namespace VariScan
             tgtXFile.Save(xmlFilePath);
         }
 
-        public static void AddDifferentialToTargetXList(TargetXDescriptor refX)
+        public static void AddToTargetXList(string name, double ra, double dec, DateTime lastDate)
         {
             //Adds a Differential type of target into the the target list
-            var newRef = new XElement(DifferentialRecordX,
-                   new XElement(NameX, refX.Name,
-                   new XElement(RAX, refX.RA.ToString()),
-                   new XElement(DecX, refX.Dec.ToString()),
-                   //new XElement(FilterX, varTgt.Filter.ToString()),
-                   new XElement(LastDateX, refX.LastImagingDate.ToString())));
+            var newRef = new XElement(TargetListRecordX,
+                   new XElement(NameX, name),
+                   new XElement(RAX, ra.ToString()),
+                   new XElement(DecX, dec.ToString()),
+                   new XElement(LastDateX, lastDate.ToString()));
             Configuration cfg = new Configuration();
             //Load xml list and update data on target
             XElement acnL = XElement.Load(cfg.TargetListPath);
@@ -172,6 +171,44 @@ namespace VariScan
             return;
         }
 
+        public static void AddToTargetXList(TargetXDescriptor refX)
+        {
+            //Adds a Differential type of target into the the target list
+            var newRef = new XElement(TargetListRecordX,
+                   new XElement(NameX, refX.Name),
+                   new XElement(RAX, refX.RA.ToString()),
+                   new XElement(DecX, refX.Dec.ToString()),
+                   new XElement(LastDateX, refX.LastImagingDate.ToString()));
+            Configuration cfg = new Configuration();
+            //Load xml list and update data on target
+            XElement acnL = XElement.Load(cfg.TargetListPath);
+            acnL.Add(newRef);
+            acnL.Save(cfg.TargetListPath);
+            return;
+        }
+
+        public static void DeleteFromTargetXList(string name)
+        {
+            //Adds a Differential type of target into the the target list
+            Configuration cfg = new Configuration();
+            //Load xml list and update data on target
+            XElement acnL = XElement.Load(cfg.TargetListPath);
+            acnL.Elements(TargetListRecordX).FirstOrDefault(t => ((string)t.Element(NameX) == name)).Remove();
+            acnL.Save(cfg.TargetListPath);
+            return;
+        }
+
+        public void UpdateTargetXList(string name, double ra, double dec, DateTime lastDate)
+        {
+            //Load xml list and update data on target
+            Configuration cfg = new Configuration();
+            XElement acnL = XElement.Load(cfg.TargetListPath);
+            acnL.Elements(TargetListRecordX).FirstOrDefault(t => ((string)t.Element(NameX) == name)).SetElementValue(RAX, ra.ToString());
+            acnL.Elements(TargetListRecordX).FirstOrDefault(t => ((string)t.Element(NameX) == name)).SetElementValue(DecX, dec.ToString());
+            acnL.Elements(TargetListRecordX).FirstOrDefault(t => ((string)t.Element(NameX) == name)).SetElementValue(LastDateX, lastDate.ToString());
+            acnL.Save(cfg.TargetListPath);
+            return;
+        }
 
         public void UpdateTargetXDate(TargetXDescriptor varTgt)
         {
@@ -179,13 +216,11 @@ namespace VariScan
                    new XElement(NameX, varTgt.Name,
                    new XElement(RAX, varTgt.RA.ToString()),
                    new XElement(DecX, varTgt.Dec.ToString()),
-                   //new XElement(FilterX, varTgt.Filter.ToString()),
                    new XElement(LastDateX, varTgt.LastImagingDate.ToString())));
             Configuration cfg = new Configuration();
             //Load xml list and update data on target
             XElement acnL = XElement.Load(cfg.TargetListPath);
             acnL.Elements(TargetListRecordX).FirstOrDefault(t => ((string)t.Element(NameX) == varTgt.Name)).SetElementValue(LastDateX, DateTime.Now.ToString());
-            //acnT.Element(VariableTargetLastDateX).ReplaceWith(new XElement(VariableTargetLastDateX, DateTime.Now.ToString()));
             acnL.Save(cfg.TargetListPath);
             return;
         }
@@ -305,7 +340,6 @@ namespace VariScan
                           new XElement(NameX, name),
                           new XElement(RAX, ra.ToString()),
                           new XElement(DecX, dec.ToString()),
-                          //new XElement(FilterX, filter.ToString()),
                           new XElement(LastDateX, DateTime.MinValue));
             }
 

@@ -645,78 +645,78 @@ namespace VariScan
 
         #endregion
 
-        private void CollectExtinctionFrames()
-        {
-            Configuration cfg = new Configuration();
-            LogEventHandler("Gathering Extinction Frames");
-            Extinction newExt = new Extinction();
-            if (!newExt.GetStandardFields())
-            {
-                LogEventHandler("Extinction image capture failed -- No Differential field found.");
-                LogEventHandler("");
-                return;
-            }
-            //Shoot images for extinction targets
-            //Loop through the list of filters to be imaged
-            ColorIndexing cL = new ColorIndexing();
-            List<Filters.ActiveFilter> afList = cL.GetIndexFilters();
-            //Create targets for zenith and lower
-            TargetXList.TargetXDescriptor zTargetDef = new TargetXList.TargetXDescriptor
-                            (newExt.ZenithTarget.TargetName, newExt.ZenithTarget.TargetRA, newExt.ZenithTarget.TargetDec);
-            zTargetDef.Exposure = 10;  // Ten second initial exposure.  Why not?
-            zTargetDef.LastImagingDate = DateTime.Now;
-            TargetXList.TargetXDescriptor lTargetDef = new TargetXList.TargetXDescriptor
-                                (newExt.LowerTarget.TargetName, newExt.LowerTarget.TargetRA, newExt.LowerTarget.TargetDec);
-            lTargetDef.Exposure = 10;  // Ten second initial exposure.  Why not?
-            lTargetDef.LastImagingDate = DateTime.Now;
-            //Image Zenith
-            bool autoExposeAndReposition = true;
-            foreach (Filters.ActiveFilter af in afList)
-            {
-                FreshImage fso = new FreshImage(zTargetDef, af.FilterIndex);
-                fso.LogUpdate += LogEventHandler;
-                //If this is the Johnson V filter, then AutoExpose to get standard exposure for all extinctions
-                //if (af.JcAssign == Filters.JohnsonCousinsFilters.V)
-                //    autoExposeAndReposition = true;
-                //else autoExposeAndReposition = false;
-                if (fso.Acquire(ref zTargetDef, autoExposeAndReposition, autoExposeAndReposition, false))
-                {
-                    LogEventHandler(newExt.ZenithTarget.TargetName + " Zenith image capture complete.");
-                    LogEventHandler(newExt.ZenithTarget.TargetName + ":" + " Banking new image in " + cfg.ImageBankFolder);
-                }
-                else
-                {
-                    LogEventHandler(newExt.ZenithTarget.TargetName + ": " + " Zenith image capture failed -- check log for problem.");
-                    LogEventHandler("");
-                }
-                autoExposeAndReposition = false;
-            }
-            //Image Lower
-            autoExposeAndReposition = true;
-            foreach (Filters.ActiveFilter af in afList)
-            {
-                FreshImage fso = new FreshImage(lTargetDef, af.FilterIndex);
-                fso.LogUpdate += LogEventHandler;
-                //If this is the Johnson V filter, then AutoExpose to get standard exposure for all extinctions
-                //if (af.JcAssign == Filters.JohnsonCousinsFilters.V)
-                //    autoExposeAndReposition = true;
-                //else autoExposeAndReposition = false;
-                if (fso.Acquire(ref lTargetDef, autoExposeAndReposition, autoExposeAndReposition, false))
-                {
-                    LogEventHandler(newExt.LowerTarget.TargetName + " Lower image capture complete.");
-                    LogEventHandler(newExt.LowerTarget.TargetName + ":" + " Banking image in " + cfg.ImageBankFolder);
-                }
-                else
-                {
-                    LogEventHandler(newExt.LowerTarget.TargetName + ": " + " Lower image capture failed -- check log for problem.");
-                    LogEventHandler("");
-                }
-                autoExposeAndReposition = false;
-            }
-            TargetXList.AddDifferentialToTargetXList(zTargetDef);
-            TargetXList.AddDifferentialToTargetXList(lTargetDef);
-            return;
-        }
+        //private void CollectExtinctionFrames()
+        //{
+        //    Configuration cfg = new Configuration();
+        //    LogEventHandler("Gathering Extinction Frames");
+        //    Extinction newExt = new Extinction();
+        //    if (!newExt.GetStandardFields())
+        //    {
+        //        LogEventHandler("Extinction image capture failed -- No Differential field found.");
+        //        LogEventHandler("");
+        //        return;
+        //    }
+        //    //Shoot images for extinction targets
+        //    //Loop through the list of filters to be imaged
+        //    ColorIndexing cL = new ColorIndexing();
+        //    List<Filters.ActiveFilter> afList = cL.GetIndexFilters();
+        //    //Create targets for zenith and lower
+        //    TargetXList.TargetXDescriptor zTargetDef = new TargetXList.TargetXDescriptor
+        //                    (newExt.ZenithTarget.TargetName, newExt.ZenithTarget.TargetRA, newExt.ZenithTarget.TargetDec);
+        //    zTargetDef.Exposure = 10;  // Ten second initial exposure.  Why not?
+        //    zTargetDef.LastImagingDate = DateTime.Now;
+        //    TargetXList.TargetXDescriptor lTargetDef = new TargetXList.TargetXDescriptor
+        //                        (newExt.LowerTarget.TargetName, newExt.LowerTarget.TargetRA, newExt.LowerTarget.TargetDec);
+        //    lTargetDef.Exposure = 10;  // Ten second initial exposure.  Why not?
+        //    lTargetDef.LastImagingDate = DateTime.Now;
+        //    //Image Zenith
+        //    bool autoExposeAndReposition = true;
+        //    foreach (Filters.ActiveFilter af in afList)
+        //    {
+        //        FreshImage fso = new FreshImage(zTargetDef, af.FilterIndex);
+        //        fso.LogUpdate += LogEventHandler;
+        //        //If this is the Johnson V filter, then AutoExpose to get standard exposure for all extinctions
+        //        //if (af.JcAssign == Filters.JohnsonCousinsFilters.V)
+        //        //    autoExposeAndReposition = true;
+        //        //else autoExposeAndReposition = false;
+        //        if (fso.Acquire(ref zTargetDef, autoExposeAndReposition, autoExposeAndReposition, false))
+        //        {
+        //            LogEventHandler(newExt.ZenithTarget.TargetName + " Zenith image capture complete.");
+        //            LogEventHandler(newExt.ZenithTarget.TargetName + ":" + " Banking new image in " + cfg.ImageBankFolder);
+        //        }
+        //        else
+        //        {
+        //            LogEventHandler(newExt.ZenithTarget.TargetName + ": " + " Zenith image capture failed -- check log for problem.");
+        //            LogEventHandler("");
+        //        }
+        //        autoExposeAndReposition = false;
+        //    }
+        //    //Image Lower
+        //    autoExposeAndReposition = true;
+        //    foreach (Filters.ActiveFilter af in afList)
+        //    {
+        //        FreshImage fso = new FreshImage(lTargetDef, af.FilterIndex);
+        //        fso.LogUpdate += LogEventHandler;
+        //        //If this is the Johnson V filter, then AutoExpose to get standard exposure for all extinctions
+        //        //if (af.JcAssign == Filters.JohnsonCousinsFilters.V)
+        //        //    autoExposeAndReposition = true;
+        //        //else autoExposeAndReposition = false;
+        //        if (fso.Acquire(ref lTargetDef, autoExposeAndReposition, autoExposeAndReposition, false))
+        //        {
+        //            LogEventHandler(newExt.LowerTarget.TargetName + " Lower image capture complete.");
+        //            LogEventHandler(newExt.LowerTarget.TargetName + ":" + " Banking image in " + cfg.ImageBankFolder);
+        //        }
+        //        else
+        //        {
+        //            LogEventHandler(newExt.LowerTarget.TargetName + ": " + " Lower image capture failed -- check log for problem.");
+        //            LogEventHandler("");
+        //        }
+        //        autoExposeAndReposition = false;
+        //    }
+        //    TargetXList.AddDifferentialToTargetXList(zTargetDef);
+        //    TargetXList.AddDifferentialToTargetXList(lTargetDef);
+        //    return;
+        //}
 
     }
 }

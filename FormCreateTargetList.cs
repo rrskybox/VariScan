@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 
 namespace VariScan
@@ -28,24 +29,42 @@ namespace VariScan
 
         public FormCreateTargetList()
         {
+            string[] zeroBasedFilters;
             InitializeComponent();
-            //Load Filter assignments
             Configuration cfg = new Configuration();
-            //Load color standard defaults
-            //Load filter list from TSX and 
-            string[] zeroBasedFilters = Filters.FilterNameSet();
-            if (zeroBasedFilters != null)
+            this.Text = "Collection: " + cfg.TargetListPath;
+            if (File.Exists(cfg.TargetListPath))
             {
-                FilterListBox.Items.AddRange(zeroBasedFilters);
+                //file exists so populate window accordingly
+                TargetXList tList = new TargetXList();
+                List<TargetXList.TargetXDescriptor> tXList = tList.GetTargetXList();
+                foreach (TargetXList.TargetXDescriptor tX in tXList)
+                    TargetListDropDown.Items.Add(tX.Name);
+                TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
+                //Load Filter assignments
+                ColorIndexing colorIndex = new ColorIndexing();
+                zeroBasedFilters = colorIndex.GetSessionFilters().ToArray();
+                //Add to list box
+                if (zeroBasedFilters != null)
+                    FilterListBox.Items.AddRange(zeroBasedFilters);
+                for (int i = 0; i < FilterListBox.Items.Count; i++)
+                    FilterListBox.SetItemChecked(i, true);
             }
+            else                //Load filters from TSX
+            {
+                zeroBasedFilters = Filters.FilterNameSet();
+                //Add to list box
+                if (zeroBasedFilters != null)
+                    FilterListBox.Items.AddRange(zeroBasedFilters);
+            }
+            Utility.ButtonRed(CompileButton);
             Utility.ButtonGreen(DoneButton);
-            DoneButton.Text = "Cancel";
         }
 
         private void CreateAAVSOTargetList_Button(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("https://filtergraph.com/aavso/default/index");
-            DoneButton.Text = "Cancel";
+            CompileButton.Text = "Cancel";
         }
 
         private void ImportCSVButton_Click(object sender, EventArgs e)
@@ -59,11 +78,11 @@ namespace VariScan
                 TargetXList.CreateXList(textFileName, cfg.TargetListPath);
             }
             Utility.ButtonGreen(ImportCSVButton);
-            DoneButton.Text = "Compile";
+            CompileButton.Text = "Compile";
             return;
         }
 
-        private void DoneButton_Click(object sender, EventArgs e)
+        private void CompileButton_Click(object sender, EventArgs e)
         {
             //Save configurations to file
             ColorIndexing clist = new ColorIndexing();
@@ -77,7 +96,50 @@ namespace VariScan
                 });
             }
             clist.SaveActiveFilters(afList);
+        }
+
+        private void AddTargetButton_Click(object sender, EventArgs e)
+        {
+            //Add contents of target list field to target list
+            //Read in from field
+            string newTgtName = TargetListDropDown.Text;
+            //Look up target from TSX and get Ra and Dec
+            double ra; double dec;
+            try { (ra, dec) = TSX_Resources.FindTarget(newTgtName); }
+            catch
+            {
+                MessageBox.Show("Look up of target failed");
+                return;
+            }
+            //Add new target
+            TargetXList.AddToTargetXList(newTgtName, ra, dec, DateTime.Now);
+            //Repopulate
+            TargetXList tList = new TargetXList();
+            List<TargetXList.TargetXDescriptor> tXList = tList.GetTargetXList();
+            TargetListDropDown.Items.Clear();
+            foreach (TargetXList.TargetXDescriptor tX in tXList)
+                TargetListDropDown.Items.Add(tX.Name);
+            TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
+        }
+
+        private void FinishedButton_Click(object sender, EventArgs e)
+        {
             this.Close();
+        }
+
+        private void DeleteTargetButton_Click(object sender, EventArgs e)
+        {
+            //Read in from field
+            string newTgtName = TargetListDropDown.Text;
+            //remove target
+            TargetXList.DeleteFromTargetXList(newTgtName);
+            //Repopulate
+            TargetXList tList = new TargetXList();
+            List<TargetXList.TargetXDescriptor> tXList = tList.GetTargetXList();
+            TargetListDropDown.Items.Clear();
+            foreach (TargetXList.TargetXDescriptor tX in tXList)
+                TargetListDropDown.Items.Add(tX.Name);
+            TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
         }
 
 

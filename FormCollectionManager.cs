@@ -38,11 +38,8 @@ namespace VariScan
         private void CollectionListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             string tgtListPath = CollectionManagement.OpenCollection(CollectionListBox.SelectedItem.ToString());
-            if (!File.Exists(tgtListPath))
-            {
-                Form ctForm = new FormCreateTargetList();
-                ctForm.ShowDialog();
-            }
+            Form ctForm = new FormCreateTargetList();
+            ctForm.ShowDialog();
             //Upon return
             this.Close();
             return;

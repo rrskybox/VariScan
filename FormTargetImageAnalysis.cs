@@ -1470,7 +1470,7 @@ namespace VariScan
 
         #endregion
 
-     }
+    }
 }
 
 
