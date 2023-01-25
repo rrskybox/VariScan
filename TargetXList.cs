@@ -245,7 +245,7 @@ namespace VariScan
             foreach (XElement tDesc in targetListRecordX.Elements())
             {
                 TargetXDescriptor xTarget = new TargetXDescriptor(tDesc);
-                if (IsUp(xTarget.RA, xTarget.Dec, minAlt))
+                if (((DateTime.Now - xTarget.LastImagingDate) > TimeSpan.FromHours(minRetake)) && (IsUp(xTarget.RA, xTarget.Dec, minAlt)))
                 {
                     double targetSeparation = TargetXSeparation(ra, dec, xTarget.RA, xTarget.Dec);
                     if (targetSeparation < minSeparation)

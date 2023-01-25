@@ -57,11 +57,16 @@ namespace VariScan
         {
             //Finds the next image path that has a unique file name based on name format
             //  baseDir \\ image name \\ date \\ "F" \\ <filter> \\ "N" \\ <count> ".fits"
+            Configuration cfg = new Configuration();
             int fCount = 0;
             do
             {
                 DateTime sessionDate = Utility.GetImageSession(DateTime.Now);
-                freshImagePath = baseDir + "\\" + freshImageName + " " + sessionDate.ToString("dd-MMM-yyyy") + " F_" + freshImageFilterNumber + " " + " N" + fCount.ToString("0") + ".fit";
+                freshImagePath = baseDir + "\\" + freshImageName + " " +
+                    sessionDate.ToString("dd-MMM-yyyy") +
+                    " F_" + freshImageFilterNumber + " " +
+                    " N" + fCount.ToString("0") + ".fit" +
+                    " S" + cfg.CurrentSessionSet;
                 fCount++;
             }
             while (File.Exists(freshImagePath));

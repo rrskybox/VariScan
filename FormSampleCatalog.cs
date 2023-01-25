@@ -11,6 +11,8 @@ namespace VariScan
         {
             public string Target;
             public string Date;
+            public DateTime Time;
+            public TimeSpan Duration;
         }
 
         public static List<TargetShoot> SessionList { get; set; }
@@ -50,7 +52,7 @@ namespace VariScan
                         List<string> filterList = new List<string>();
                         foreach (string path in imagePaths)
                         {
-                            (string tName, string iDate, string iFilter, string iSeq) = VariScanFileManager.ParseImageFileName(path);
+                            (string tName, string iDate, string iFilter, string iSeq, string iSet) = VariScanFileManager.ParseImageFileName(path);
                             filterList.Add(iFilter);
                         }
                         filterList = filterList.Distinct().ToList();
@@ -67,6 +69,7 @@ namespace VariScan
 
         private void Select_Click(object sender, EventArgs e)
         {
+            Configuration cfg = new Configuration();
             //Assemble selection of cells
             DataGridViewSelectedCellCollection selectedCells = imageBankGridView.SelectedCells;
             //Clear session list
@@ -84,7 +87,6 @@ namespace VariScan
             this.Close();
             return;
         }
-
 
     }
 }

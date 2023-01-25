@@ -251,6 +251,8 @@ namespace VariScan
             //Load the filter plan
             ColorIndexing cL = new ColorIndexing();
             List<Filters.ActiveFilter> afList = cL.GetIndexFilters();
+            //Zero out the session set count
+            cfg.CurrentSessionSet = "0";
             //Load iteration count for this target
             while (currentTargetXD != null)
             {
@@ -289,6 +291,8 @@ namespace VariScan
                         gotAllFilters = false;
                     }
                 }
+                //Increment the set count for this target
+                cfg.CurrentSessionSet = (Convert.ToInt32(cfg.CurrentSessionSet)+1).ToString();
                 //Increment the target count for reporting purposes
                 if (gotAllFilters)
                     gSuccessfulCount++;

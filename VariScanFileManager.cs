@@ -238,7 +238,7 @@ namespace VariScan
             {
                 foreach (string path in Directory.GetFiles(nonEmptyDirectory, "*.fit").ToList())
                 {
-                    (string tName, string iD, string iF, string iC) =
+                    (string tName, string iD, string iF, string iC, string iS) =
                             ParseImageFileName(Path.GetFileNameWithoutExtension(path));
                     if (Convert.ToDateTime(iD) == imageDate)
                     {
@@ -260,7 +260,7 @@ namespace VariScan
             {
                 foreach (string path in Directory.GetFiles(nonEmptyDirectory, "*.fit").ToList())
                 {
-                    (string n, string iD, string iF, string iC) =
+                    (string n, string iD, string iF, string iC, string iS) =
                             ParseImageFileName(Path.GetFileNameWithoutExtension(path));
                     imageDateList.Add(iD);
                 }
@@ -289,7 +289,7 @@ namespace VariScan
             //parse and convert each dir name to a date, then add to list
             foreach (string f in Directory.GetFiles(iBankDir, "*.fit").ToList())
             {
-                (string tName, string iDate, string iFilter, string iSeq) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
+                (string tName, string iDate, string iFilter, string iSeq, string iSet) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
                 DateTime fileDate = Convert.ToDateTime(iDate);
                 //DateTime fileDate = File.GetCreationTime(f);
                 if (Utility.NightTest(fileDate, sessionDate))
@@ -315,7 +315,7 @@ namespace VariScan
             //parse and convert each dir name to a date, then add to list
             foreach (string f in Directory.GetFiles(iBankDir, "*.fit").ToList())
             {
-                (string tName, string iDate, string iFilter, string iSeq) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
+                (string tName, string iDate, string iFilter, string iSeq, string iSet) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
                 //if (Utility.NightTest(Convert.ToDateTime(iDate), sessionDate) && iFilter == filter)
                 if (Convert.ToDateTime(iDate) == sessionDate && iFilter == filter)
 
@@ -435,7 +435,7 @@ namespace VariScan
             return map[map.Length - 1];
         }
 
-        public static (string, string, string, string) ParseImageFileName(string imageFilenameWithoutExtension)
+        public static (string, string, string, string, string) ParseImageFileName(string imageFilenameWithoutExtension)
         {
             //returns separated strings for date, filter and sequence number and time of creation
             //  from variscan image filenaming conventions
@@ -443,14 +443,15 @@ namespace VariScan
             char[] sp = { ' ' };
 
             string[] p = imageFilenameWithoutExtension.Split(sp, StringSplitOptions.RemoveEmptyEntries);
-            string seqStr = p[p.Length - 1].Substring(1);
+            string setStr = p[p.Length - 1].Substring(1);
+            string seqStr = p[p.Length - 2].Substring(1);
             char[] fHdr = new char[] { 'F', '_' };
-            string filterStr = p[p.Length - 2].TrimStart(fHdr);
-            string dateStr = p[p.Length - 3];
+            string filterStr = p[p.Length - 3].TrimStart(fHdr);
+            string dateStr = p[p.Length - 4];
             string name = null;
-            for (int i = 0; i <= p.Length - 3; i++)
+            for (int i = 0; i <= p.Length - 4; i++)
                 name += p[i] + " ";
-            return (name.TrimEnd(' '), dateStr, filterStr, seqStr);
+            return (name.TrimEnd(' '), dateStr, filterStr, seqStr, setStr);
         }
 
     }

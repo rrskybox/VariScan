@@ -179,7 +179,6 @@ namespace VariScan
             return;
         }
 
-
         #region analysis
 
         public void RegisterLightSources(FormSampleCatalog.TargetShoot tgtShot)
@@ -1469,6 +1468,7 @@ namespace VariScan
         }
 
         #endregion
+
 
     }
 }
