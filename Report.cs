@@ -17,6 +17,8 @@
 // ---------------------------------------------------------------------------------
 //
 
+using System;
+using System.Windows.Forms;
 using System.IO;
 
 namespace VariScan
@@ -38,6 +40,7 @@ namespace VariScan
                                   "Target RA(j2K)" + "," +
                                   "Target Dec(j2K)" + "," +
                                   "Session Date" + "," +
+                                  "Image Time" + "," +
                                   "Catalog" + "," +
                                   "Primary Image Filter" + "," +
                                   "DifferentialImage Filter" + "," +
@@ -50,7 +53,14 @@ namespace VariScan
                                   "APASS Star Count" + "," +
                                   "Gaia Star Count";
 
-            StreamWriter csvFile = File.CreateText(textFilePath);
+            StreamWriter csvFile;
+            try { csvFile = File.CreateText(textFilePath); }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+
             //write header
             csvFile.WriteLine(header);
             foreach (TargetData tData in Starchive.RetrieveAllPhotometry())
@@ -60,6 +70,7 @@ namespace VariScan
                                Utility.SexidecimalRADec(tData.TargetRA, true) + "," +
                                Utility.SexidecimalRADec(tData.TargetDec, false) + ", " +
                                tData.SessionDate.ToString("MMM/dd/yyyy") + "," +
+                               tData.ImageDate.ToString("hh:mm:ss") + "," +
                                tData.CatalogName + "," +
                                tData.PrimaryImageFilter.ToString() + "," +
                                tData.DifferentialImageFilter.ToString() + "," +

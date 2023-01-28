@@ -298,6 +298,34 @@ namespace VariScan
             return datedFiles.ToList();
         }
 
+        public static List<string> GetTargetSessionPaths(string targetName, DateTime sessionDate, int sessionSet)
+        {
+            //REturn list of files for a session date for a target
+            //A Session Date is a window from +/- 6 hours of 0:00 AM of file creation time
+
+            Configuration cfg = new Configuration();
+            List<string> datedFiles = new List<string>();
+            //Look for image bank folder, create it if missing then return empty handed
+            string iBank = cfg.ImageBankFolder;
+            if (!Directory.Exists(iBank))
+            {
+                Directory.CreateDirectory(iBank);
+                return (datedFiles);
+            }
+            //take a look in the iBankName target directory
+            string iBankDir = iBank + "\\" + targetName;
+            //parse and convert each dir name to a date, then add to list
+            foreach (string f in Directory.GetFiles(iBankDir, "*.fit").ToList())
+            {
+                (string tName, string iDate, string iFilter, string iSeq, string iSet) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
+                DateTime fileDate = Convert.ToDateTime(iDate);
+                //DateTime fileDate = File.GetCreationTime(f);
+                if (Utility.NightTest(fileDate, sessionDate) && Convert.ToInt32(iSet) == sessionSet)
+                    datedFiles.Add(f);
+            }
+            return datedFiles.ToList();
+        }
+
         public static List<string> GetTargetSessionPaths(string targetName, DateTime sessionDate, string filter)
         {
             //REturn list of files for a session date for a target and filter
@@ -318,7 +346,6 @@ namespace VariScan
                 (string tName, string iDate, string iFilter, string iSeq, string iSet) = ParseImageFileName(Path.GetFileNameWithoutExtension(f));
                 //if (Utility.NightTest(Convert.ToDateTime(iDate), sessionDate) && iFilter == filter)
                 if (Convert.ToDateTime(iDate) == sessionDate && iFilter == filter)
-
                     datedFilterFiles.Add(f);
             }
             return datedFilterFiles.ToList();
@@ -443,6 +470,7 @@ namespace VariScan
             char[] sp = { ' ' };
 
             string[] p = imageFilenameWithoutExtension.Split(sp, StringSplitOptions.RemoveEmptyEntries);
+            //char[] sHdr = new char[] { 'S'};
             string setStr = p[p.Length - 1].Substring(1);
             string seqStr = p[p.Length - 2].Substring(1);
             char[] fHdr = new char[] { 'F', '_' };

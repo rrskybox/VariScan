@@ -101,7 +101,7 @@ namespace VariScan
                     }
         }
 
-        public SampleManager(string targetName, DateTime targetDate)
+        public SampleManager(string targetName, DateTime targetDate, int sessionSet)
         {
             //Upon instantiation, create list of all images available for analysis
             // within a Collection (as defined by ImageBankFolder/Configuration.xml)
@@ -109,7 +109,7 @@ namespace VariScan
             Configuration cfg = new Configuration();
             SampleImages = new List<SessionSample>();
             //Get list of image directories for this target and date
-            List<string> targetDirectories = VariScanFileManager.GetTargetSessionPaths(targetName, targetDate);
+            List<string> targetDirectories = VariScanFileManager.GetTargetSessionPaths(targetName, targetDate, sessionSet );
             //Open each of the fits files in target directory
             if (targetDirectories != null)
                 foreach (string targetFilePath in targetDirectories)

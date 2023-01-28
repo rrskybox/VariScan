@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System.IO;
 
 namespace VariScan
 {
@@ -11,11 +12,12 @@ namespace VariScan
         {
             public string Target;
             public string Date;
-            public DateTime Time;
-            public TimeSpan Duration;
+            public string Set;
         }
 
         public static List<TargetShoot> SessionList { get; set; }
+
+        //public static List<string> SessionSets { get; set; }
 
         public FormSampleCatalog()
         {
@@ -52,10 +54,12 @@ namespace VariScan
                         List<string> filterList = new List<string>();
                         foreach (string path in imagePaths)
                         {
-                            (string tName, string iDate, string iFilter, string iSeq, string iSet) = VariScanFileManager.ParseImageFileName(path);
+                            (string tName, string iDate, string iFilter, string iSeq, string iSet) = VariScanFileManager.ParseImageFileName(Path.GetFileNameWithoutExtension(path));
+                            //SessionSets.Add(iSet);
                             filterList.Add(iFilter);
                         }
                         filterList = filterList.Distinct().ToList();
+                        //SessionSets = SessionSets.Distinct().ToList();
                         foreach (string filter in filterList)
                             imageBankGridView.Rows[iRow].Cells[iCol].Value += "F" + filter +
                             "(" +
@@ -81,12 +85,21 @@ namespace VariScan
                 {
                     string t = s.OwningRow.HeaderCell.Value.ToString();
                     string d = s.OwningColumn.HeaderCell.Value.ToString();
-                    SessionList.Add(new TargetShoot { Target = t, Date = d });
+                    //Add session sets
+                    List<string> imagePaths = VariScanFileManager.GetTargetSessionPaths(t, Convert.ToDateTime(d));
+                    foreach (string f in imagePaths)
+                    {
+                        //get session set and add to session list
+                        (string tName, string iDate, string iFilter, string iSeq, string iSet) = VariScanFileManager.ParseImageFileName(Path.GetFileNameWithoutExtension(f));
+                        SessionList.Add(new TargetShoot { Target = t, Date = d, Set = iSet });
+                    }
                 }
+                SessionList = SessionList.Distinct().ToList();
             }
             this.Close();
             return;
         }
+
 
     }
 }

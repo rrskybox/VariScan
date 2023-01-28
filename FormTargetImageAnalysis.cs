@@ -199,7 +199,7 @@ namespace VariScan
             TSX_Process.DeleteSRC(cfg.ImageBankFolder);
 
             //Open a sample manager for the selected target
-            SampleManager sMgr = new SampleManager(tgtShot.Target, Convert.ToDateTime(tgtShot.Date));
+            SampleManager sMgr = new SampleManager(tgtShot.Target, Convert.ToDateTime(tgtShot.Date), Convert.ToInt32(tgtShot.Set));
             //Acquire primary and differential lists of fits files for this target and this session
             //  based on session date box and filter designations from calling parameters
             //Image Link each fits file and collect the light source inventory into arrays for each image
@@ -1101,6 +1101,7 @@ namespace VariScan
                 bool isTransformed = false;
                 CurrentTargetData.TargetName = session.Target;
                 CurrentTargetData.SessionDate = Convert.ToDateTime(session.Date);
+                CurrentTargetData.SessionSet = Convert.ToInt32(session.Set);
                 CurrentTargetData.CatalogName = TargetCatalogBox.Text;
 
                 RegisterLightSources(session);
@@ -1187,7 +1188,7 @@ namespace VariScan
             return;
         }
 
-        #endregion 
+        #endregion
 
         #region Conversions
         private double ConvertToArcSec(double microns, double focalLength)
@@ -1402,7 +1403,7 @@ namespace VariScan
                 if (SessionList.Count != 0)
                     foreach (FormSampleCatalog.TargetShoot ts in SessionList)
                     {
-                        SessionListTextBox.Text += (ts.Target + " on " + ts.Date + "\r\n");
+                        SessionListTextBox.Text += (ts.Target + " on " + ts.Date + "Set " + ts.Set + "\r\n");
                     }
                 Utility.ButtonGreen(SelectSessionsButton);
                 return;

@@ -96,6 +96,7 @@ namespace VariScan
             {
                 if (!((targetX.Element(TargetNameX).Value == pData.TargetName) &&
                      (targetX.Element(SessionDateX).Value == pData.SessionDate.ToShortDateString()) &&
+                     (targetX.Element(ImageDateX).Value == pData.ImageDate.ToShortTimeString()) &&
                      (targetX.Element(PrimaryFilterX).Value == pData.PrimaryStandardColor.ToString()) &&
                      (targetX.Element(CatalogNameX).Value == pData.CatalogName)))
                 {
