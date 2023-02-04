@@ -210,6 +210,14 @@ namespace VariScan
             return targetDirNames;
         }
 
+        public static List<string> GetTargetSessionSetList(string tgtName)
+        {
+            //Make a list of target names for all target folders with images
+            List<string> targetSessionSetList = new List<string>();
+            List<string> targetNameList = GetTargetNameList();
+            return targetNameList;
+        }
+ 
         public static List<string> GetCollectionFilenameList()
         {
             //Make a list of all image filenames in image bank
@@ -351,7 +359,7 @@ namespace VariScan
             return datedFilterFiles.ToList();
         }
 
-        public static List<DateTime> SessionDates(string targetName)
+        public static List<DateTime> GetSessionDates(string targetName)
         {
             //Return list of session dates for this target
             Configuration cfg = new Configuration();
@@ -370,7 +378,7 @@ namespace VariScan
             foreach (string f in datedFiles)
             {
                 FitsFileStandAlone ffso = new FitsFileStandAlone(f);
-                dateList.Add(Utility.GetImageSession(ffso.FitsLocalDateTime));
+                dateList.Add(Utility.GetImageSessionDate(ffso.FitsLocalDateTime));
             }
             dateList.Sort();
             return dateList.Distinct().ToList();
@@ -451,7 +459,7 @@ namespace VariScan
             //Looks up the imaging date for the file
             DateTime imageDate;
             FitsFileStandAlone ff = new FitsFileStandAlone(targetImageFilePath);
-            imageDate = Utility.GetImageSession(ff.FitsLocalDateTime);
+            imageDate = Utility.GetImageSessionDate(ff.FitsLocalDateTime);
             return imageDate;
         }
 
@@ -470,7 +478,6 @@ namespace VariScan
             char[] sp = { ' ' };
 
             string[] p = imageFilenameWithoutExtension.Split(sp, StringSplitOptions.RemoveEmptyEntries);
-            //char[] sHdr = new char[] { 'S'};
             string setStr = p[p.Length - 1].Substring(1);
             string seqStr = p[p.Length - 2].Substring(1);
             char[] fHdr = new char[] { 'F', '_' };

@@ -70,7 +70,7 @@ namespace VariScan
                                Utility.SexidecimalRADec(tData.TargetRA, true) + "," +
                                Utility.SexidecimalRADec(tData.TargetDec, false) + ", " +
                                tData.SessionDate.ToString("MMM/dd/yyyy") + "," +
-                               tData.ImageDate.ToString("hh:mm:ss") + "," +
+                               tData.ImageDateUT.ToString("hh:mm:ss") + "," +
                                tData.CatalogName + "," +
                                tData.PrimaryImageFilter.ToString() + "," +
                                tData.DifferentialImageFilter.ToString() + "," +
@@ -128,7 +128,7 @@ namespace VariScan
                 {
                     string bline = tData.TargetName + DELIMITER; //STARID
                     string cline = tData.PrimaryStandardColor + "/" + tData.DifferentialStandardColor;
-                    bline += tData.ImageDate.ToString() + DELIMITER; //DATE
+                    bline += tData.ImageDateUT.ToString() + DELIMITER; //DATE UT
                     bline += tData.StandardColorMagnitude + DELIMITER; //MAGNITUDE
                     bline += tData.StandardMagnitudeError + DELIMITER;//MAGERR
                     bline += tData.PrimaryStandardColor + DELIMITER;

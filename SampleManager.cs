@@ -131,7 +131,7 @@ namespace VariScan
         {
             List<DateTime> dtList = new List<DateTime>();
             foreach (SessionSample ss in SampleImages)
-                dtList.Add(Utility.GetImageSession(ss.ImageDate));
+                dtList.Add(Utility.GetImageSessionDate(ss.ImageDate));
             return dtList.Distinct().ToList();
         }
 

@@ -244,14 +244,17 @@ namespace VariScan
                 return true;
         }
 
-        public static DateTime GetImageSession(DateTime sampleDT)
+        public static DateTime GetImageSessionDate(DateTime sampleDT)
         {
             //Figure out the session date for this sample
-            DateTime sessionDT = sampleDT.Date;
-            if (sampleDT - sessionDT > TimeSpan.FromHours(12))
-                return sessionDT.AddDays(1);
-            else
-                return sessionDT;
+            //  A session date is the date at midnight of the night of imaging
+            //  that is for times before midnight, it is the next day
+            //DateTime sessionDT = sampleDT.Date;
+            //if (sampleDT - sessionDT > TimeSpan.FromHours(12))
+            //    return sessionDT.AddDays(1);
+            //else
+            //    return sessionDT;
+            return (sampleDT - TimeSpan.FromHours(12)).Date + TimeSpan.FromDays(1);
         }
 
     }

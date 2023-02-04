@@ -49,7 +49,9 @@ namespace VariScan
         public int ApassStarCount { get; set; }
         public int GaiaStarCount { get; set; }
         public DateTime SessionDate { get; set; }
-        public DateTime ImageDate { get; set; }
+        public DateTime ImageDateUT { get; set; }
+        public DateTime ImageDateLocal { get; set; }
+
         public int SessionSet { get; set; }
         public double ImageWidthInArcSec { get; set; }
         public string PrimaryImageFilter { get; set; }

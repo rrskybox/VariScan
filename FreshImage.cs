@@ -61,12 +61,12 @@ namespace VariScan
             int fCount = 0;
             do
             {
-                DateTime sessionDate = Utility.GetImageSession(DateTime.Now);
+                DateTime sessionDate = Utility.GetImageSessionDate(DateTime.Now);
                 freshImagePath = baseDir + "\\" + freshImageName + " " +
                     sessionDate.ToString("dd-MMM-yyyy") +
                     " F_" + freshImageFilterNumber + " " +
-                    " N" + fCount.ToString("0") + ".fit" +
-                    " S" + cfg.CurrentSessionSet;
+                    " N" + fCount.ToString("0") +
+                    " S" + cfg.CurrentSessionSet + ".fit";
                 fCount++;
             }
             while (File.Exists(freshImagePath));

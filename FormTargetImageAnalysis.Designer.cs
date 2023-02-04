@@ -31,28 +31,28 @@ namespace VariScan
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormTargetImageAnalysis));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Title title3 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series11 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Title title4 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series12 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Title title5 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea7 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series13 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series14 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Title title6 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea8 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series15 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series16 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Title title7 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea9 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series17 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series18 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series19 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series20 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series21 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series22 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Title title8 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.MaxADULabel = new System.Windows.Forms.Label();
             this.SeeingClassLabel = new System.Windows.Forms.Label();
             this.SeeingLabel = new System.Windows.Forms.Label();
@@ -100,6 +100,7 @@ namespace VariScan
             this.label43 = new System.Windows.Forms.Label();
             this.label45 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.StarADUChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.SeeingGroupBox = new System.Windows.Forms.GroupBox();
             this.AirMassBox = new System.Windows.Forms.TextBox();
@@ -140,7 +141,6 @@ namespace VariScan
             this.FocalLengthBox = new System.Windows.Forms.TextBox();
             this.OpenImageFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.TargetCatalogBox = new System.Windows.Forms.ComboBox();
-            this.PlotHistoryButton = new System.Windows.Forms.Button();
             this.HistoryChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.SessionGroupBox = new System.Windows.Forms.GroupBox();
             this.DifferentialColorBox = new System.Windows.Forms.ComboBox();
@@ -183,6 +183,9 @@ namespace VariScan
             this.SessionListTextBox = new System.Windows.Forms.TextBox();
             this.TargetPlotBox = new System.Windows.Forms.ComboBox();
             this.SetTransformsButton = new System.Windows.Forms.Button();
+            this.SessionSetList = new System.Windows.Forms.ComboBox();
+            this.PlotCatalogListBox = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.StarADUChart)).BeginInit();
             this.SeeingGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MagnitudeTransformChart)).BeginInit();
@@ -262,7 +265,7 @@ namespace VariScan
             // 
             this.DoneButton.BackColor = System.Drawing.Color.SpringGreen;
             this.DoneButton.ForeColor = System.Drawing.Color.Black;
-            this.DoneButton.Location = new System.Drawing.Point(1377, 621);
+            this.DoneButton.Location = new System.Drawing.Point(1366, 727);
             this.DoneButton.Name = "DoneButton";
             this.DoneButton.Size = new System.Drawing.Size(75, 23);
             this.DoneButton.TabIndex = 25;
@@ -690,47 +693,57 @@ namespace VariScan
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(30, 452);
+            this.label1.Location = new System.Drawing.Point(25, 453);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(59, 13);
             this.label1.TabIndex = 72;
             this.label1.Text = "Plot Target";
             this.AnalysisToolTips.SetToolTip(this.label1, "2.76 / Aperture (inches)");
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(283, 453);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(30, 13);
+            this.label2.TabIndex = 171;
+            this.label2.Text = "Date";
+            this.AnalysisToolTips.SetToolTip(this.label2, "2.76 / Aperture (inches)");
+            // 
             // StarADUChart
             // 
             this.StarADUChart.BackColor = System.Drawing.Color.LightCyan;
             this.StarADUChart.BorderlineWidth = 0;
-            chartArea1.AlignmentOrientation = System.Windows.Forms.DataVisualization.Charting.AreaAlignmentOrientations.Horizontal;
-            chartArea1.Area3DStyle.Enable3D = true;
-            chartArea1.Area3DStyle.IsRightAngleAxes = false;
-            chartArea1.Area3DStyle.Perspective = 10;
-            chartArea1.Area3DStyle.WallWidth = 0;
-            chartArea1.AxisX.Title = "ArcSec";
-            chartArea1.AxisY.Title = "ADU";
-            chartArea1.BorderWidth = 0;
-            chartArea1.Name = "ChartArea1";
-            this.StarADUChart.ChartAreas.Add(chartArea1);
-            legend1.Enabled = false;
-            legend1.Name = "Legend1";
-            this.StarADUChart.Legends.Add(legend1);
-            this.StarADUChart.Location = new System.Drawing.Point(1228, 282);
+            chartArea6.AlignmentOrientation = System.Windows.Forms.DataVisualization.Charting.AreaAlignmentOrientations.Horizontal;
+            chartArea6.Area3DStyle.Enable3D = true;
+            chartArea6.Area3DStyle.IsRightAngleAxes = false;
+            chartArea6.Area3DStyle.Perspective = 10;
+            chartArea6.Area3DStyle.WallWidth = 0;
+            chartArea6.AxisX.Title = "ArcSec";
+            chartArea6.AxisY.Title = "ADU";
+            chartArea6.BorderWidth = 0;
+            chartArea6.Name = "ChartArea1";
+            this.StarADUChart.ChartAreas.Add(chartArea6);
+            legend3.Enabled = false;
+            legend3.Name = "Legend1";
+            this.StarADUChart.Legends.Add(legend3);
+            this.StarADUChart.Location = new System.Drawing.Point(1232, 282);
             this.StarADUChart.Name = "StarADUChart";
             this.StarADUChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.SeaGreen;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.StarADUChart.Series.Add(series1);
-            this.StarADUChart.Size = new System.Drawing.Size(224, 168);
+            series12.ChartArea = "ChartArea1";
+            series12.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series12.Legend = "Legend1";
+            series12.Name = "Series1";
+            this.StarADUChart.Series.Add(series12);
+            this.StarADUChart.Size = new System.Drawing.Size(216, 168);
             this.StarADUChart.TabIndex = 41;
             this.StarADUChart.Text = "Magnitude";
-            title1.BackColor = System.Drawing.Color.Transparent;
-            title1.BorderColor = System.Drawing.Color.Black;
-            title1.Font = new System.Drawing.Font("Arial", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            title1.Name = "StarGraphTitle";
-            title1.Text = "Star Name";
-            this.StarADUChart.Titles.Add(title1);
+            title5.BackColor = System.Drawing.Color.Transparent;
+            title5.BorderColor = System.Drawing.Color.Black;
+            title5.Font = new System.Drawing.Font("Arial", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            title5.Name = "StarGraphTitle";
+            title5.Text = "Star Name";
+            this.StarADUChart.Titles.Add(title5);
             // 
             // SeeingGroupBox
             // 
@@ -794,34 +807,34 @@ namespace VariScan
             // MagnitudeTransformChart
             // 
             this.MagnitudeTransformChart.BackColor = System.Drawing.Color.LightCyan;
-            chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea2.AxisX.Title = "B-v";
-            chartArea2.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea2.AxisY.IsReversed = true;
-            chartArea2.AxisY.Title = "B-V";
-            chartArea2.Name = "MagnitudeTransformChart";
-            this.MagnitudeTransformChart.ChartAreas.Add(chartArea2);
+            chartArea7.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea7.AxisX.Title = "B-v";
+            chartArea7.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea7.AxisY.IsReversed = true;
+            chartArea7.AxisY.Title = "B-V";
+            chartArea7.Name = "MagnitudeTransformChart";
+            this.MagnitudeTransformChart.ChartAreas.Add(chartArea7);
             this.MagnitudeTransformChart.Location = new System.Drawing.Point(674, 11);
             this.MagnitudeTransformChart.Name = "MagnitudeTransformChart";
-            series2.ChartArea = "MagnitudeTransformChart";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
-            series2.MarkerSize = 3;
-            series2.Name = "MagTransform";
-            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
-            series2.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
-            series3.ChartArea = "MagnitudeTransformChart";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            series3.Color = System.Drawing.Color.Red;
-            series3.Name = "Series2";
-            this.MagnitudeTransformChart.Series.Add(series2);
-            this.MagnitudeTransformChart.Series.Add(series3);
+            series13.ChartArea = "MagnitudeTransformChart";
+            series13.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series13.MarkerSize = 3;
+            series13.Name = "MagTransform";
+            series13.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
+            series13.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
+            series14.ChartArea = "MagnitudeTransformChart";
+            series14.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            series14.Color = System.Drawing.Color.Red;
+            series14.Name = "Series2";
+            this.MagnitudeTransformChart.Series.Add(series13);
+            this.MagnitudeTransformChart.Series.Add(series14);
             this.MagnitudeTransformChart.Size = new System.Drawing.Size(258, 259);
             this.MagnitudeTransformChart.TabIndex = 135;
             this.MagnitudeTransformChart.Text = "Photometry";
-            title2.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
-            title2.Name = "Title1";
-            title2.Text = "Magnitude Transform";
-            this.MagnitudeTransformChart.Titles.Add(title2);
+            title6.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            title6.Name = "Title1";
+            title6.Text = "Magnitude Transform";
+            this.MagnitudeTransformChart.Titles.Add(title6);
             // 
             // ApassStarCountBox
             // 
@@ -1031,45 +1044,45 @@ namespace VariScan
             // ColorTransformChart
             // 
             this.ColorTransformChart.BackColor = System.Drawing.Color.LightCyan;
-            chartArea3.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea3.AxisX.Title = "b-v";
-            chartArea3.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea3.AxisY.IsReversed = true;
-            chartArea3.AxisY.Title = "B-V";
-            chartArea3.Name = "ColorTransformChart";
-            this.ColorTransformChart.ChartAreas.Add(chartArea3);
+            chartArea8.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea8.AxisX.Title = "b-v";
+            chartArea8.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea8.AxisY.IsReversed = true;
+            chartArea8.AxisY.Title = "B-V";
+            chartArea8.Name = "ColorTransformChart";
+            this.ColorTransformChart.ChartAreas.Add(chartArea8);
             this.ColorTransformChart.Location = new System.Drawing.Point(410, 11);
             this.ColorTransformChart.Name = "ColorTransformChart";
-            series4.ChartArea = "ColorTransformChart";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
-            series4.Legend = "Legend1";
-            series4.MarkerSize = 3;
-            series4.Name = "ColorTransform";
-            series4.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
-            series4.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
-            series5.ChartArea = "ColorTransformChart";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series5.Color = System.Drawing.Color.Red;
-            series5.Legend = "Legend1";
-            series5.MarkerBorderColor = System.Drawing.Color.Red;
-            series5.MarkerBorderWidth = 2;
-            series5.MarkerColor = System.Drawing.Color.Red;
-            series5.MarkerSize = 10;
-            series5.Name = "Series2";
-            this.ColorTransformChart.Series.Add(series4);
-            this.ColorTransformChart.Series.Add(series5);
+            series15.ChartArea = "ColorTransformChart";
+            series15.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series15.Legend = "Legend1";
+            series15.MarkerSize = 3;
+            series15.Name = "ColorTransform";
+            series15.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
+            series15.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
+            series16.ChartArea = "ColorTransformChart";
+            series16.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series16.Color = System.Drawing.Color.Red;
+            series16.Legend = "Legend1";
+            series16.MarkerBorderColor = System.Drawing.Color.Red;
+            series16.MarkerBorderWidth = 2;
+            series16.MarkerColor = System.Drawing.Color.Red;
+            series16.MarkerSize = 10;
+            series16.Name = "Series2";
+            this.ColorTransformChart.Series.Add(series15);
+            this.ColorTransformChart.Series.Add(series16);
             this.ColorTransformChart.Size = new System.Drawing.Size(258, 259);
             this.ColorTransformChart.TabIndex = 49;
             this.ColorTransformChart.Text = "Photometry";
-            title3.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
-            title3.Name = "Title1";
-            title3.Text = "Color Transform";
-            this.ColorTransformChart.Titles.Add(title3);
+            title7.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            title7.Name = "Title1";
+            title7.Text = "Color Transform";
+            this.ColorTransformChart.Titles.Add(title7);
             // 
             // OnTopCheckBox
             // 
             this.OnTopCheckBox.AutoSize = true;
-            this.OnTopCheckBox.Location = new System.Drawing.Point(1301, 625);
+            this.OnTopCheckBox.Location = new System.Drawing.Point(1373, 701);
             this.OnTopCheckBox.Name = "OnTopCheckBox";
             this.OnTopCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.OnTopCheckBox.Size = new System.Drawing.Size(62, 17);
@@ -1164,54 +1177,45 @@ namespace VariScan
             this.TargetCatalogBox.Text = "APASS";
             this.TargetCatalogBox.SelectedIndexChanged += new System.EventHandler(this.TargetCatalogBox_SelectedIndexChanged);
             // 
-            // PlotHistoryButton
-            // 
-            this.PlotHistoryButton.BackColor = System.Drawing.Color.SpringGreen;
-            this.PlotHistoryButton.ForeColor = System.Drawing.Color.Black;
-            this.PlotHistoryButton.Location = new System.Drawing.Point(289, 445);
-            this.PlotHistoryButton.Name = "PlotHistoryButton";
-            this.PlotHistoryButton.Size = new System.Drawing.Size(66, 23);
-            this.PlotHistoryButton.TabIndex = 116;
-            this.PlotHistoryButton.Text = "Plot";
-            this.PlotHistoryButton.UseVisualStyleBackColor = false;
-            this.PlotHistoryButton.Click += new System.EventHandler(this.PlotHistoryButton_Click);
-            // 
             // HistoryChart
             // 
-            chartArea4.AxisY.IsReversed = true;
-            chartArea4.AxisY.IsStartedFromZero = false;
-            chartArea4.AxisY.MajorGrid.Interval = 0D;
-            chartArea4.Name = "VariableHistoryChart";
-            this.HistoryChart.ChartAreas.Add(chartArea4);
-            legend2.Name = "Legend1";
-            legend2.Title = "Target";
-            this.HistoryChart.Legends.Add(legend2);
-            this.HistoryChart.Location = new System.Drawing.Point(411, 477);
+            chartArea9.AxisY.IsReversed = true;
+            chartArea9.AxisY.IsStartedFromZero = false;
+            chartArea9.AxisY.MajorGrid.Interval = 0D;
+            chartArea9.Name = "VariableHistoryChart";
+            this.HistoryChart.ChartAreas.Add(chartArea9);
+            legend4.Name = "Legend1";
+            legend4.Title = "Target";
+            this.HistoryChart.Legends.Add(legend4);
+            this.HistoryChart.Location = new System.Drawing.Point(411, 460);
             this.HistoryChart.Name = "HistoryChart";
-            series6.ChartArea = "VariableHistoryChart";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
-            series6.Legend = "Legend1";
-            series6.Name = "APASSMagnitudes";
-            series6.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Date;
-            series7.ChartArea = "VariableHistoryChart";
-            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.ErrorBar;
-            series7.Legend = "Legend1";
-            series7.Name = "APASSErrorBar";
-            series7.YValuesPerPoint = 3;
-            series8.ChartArea = "VariableHistoryChart";
-            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
-            series8.Legend = "Legend1";
-            series8.Name = "GaiaMagnitudes";
-            series9.ChartArea = "VariableHistoryChart";
-            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.ErrorBar;
-            series9.Legend = "Legend1";
-            series9.Name = "GaiaErrorBar";
-            series9.YValuesPerPoint = 3;
-            this.HistoryChart.Series.Add(series6);
-            this.HistoryChart.Series.Add(series7);
-            this.HistoryChart.Series.Add(series8);
-            this.HistoryChart.Series.Add(series9);
-            this.HistoryChart.Size = new System.Drawing.Size(871, 167);
+            series17.ChartArea = "VariableHistoryChart";
+            series17.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series17.Legend = "Legend1";
+            series17.Name = "APASSMagnitudes";
+            series17.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            series18.ChartArea = "VariableHistoryChart";
+            series18.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.ErrorBar;
+            series18.Legend = "Legend1";
+            series18.Name = "APASSErrorBar";
+            series18.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            series18.YValuesPerPoint = 3;
+            series19.ChartArea = "VariableHistoryChart";
+            series19.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series19.Legend = "Legend1";
+            series19.Name = "GaiaMagnitudes";
+            series19.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            series20.ChartArea = "VariableHistoryChart";
+            series20.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.ErrorBar;
+            series20.Legend = "Legend1";
+            series20.Name = "GaiaErrorBar";
+            series20.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            series20.YValuesPerPoint = 3;
+            this.HistoryChart.Series.Add(series17);
+            this.HistoryChart.Series.Add(series18);
+            this.HistoryChart.Series.Add(series19);
+            this.HistoryChart.Series.Add(series20);
+            this.HistoryChart.Size = new System.Drawing.Size(924, 289);
             this.HistoryChart.TabIndex = 105;
             this.HistoryChart.Text = "chart1";
             // 
@@ -1323,33 +1327,33 @@ namespace VariScan
             // TransformedTargetChart
             // 
             this.TransformedTargetChart.BackColor = System.Drawing.Color.LightCyan;
-            chartArea5.AxisX.IsStartedFromZero = false;
-            chartArea5.AxisX.LabelAutoFitMaxFontSize = 6;
-            chartArea5.AxisX.MajorTickMark.Interval = 0D;
-            chartArea5.AxisX.MajorTickMark.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
-            chartArea5.AxisX.MaximumAutoSize = 6F;
-            chartArea5.AxisX.Title = "Magnitude";
-            chartArea5.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea5.AxisY.Title = "Light Sources";
-            chartArea5.Name = "TransformedTargetChart";
-            this.TransformedTargetChart.ChartAreas.Add(chartArea5);
+            chartArea10.AxisX.IsStartedFromZero = false;
+            chartArea10.AxisX.LabelAutoFitMaxFontSize = 6;
+            chartArea10.AxisX.MajorTickMark.Interval = 0D;
+            chartArea10.AxisX.MajorTickMark.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+            chartArea10.AxisX.MaximumAutoSize = 6F;
+            chartArea10.AxisX.Title = "Magnitude";
+            chartArea10.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea10.AxisY.Title = "Light Sources";
+            chartArea10.Name = "TransformedTargetChart";
+            this.TransformedTargetChart.ChartAreas.Add(chartArea10);
             this.TransformedTargetChart.Location = new System.Drawing.Point(938, 11);
             this.TransformedTargetChart.Name = "TransformedTargetChart";
-            series10.ChartArea = "TransformedTargetChart";
-            series10.Name = "Series3";
-            series11.ChartArea = "TransformedTargetChart";
-            series11.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series11.Color = System.Drawing.Color.Red;
-            series11.Name = "Series2";
-            this.TransformedTargetChart.Series.Add(series10);
-            this.TransformedTargetChart.Series.Add(series11);
+            series21.ChartArea = "TransformedTargetChart";
+            series21.Name = "Series3";
+            series22.ChartArea = "TransformedTargetChart";
+            series22.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series22.Color = System.Drawing.Color.Red;
+            series22.Name = "Series2";
+            this.TransformedTargetChart.Series.Add(series21);
+            this.TransformedTargetChart.Series.Add(series22);
             this.TransformedTargetChart.Size = new System.Drawing.Size(258, 259);
             this.TransformedTargetChart.TabIndex = 136;
             this.TransformedTargetChart.Text = "Photometry";
-            title4.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
-            title4.Name = "Title1";
-            title4.Text = "Target Histogram";
-            this.TransformedTargetChart.Titles.Add(title4);
+            title8.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            title8.Name = "Title1";
+            title8.Text = "Target Histogram";
+            this.TransformedTargetChart.Titles.Add(title8);
             // 
             // TargetModeBox
             // 
@@ -1401,11 +1405,11 @@ namespace VariScan
             // 
             // LogBox
             // 
-            this.LogBox.Location = new System.Drawing.Point(22, 477);
+            this.LogBox.Location = new System.Drawing.Point(21, 507);
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
             this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.LogBox.Size = new System.Drawing.Size(369, 167);
+            this.LogBox.Size = new System.Drawing.Size(369, 242);
             this.LogBox.TabIndex = 151;
             // 
             // TransformResultsBox
@@ -1659,9 +1663,9 @@ namespace VariScan
             // TargetPlotBox
             // 
             this.TargetPlotBox.FormattingEnabled = true;
-            this.TargetPlotBox.Location = new System.Drawing.Point(95, 447);
+            this.TargetPlotBox.Location = new System.Drawing.Point(83, 450);
             this.TargetPlotBox.Name = "TargetPlotBox";
-            this.TargetPlotBox.Size = new System.Drawing.Size(146, 21);
+            this.TargetPlotBox.Size = new System.Drawing.Size(123, 21);
             this.TargetPlotBox.TabIndex = 95;
             this.TargetPlotBox.SelectedIndexChanged += new System.EventHandler(this.TargetPlotBox_SelectedIndexChanged);
             // 
@@ -1678,13 +1682,50 @@ namespace VariScan
             this.SetTransformsButton.UseVisualStyleBackColor = false;
             this.SetTransformsButton.Click += new System.EventHandler(this.SetTransformsButton_Click);
             // 
+            // SessionSetList
+            // 
+            this.SessionSetList.FormattingEnabled = true;
+            this.SessionSetList.Location = new System.Drawing.Point(315, 450);
+            this.SessionSetList.Name = "SessionSetList";
+            this.SessionSetList.Size = new System.Drawing.Size(75, 21);
+            this.SessionSetList.TabIndex = 172;
+            this.SessionSetList.SelectedIndexChanged += new System.EventHandler(this.SessionSetList_SelectedIndexChanged);
+            // 
+            // PlotCatalogListBox
+            // 
+            this.PlotCatalogListBox.FormattingEnabled = true;
+            this.PlotCatalogListBox.Items.AddRange(new object[] {
+            "APASS",
+            "Gaia",
+            "Both"});
+            this.PlotCatalogListBox.Location = new System.Drawing.Point(315, 477);
+            this.PlotCatalogListBox.Name = "PlotCatalogListBox";
+            this.PlotCatalogListBox.Size = new System.Drawing.Size(75, 21);
+            this.PlotCatalogListBox.TabIndex = 174;
+            this.PlotCatalogListBox.Text = "APASS";
+            this.PlotCatalogListBox.SelectedIndexChanged += new System.EventHandler(this.PlotCatalogListBox_SelectedIndexChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(270, 480);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(43, 13);
+            this.label4.TabIndex = 173;
+            this.label4.Text = "Catalog";
+            this.AnalysisToolTips.SetToolTip(this.label4, "2.76 / Aperture (inches)");
+            // 
             // FormTargetImageAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.DarkCyan;
-            this.ClientSize = new System.Drawing.Size(1463, 659);
+            this.ClientSize = new System.Drawing.Size(1463, 761);
+            this.Controls.Add(this.PlotCatalogListBox);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.SessionSetList);
             this.Controls.Add(this.SetTransformsButton);
             this.Controls.Add(this.TargetCatalogBox);
             this.Controls.Add(this.label45);
@@ -1701,7 +1742,6 @@ namespace VariScan
             this.Controls.Add(this.ReportGroupBox);
             this.Controls.Add(this.TransformResultsBox);
             this.Controls.Add(this.LogBox);
-            this.Controls.Add(this.PlotHistoryButton);
             this.Controls.Add(this.SeeingGroupBox);
             this.Controls.Add(this.CatalogGroupBox);
             this.Controls.Add(this.TransformedTargetChart);
@@ -1842,7 +1882,6 @@ namespace VariScan
         internal System.Windows.Forms.Label label40;
         private System.Windows.Forms.ComboBox MagnitudeTransformListBox;
         private System.Windows.Forms.Button TransformButton;
-        private System.Windows.Forms.Button PlotHistoryButton;
         private System.Windows.Forms.Button FitsReadButton;
         private System.Windows.Forms.ComboBox FitsNameBox;
         private System.Windows.Forms.TextBox LogBox;
@@ -1880,6 +1919,10 @@ namespace VariScan
         private System.Windows.Forms.ComboBox TargetPlotBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button SetTransformsButton;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox SessionSetList;
+        private System.Windows.Forms.ComboBox PlotCatalogListBox;
+        private System.Windows.Forms.Label label4;
     }
 }
 

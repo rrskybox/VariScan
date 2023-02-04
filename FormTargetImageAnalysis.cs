@@ -169,13 +169,23 @@ namespace VariScan
                 FitsNameBox.Items.Add(f);
             if (FitsNameBox.Items.Count > 0)
                 FitsNameBox.SelectedIndex = 0;
+            //Initialize Session Dates.  The first item will always be "All".
+            //  the remainder will be session dates for session set plots
+            SessionSetList.Items.Clear();
+            SessionSetList.Items.Add("All");
             //Initialize plot target fields
             TargetPlotBox.Items.Clear();
             foreach (string f in VariScanFileManager.GetTargetNameList())
                 TargetPlotBox.Items.Add(f);
             if (TargetPlotBox.Items.Count > 0)
+            {
                 TargetPlotBox.SelectedIndex = 0;
-
+                foreach (DateTime f in VariScanFileManager.GetSessionDates(TargetPlotBox.SelectedItem.ToString()))
+                {
+                    SessionSetList.Items.Add(f.Date.ToString("M/dd/yyyy"));
+                }
+                SessionSetList.SelectedIndex = 0;
+            }
             return;
         }
 
@@ -222,7 +232,7 @@ namespace VariScan
                 //Image link the fits file
                 StarField sf = new StarField(TSX_Image, sample);
                 //Pick up the last date time of the primary images
-                CurrentTargetData.ImageDate = sf.FitsImageDateTime();
+                CurrentTargetData.ImageDateUT = sf.FitsImageDateTime();
                 CurrentTargetData.AirMass = sf.AirMass();
                 //Center star chart and set fov for click find
                 //TSX_Resources.CenterStarChart(TSX_Image, CurrentTargetData.SourceRA, CurrentTargetData.SourceDec);
@@ -1026,16 +1036,11 @@ namespace VariScan
             return;
         }
 
-        private void PlotPhotometryHistory(TargetData tgt)
+        private void PlotPhotometryHistory(TargetData tgt, string selectedDate)
         {
             //Plots out history of current star photometry
             //
             //Graph for both catalogs, using different colors
-            //string catName;
-            //if (UseGaiaBox.Checked)
-            //    catName = "Gaia";
-            //else catName = "APASS";
-
 
             string priColor = PrimaryColorBox.Text;
             string difColor = DifferentialColorBox.Text;
@@ -1043,23 +1048,38 @@ namespace VariScan
             string difFilter = DifferentialFilterBox.Text;
 
             List<TargetData> tDataList = new List<TargetData>();
-            tDataList = Starchive.RetrievePhotometry(tgt);
+            tDataList = Starchive.RetrievePhotometry(tgt, selectedDate);
+
+            //HistoryChart.ChartAreas[0].AxisX.MinorGrid.IntervalType = DateTimeIntervalType.Hours;
+            ChartValueType xAxisValueType = ChartValueType.DateTime;
+
+            if (selectedDate == "All")
+                HistoryChart.ChartAreas[0].AxisX.LabelStyle.Format = "MMM dd";
+            else
+                HistoryChart.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm";
+
             //Clear HistoryChart data
             HistoryChart.Series[0].Points.Clear();
             HistoryChart.Series[1].Points.Clear();
             HistoryChart.Series[2].Points.Clear();
             HistoryChart.Series[3].Points.Clear();
+            Show();
+            System.Windows.Forms.Application.DoEvents();
 
             HistoryChart.Series[0].ChartType = (SeriesChartType.FastPoint);
             HistoryChart.Series[0].MarkerStyle = MarkerStyle.None;
+            HistoryChart.Series[0].XValueType = xAxisValueType;
             HistoryChart.Series[0].MarkerColor = Color.Blue;
             HistoryChart.Series[1].ChartType = (SeriesChartType.ErrorBar);
             HistoryChart.Series[1].MarkerColor = Color.Blue;
+            HistoryChart.Series[1].XValueType = xAxisValueType;
             HistoryChart.Series[2].ChartType = (SeriesChartType.FastPoint);
             HistoryChart.Series[2].MarkerStyle = MarkerStyle.None;
             HistoryChart.Series[2].MarkerColor = Color.Green;
+            HistoryChart.Series[2].XValueType = xAxisValueType;
             HistoryChart.Series[3].ChartType = (SeriesChartType.ErrorBar);
             HistoryChart.Series[3].MarkerColor = Color.Green;
+            HistoryChart.Series[3].XValueType = xAxisValueType;
 
             HistoryChart.Legends[0].Title = CurrentTargetData.TargetName;
 
@@ -1068,22 +1088,22 @@ namespace VariScan
                 double tgtMag = tData.StandardColorMagnitude;
                 if (tData.IsTransformed &&
                     tgtMag != 0 &&
-                    //tData.CatalogName == catName &&
                     tData.PrimaryImageFilter == priFilter &&
                     tData.DifferentialImageFilter == difFilter &&
                     tData.PrimaryStandardColor == priColor &&
                     tData.DifferentialStandardColor == difColor)
                 {
                     double errorBar = tData.StandardMagnitudeError;
-                    if (tData.CatalogName == "APASS")
+                    DateTime dataDate = tData.ImageDateUT.ToLocalTime();
+                    if (tData.CatalogName == "APASS" && PlotCatalogListBox.SelectedItem != "Gaia")
                     {
-                        HistoryChart.Series[0].Points.AddXY(tData.SessionDate, tgtMag);
-                        HistoryChart.Series[1].Points.AddXY(tData.SessionDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
+                        HistoryChart.Series[0].Points.AddXY(dataDate, tgtMag);
+                        HistoryChart.Series[1].Points.AddXY(dataDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
                     }
-                    else
+                    else if (tData.CatalogName == "Gaia" && PlotCatalogListBox.SelectedItem != "APASS")
                     {
-                        HistoryChart.Series[2].Points.AddXY(tData.SessionDate, tgtMag);
-                        HistoryChart.Series[3].Points.AddXY(tData.SessionDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
+                        HistoryChart.Series[2].Points.AddXY(dataDate, tgtMag);
+                        HistoryChart.Series[3].Points.AddXY(dataDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
                     }
 
                 }
@@ -1141,7 +1161,7 @@ namespace VariScan
 
                 CurrentTargetData.IsTransformed = isTransformed;
                 Starchive.StorePhotometry(CurrentTargetData);
-                PlotPhotometryHistory(CurrentTargetData);
+                PlotPhotometryHistory(CurrentTargetData, SessionSetList.SelectedItem.ToString());
             }
         }
 
@@ -1292,19 +1312,7 @@ namespace VariScan
             return;
         }
 
-        private void PlotHistoryButton_Click(object sender, EventArgs e)
-        {
-            Utility.ButtonRed(PlotHistoryButton);
-            if (TargetPlotBox.SelectedItem != null)
-            {
-                CurrentTargetData.TargetName = TargetPlotBox.SelectedItem.ToString();
-                PlotPhotometryHistory(CurrentTargetData);
-            }
-            Utility.ButtonGreen(PlotHistoryButton);
-            return;
-        }
-
-        private void FitsReadButton_Click(object sender, EventArgs e)
+         private void FitsReadButton_Click(object sender, EventArgs e)
         {
             Utility.ButtonRed(FitsReadButton);
             Configuration cfg = new Configuration();
@@ -1421,15 +1429,34 @@ namespace VariScan
             //  Do the same thing as the plot history button, if it still exists
             if (!IsInitializing)
             {
-                Utility.ButtonRed(PlotHistoryButton);
                 if (TargetPlotBox.SelectedItem != null)
                 {
                     CurrentTargetData.TargetName = TargetPlotBox.SelectedItem.ToString();
-                    PlotPhotometryHistory(CurrentTargetData);
+                    //Initialize Session Dates.  The first item will always be "All".
+                    //  the remainder will be session dates for session set plots
+                    SessionSetList.Items.Clear();
+                    SessionSetList.Items.Add("All");
+                    foreach (DateTime f in VariScanFileManager.GetSessionDates(TargetPlotBox.SelectedItem.ToString()))
+                    {
+                        SessionSetList.Items.Add(f.ToString("M/dd/yyyy"));
+                    }
+                    SessionSetList.SelectedIndex = 0; //Will cause a plot
                 }
-                Utility.ButtonGreen(PlotHistoryButton);
-                return;
+                PlotPhotometryHistory(CurrentTargetData, SessionSetList.SelectedItem.ToString());
             }
+            return;
+        }
+
+        private void SessionSetList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //Initialize Session Dates.  The first item will always be "All".
+            //  the remainder will be session dates for session set plots
+            if (!IsInitializing)
+            {
+                CurrentTargetData.TargetName = TargetPlotBox.SelectedItem.ToString();
+                PlotPhotometryHistory(CurrentTargetData, SessionSetList.SelectedItem.ToString());
+            }
+            return;
         }
 
         private void SetTransformsButton_Click(object sender, EventArgs e)
@@ -1468,10 +1495,19 @@ namespace VariScan
             }
         }
 
-        #endregion
-
-
+        private void PlotCatalogListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //Initialize Session Dates.  The first item will always be "All".
+            //  the remainder will be session dates for session set plots
+            if (!IsInitializing)
+            {
+                CurrentTargetData.TargetName = TargetPlotBox.SelectedItem.ToString();
+                PlotPhotometryHistory(CurrentTargetData, SessionSetList.SelectedItem.ToString());
+            }
+            return;
+        }
     }
+        #endregion
 }
 
 

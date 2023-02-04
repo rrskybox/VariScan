@@ -23,7 +23,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-
 namespace VariScan
 
 {
@@ -58,8 +57,9 @@ namespace VariScan
         const string SourceEllipticityX = "SourceEllipticity";
         const string SourceFWHMX = "SourceFWHM";
         const string SourceADUX = "SourceADU";
-        const string ImageDateX = "ImageDate";
+        const string ImageDateUTX = "ImageDate";
         const string SessionDateX = "SessionDate";
+        const string SessionSetX = "SessionSet";
         const string ColorTransformX = "ColorTransform";
         const string MagnitudeTransformX = "MagnitudeTransform";
         const string SourceToAPASSErrorX = "SourceToAPASSError";
@@ -67,7 +67,6 @@ namespace VariScan
         const string APASSFieldStarCountX = "APASSFieldStarCount";
         const string GaiaFieldStarCountX = "GaiaFieldStarCount";
         const string AirMassX = "AirMass";
-
 
         #endregion
 
@@ -96,7 +95,7 @@ namespace VariScan
             {
                 if (!((targetX.Element(TargetNameX).Value == pData.TargetName) &&
                      (targetX.Element(SessionDateX).Value == pData.SessionDate.ToShortDateString()) &&
-                     (targetX.Element(ImageDateX).Value == pData.ImageDate.ToShortTimeString()) &&
+                     (targetX.Element(ImageDateUTX).Value == pData.ImageDateUT.ToShortTimeString()) &&
                      (targetX.Element(PrimaryFilterX).Value == pData.PrimaryStandardColor.ToString()) &&
                      (targetX.Element(CatalogNameX).Value == pData.CatalogName)))
                 {
@@ -108,23 +107,34 @@ namespace VariScan
             return;
         }
 
-        public static List<TargetData> RetrievePhotometry(TargetData tgt)
+        public static List<TargetData> RetrievePhotometry(TargetData tgt, string sessionDate)
         {
             //Open file, convert xml entries to list, if any and 
             //  retrieve target data on elements matching name, color and filter
             Configuration cfg = new Configuration();
             List<TargetData> starList = new List<TargetData>();
-            if (!CheckStarchiveFile()) return starList;
+            if (!CheckStarchiveFile()) 
+                return starList;
             XElement starAllXdata = XElement.Load(cfg.StarchiveFilePath);
             IEnumerable<XElement> starXlist = starAllXdata.Elements(PhotometryRecordX);
+            DateTime sessionDT = DateTime.MinValue; ;
+            if (sessionDate != "All")
+                sessionDT = Convert.ToDateTime(sessionDate);
             foreach (XElement star in starXlist)
             {
-                if ((star.Element(TargetNameX).Value == tgt.TargetName))
-                //&& (star.Element(CatalogNameX).Value == tgt.CatalogName)
-                //&& (star.Element(PrimaryStandardColorX).Value == tgt.PrimaryStandardColor)
-                //&& (star.Element(DifferentialStandardColorX).Value == tgt.DifferentialStandardColor)
-                //&& (star.Element(PrimaryFilterX).Value == tgt.PrimaryImageFilter)
-                //&& (star.Element(DifferentialFilterX).Value == tgt.DifferentialImageFilter))
+                //Target name is the same as the requested target
+                //  and, if the sessionDate is not "All"
+                //  then the sessionDate must also be the same
+                //DateTime recordDT = Convert.ToDateTime(star.Element(SessionDateX).Value.ToString());
+
+                bool isTarget = star.Element(TargetNameX).Value == tgt.TargetName;
+                bool isPartialSession = sessionDate != "All";
+
+                DateTime recordDT = Convert.ToDateTime(star.Element(SessionDateX).Value.ToString());
+
+                bool matchesSession = recordDT == sessionDT;
+                bool entryIsInSession = (!isPartialSession) || (isPartialSession && matchesSession);
+                if (isTarget && entryIsInSession)
                 {
                     TargetData pd = CreateTarget(star);
                     starList.Add(pd);
@@ -135,10 +145,11 @@ namespace VariScan
 
         public static bool HasMatchingPhotometryRecord(TargetData tgt)
         {
-            List<TargetData> pRecords = RetrievePhotometry(tgt);
+            List<TargetData> pRecords = RetrievePhotometry(tgt, "All");
             foreach (TargetData p in pRecords)
             {
                 if ((DateTime.Compare(p.SessionDate, tgt.SessionDate) == 0) &&
+                    (p.SessionSet == tgt.SessionSet) &&
                     (p.PrimaryStandardColor == tgt.PrimaryStandardColor) &&
                     (p.CatalogName == tgt.CatalogName) &&
                     (p.DifferentialStandardColor == tgt.DifferentialStandardColor) &&
@@ -198,8 +209,9 @@ namespace VariScan
                                        new XElement(IsTransformedX, pData.IsTransformed),
                                        new XElement(TargetNameX, pData.TargetName),
                                        new XElement(SessionDateX, pData.SessionDate.ToString("d")),
+                                       new XElement(ImageDateUTX, pData.ImageDateUT.ToString()),
+                                       new XElement(SessionSetX, pData.SessionSet),
                                        new XElement(CatalogNameX, pData.CatalogName),
-                                       new XElement(ImageDateX, pData.ImageDate.ToString()),
                                        new XElement(TargetRAX, pData.TargetRA.ToString()),
                                        new XElement(TargetDecX, pData.TargetDec.ToString()),
                                        new XElement(PrimaryStandardColorX, pData.PrimaryStandardColor),
@@ -227,7 +239,7 @@ namespace VariScan
                 IsTransformed = Convert.ToBoolean(FetchX(xData, IsTransformedX, "False")),
                 SessionDate = Convert.ToDateTime(FetchX(xData, SessionDateX, DateTime.MinValue.ToString())),
                 CatalogName = FetchX(xData, CatalogNameX, "APASS"),
-                ImageDate = Convert.ToDateTime(FetchX(xData, ImageDateX, DateTime.MinValue.ToString())),
+                ImageDateUT = Convert.ToDateTime(FetchX(xData, ImageDateUTX, DateTime.MinValue.ToString())),
                 TargetRA = Convert.ToDouble(FetchX(xData, TargetRAX, "0.0")),
                 TargetDec = Convert.ToDouble(FetchX(xData, TargetDecX, "0.0")),
                 PrimaryImageFilter = FetchX(xData, PrimaryFilterX, "None"),
