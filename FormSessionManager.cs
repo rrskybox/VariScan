@@ -292,7 +292,7 @@ namespace VariScan
                     }
                 }
                 //Increment the set count for this target
-                cfg.CurrentSessionSet = (Convert.ToInt32(cfg.CurrentSessionSet)+1).ToString();
+                cfg.CurrentSessionSet = (Convert.ToInt32(cfg.CurrentSessionSet) + 1).ToString();
                 //Increment the target count for reporting purposes
                 if (gotAllFilters)
                     gSuccessfulCount++;
@@ -309,6 +309,28 @@ namespace VariScan
                     break;
                 }
                 //Get next target
+                varList.UpdateTargetXDate(currentTargetXD);
+                currentTargetXD = varList.NextClosestTargetX(currentTargetXD);
+                //Check for null currentTarget.  If so, then park the scope and wait for a half hour and try again
+                if (currentTargetXD == null)
+                {
+                    LogEventHandler("Sitting out for a spell to see if any more targets rise");
+                    //Sleep wait for an 1/2 hour in 6 second intervals, checking end time and weather in between
+                    for (int i = 0; i < 300; i++)
+                    {
+                        if (Convert.ToBoolean(Launcher.CheckEnd()))
+                        {
+                            LogEventHandler("Scan is past end time.  Shutting down.");
+                            break;
+                        }
+                        //Sleep for 6 seconds
+                        System.Threading.Thread.Sleep(6000);
+                        //  if unsafe then spin until it is safe or endingtime occurs.
+                        if (WatchWeatherCheckBox.Checked)
+                            WeatherManagement(ss_hwp, true);
+                    }
+                }
+                //Check for any target that has arisen
                 varList.UpdateTargetXDate(currentTargetXD);
                 currentTargetXD = varList.NextClosestTargetX(currentTargetXD);
             }
