@@ -605,7 +605,7 @@ namespace VariScan
             if (scanOn) return;
             else
             {
-                Form cmForm = new FormCollectionManager();
+                Form cmForm = new FormCreateTargetList();
                 cmForm.ShowDialog();
                 //Upon completion
                 //InitializeCollection();

@@ -40,6 +40,11 @@ namespace VariScan
             this.DoneButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.DeleteTargetButton = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.AddCollectionTextBox = new System.Windows.Forms.TextBox();
+            this.AddNewButton = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.CollectionListBox = new System.Windows.Forms.ListBox();
             this.FilterListGroup.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -48,7 +53,7 @@ namespace VariScan
             // 
             this.ImportCSVButton.BackColor = System.Drawing.Color.LightGreen;
             this.ImportCSVButton.ForeColor = System.Drawing.Color.Black;
-            this.ImportCSVButton.Location = new System.Drawing.Point(7, 34);
+            this.ImportCSVButton.Location = new System.Drawing.Point(144, 34);
             this.ImportCSVButton.Name = "ImportCSVButton";
             this.ImportCSVButton.Size = new System.Drawing.Size(118, 24);
             this.ImportCSVButton.TabIndex = 3;
@@ -63,7 +68,7 @@ namespace VariScan
             // CompileButton
             // 
             this.CompileButton.BackColor = System.Drawing.Color.LightGreen;
-            this.CompileButton.Location = new System.Drawing.Point(7, 62);
+            this.CompileButton.Location = new System.Drawing.Point(144, 62);
             this.CompileButton.Name = "CompileButton";
             this.CompileButton.Size = new System.Drawing.Size(118, 22);
             this.CompileButton.TabIndex = 4;
@@ -85,7 +90,7 @@ namespace VariScan
             // 
             this.FilterListGroup.Controls.Add(this.FilterListBox);
             this.FilterListGroup.ForeColor = System.Drawing.Color.White;
-            this.FilterListGroup.Location = new System.Drawing.Point(131, 6);
+            this.FilterListGroup.Location = new System.Drawing.Point(268, 6);
             this.FilterListGroup.Name = "FilterListGroup";
             this.FilterListGroup.Size = new System.Drawing.Size(138, 226);
             this.FilterListGroup.TabIndex = 7;
@@ -96,7 +101,7 @@ namespace VariScan
             // 
             this.CreateAAVSOListButton.BackColor = System.Drawing.Color.LightGreen;
             this.CreateAAVSOListButton.ForeColor = System.Drawing.Color.Black;
-            this.CreateAAVSOListButton.Location = new System.Drawing.Point(7, 6);
+            this.CreateAAVSOListButton.Location = new System.Drawing.Point(144, 6);
             this.CreateAAVSOListButton.Name = "CreateAAVSOListButton";
             this.CreateAAVSOListButton.Size = new System.Drawing.Size(118, 24);
             this.CreateAAVSOListButton.TabIndex = 9;
@@ -128,7 +133,7 @@ namespace VariScan
             // 
             this.DoneButton.BackColor = System.Drawing.Color.LightGreen;
             this.DoneButton.ForeColor = System.Drawing.Color.Black;
-            this.DoneButton.Location = new System.Drawing.Point(7, 208);
+            this.DoneButton.Location = new System.Drawing.Point(144, 208);
             this.DoneButton.Name = "DoneButton";
             this.DoneButton.Size = new System.Drawing.Size(118, 24);
             this.DoneButton.TabIndex = 12;
@@ -141,7 +146,7 @@ namespace VariScan
             this.groupBox1.Controls.Add(this.DeleteTargetButton);
             this.groupBox1.Controls.Add(this.TargetListDropDown);
             this.groupBox1.Controls.Add(this.AddTargetButton);
-            this.groupBox1.Location = new System.Drawing.Point(7, 90);
+            this.groupBox1.Location = new System.Drawing.Point(144, 90);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(120, 112);
             this.groupBox1.TabIndex = 13;
@@ -160,12 +165,65 @@ namespace VariScan
             this.DeleteTargetButton.UseVisualStyleBackColor = false;
             this.DeleteTargetButton.Click += new System.EventHandler(this.DeleteTargetButton_Click);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(65, 167);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(16, 13);
+            this.label2.TabIndex = 18;
+            this.label2.Text = "or";
+            // 
+            // AddCollectionTextBox
+            // 
+            this.AddCollectionTextBox.Location = new System.Drawing.Point(13, 183);
+            this.AddCollectionTextBox.Name = "AddCollectionTextBox";
+            this.AddCollectionTextBox.Size = new System.Drawing.Size(121, 20);
+            this.AddCollectionTextBox.TabIndex = 17;
+            this.AddCollectionTextBox.TextChanged += new System.EventHandler(this.AddCollectionTextBox_TextChanged);
+            // 
+            // AddNewButton
+            // 
+            this.AddNewButton.Location = new System.Drawing.Point(55, 209);
+            this.AddNewButton.Name = "AddNewButton";
+            this.AddNewButton.Size = new System.Drawing.Size(36, 22);
+            this.AddNewButton.TabIndex = 16;
+            this.AddNewButton.Text = "Add";
+            this.AddNewButton.UseVisualStyleBackColor = true;
+            this.AddNewButton.Click += new System.EventHandler(this.AddNewButton_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(22, 12);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(102, 26);
+            this.label1.TabIndex = 15;
+            this.label1.Text = "Choose A Collection\r\nFrom the List";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // CollectionListBox
+            // 
+            this.CollectionListBox.BackColor = System.Drawing.Color.MediumSpringGreen;
+            this.CollectionListBox.ForeColor = System.Drawing.Color.Black;
+            this.CollectionListBox.FormattingEnabled = true;
+            this.CollectionListBox.Location = new System.Drawing.Point(13, 41);
+            this.CollectionListBox.Name = "CollectionListBox";
+            this.CollectionListBox.Size = new System.Drawing.Size(121, 121);
+            this.CollectionListBox.TabIndex = 14;
+            this.CollectionListBox.SelectedIndexChanged += new System.EventHandler(this.CollectionListBox_SelectedIndexChanged);
+            // 
             // FormCreateTargetList
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightSeaGreen;
-            this.ClientSize = new System.Drawing.Size(283, 243);
+            this.ClientSize = new System.Drawing.Size(417, 243);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.AddCollectionTextBox);
+            this.Controls.Add(this.AddNewButton);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.CollectionListBox);
             this.Controls.Add(this.DoneButton);
             this.Controls.Add(this.CreateAAVSOListButton);
             this.Controls.Add(this.FilterListGroup);
@@ -179,6 +237,7 @@ namespace VariScan
             this.FilterListGroup.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -194,5 +253,10 @@ namespace VariScan
         private System.Windows.Forms.Button DoneButton;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button DeleteTargetButton;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox AddCollectionTextBox;
+        private System.Windows.Forms.Button AddNewButton;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ListBox CollectionListBox;
     }
 }

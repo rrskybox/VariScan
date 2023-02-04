@@ -27,10 +27,20 @@ namespace VariScan
     public partial class FormCreateTargetList : Form
     {
 
+        public string[] zeroBasedFilters;
+
         public FormCreateTargetList()
         {
-            string[] zeroBasedFilters;
             InitializeComponent();
+            //fill Collection list
+            CollectionListBox.Items.Clear();
+            foreach (var c in CollectionManagement.ListCollections())
+                CollectionListBox.Items.Add(c);
+            return;
+        }
+
+        private void InitializeCollection()
+        {
             Configuration cfg = new Configuration();
             this.Text = "Collection: " + cfg.TargetListPath;
             if (File.Exists(cfg.TargetListPath))
@@ -60,6 +70,7 @@ namespace VariScan
             Utility.ButtonRed(CompileButton);
             Utility.ButtonGreen(DoneButton);
         }
+
 
         private void CreateAAVSOTargetList_Button(object sender, EventArgs e)
         {
@@ -142,6 +153,35 @@ namespace VariScan
             TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
         }
 
+        private void CollectionListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string tgtListPath = CollectionManagement.OpenCollection(CollectionListBox.SelectedItem.ToString());
+            InitializeCollection();
+            return;
+        }
+
+        private void AddNewButton_Click(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            //Add new folder for Collection
+            DialogResult dr = MessageBox.Show("Camera and Filter Wheel must be powered on and able to connect.", "Check Image Train", MessageBoxButtons.OKCancel);
+            if ((dr == DialogResult.OK) && (AddCollectionTextBox.Text.Length > 0))
+            {
+                string choice = AddCollectionTextBox.Text;
+                CollectionManagement.CreateCollection(choice);
+                CollectionManagement.OpenCollection(choice);
+            }
+            if (!File.Exists(cfg.TargetListPath))
+            {
+                InitializeCollection();
+            }
+            return;
+        }
+
+        private void AddCollectionTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
 
         //private void PrimaryFilterBox_SelectedIndexChanged(object sender, EventArgs e)
         //{
