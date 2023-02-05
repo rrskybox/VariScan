@@ -50,7 +50,8 @@ namespace VariScan
                 List<TargetXList.TargetXDescriptor> tXList = tList.GetTargetXList();
                 foreach (TargetXList.TargetXDescriptor tX in tXList)
                     TargetListDropDown.Items.Add(tX.Name);
-                TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
+                if (TargetListDropDown.Items.Count > 0)
+                    TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
                 //Load Filter assignments
                 ColorIndexing colorIndex = new ColorIndexing();
                 zeroBasedFilters = colorIndex.GetSessionFilters().ToArray();
@@ -122,6 +123,9 @@ namespace VariScan
                 MessageBox.Show("Look up of target failed");
                 return;
             }
+            //remove target, if already present, to prevent duplicates
+            TargetXList.DeleteFromTargetXList(newTgtName);
+
             //Add new target
             TargetXList.AddToTargetXList(newTgtName, ra, dec, DateTime.Now);
             //Repopulate
@@ -130,7 +134,8 @@ namespace VariScan
             TargetListDropDown.Items.Clear();
             foreach (TargetXList.TargetXDescriptor tX in tXList)
                 TargetListDropDown.Items.Add(tX.Name);
-            TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
+            if (TargetListDropDown.Items.Count > 0)
+                TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
         }
 
         private void FinishedButton_Click(object sender, EventArgs e)
@@ -150,7 +155,10 @@ namespace VariScan
             TargetListDropDown.Items.Clear();
             foreach (TargetXList.TargetXDescriptor tX in tXList)
                 TargetListDropDown.Items.Add(tX.Name);
-            TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
+            if (TargetListDropDown.Items.Count > 0)
+                TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
+            else
+                TargetListDropDown.Text = "";
         }
 
         private void CollectionListBox_SelectedIndexChanged(object sender, EventArgs e)

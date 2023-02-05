@@ -193,7 +193,8 @@ namespace VariScan
             Configuration cfg = new Configuration();
             //Load xml list and update data on target
             XElement acnL = XElement.Load(cfg.TargetListPath);
-            acnL.Elements(TargetListRecordX).FirstOrDefault(t => ((string)t.Element(NameX) == name)).Remove();
+            foreach (XElement tn in acnL.Elements(TargetListRecordX).Where(t => ((string)t.Element(NameX) == name)))
+                tn.Remove();
             acnL.Save(cfg.TargetListPath);
             return;
         }
