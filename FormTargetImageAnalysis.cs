@@ -294,9 +294,13 @@ namespace VariScan
             masterLightSources = unregisteredPLS.First().ToArray();
             LogIt("Acquiring catalog data for light sources");
 
-            //Load up target data
+            //Load up target data, if in open TSX catalog(s) which would be the most current and accurate
+            //  if the target is not in open TSX catalog(s) then use the old data from the target list
             LogIt("Finding coordinates for " + tgtShot.Target);
-            (double tRA, double tDec) = TSX_Resources.FindTarget(tgtShot.Target);
+            double tRA = CurrentTargetData.TargetRA;
+            double tDec = CurrentTargetData.TargetDec;
+            try { (tRA, tDec) = TSX_Resources.FindTarget(tgtShot.Target); }
+            catch { LogIt("Coordinates for " + tgtShot.Target + " not found in TSX enabled catalogs."); }
             CurrentTargetData.TargetRA = tRA;
             CurrentTargetData.TargetDec = tDec;
             //Populate the master sample image with APASS, GAIA data, as available
@@ -768,8 +772,9 @@ namespace VariScan
             DisplayFITS(sf);
 
             //Get the target ra and dec from the fits file and load catalog coordinates
-            (targetRA, targetDec) = TSX_Resources.FindTarget(FITImage.FitsTarget);
-
+            //(targetRA, targetDec) = TSX_Resources.FindTarget(FITImage.FitsTarget);
+            targetRA = (double)FITImage.FitsRA;
+            targetDec = (double)FITImage.FitsDec;
             //Image Link the fits and create array of light sources, set flag if successful, return if not
             StarField.FieldLightSource[] sfLSArray = (sf.PositionLightSources(sf.AssembleLightSources())).ToArray();
             if (sfLSArray.Length == 0)
@@ -1312,7 +1317,7 @@ namespace VariScan
             return;
         }
 
-         private void FitsReadButton_Click(object sender, EventArgs e)
+        private void FitsReadButton_Click(object sender, EventArgs e)
         {
             Utility.ButtonRed(FitsReadButton);
             Configuration cfg = new Configuration();
@@ -1507,7 +1512,7 @@ namespace VariScan
             return;
         }
     }
-        #endregion
+    #endregion
 }
 
 
