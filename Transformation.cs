@@ -46,7 +46,6 @@ namespace VariScan
                 double pri = GetCatalogedMagnitude(priColor, pFLS, catalog);
                 double dif = GetCatalogedMagnitude(diffColor, dFLS, catalog);
                 return (pri, dif);
-                //return (GetCatalogedMagnitude(priColor, pFLS, catalog), GetCatalogedMagnitude(diffColor, dFLS, catalog));
             }
         }
 
@@ -68,7 +67,7 @@ namespace VariScan
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeG,
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeGbp,
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeGrp);
-                        else
+                        else //APASS
                             mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeB;
                         break;
                     }
@@ -79,8 +78,9 @@ namespace VariScan
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeG,
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeGbp,
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeGrp);
-                        else
-                            mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeV; break;
+                        else //APASS
+                            mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeV;
+                        break;
                     }
                 case ColorIndexing.ColorDataSource.Rc:
                     {
@@ -89,7 +89,7 @@ namespace VariScan
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeG,
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeGbp,
                                                               fls.CatalogInfo.Value.GAIACatalogMagnitudeGrp);
-                        else
+                        else //APASS
                             mag = fls.CatalogInfo.Value.APASSCatalogMagnitudeR;
                         break;
                     }
@@ -135,7 +135,7 @@ namespace VariScan
                                                               fls.GAIACatalogMagnitudeG,
                                                               fls.GAIACatalogMagnitudeGbp,
                                                               fls.GAIACatalogMagnitudeGrp);
-                        else
+                        else //APASS
                             mag = fls.APASSCatalogMagnitudeB;
                         break;
                     }
@@ -146,8 +146,9 @@ namespace VariScan
                                                               fls.GAIACatalogMagnitudeG,
                                                               fls.GAIACatalogMagnitudeGbp,
                                                               fls.GAIACatalogMagnitudeGrp);
-                        else
-                            mag = fls.APASSCatalogMagnitudeV; break;
+                        else //APASS
+                            mag = fls.APASSCatalogMagnitudeV;
+                        break;
                     }
                 case ColorIndexing.ColorDataSource.Rc:
                     {
@@ -156,7 +157,7 @@ namespace VariScan
                                                               fls.GAIACatalogMagnitudeG,
                                                               fls.GAIACatalogMagnitudeGbp,
                                                               fls.GAIACatalogMagnitudeGrp);
-                        else
+                        else //APASS
                             mag = fls.APASSCatalogMagnitudeR;
                         break;
                     }

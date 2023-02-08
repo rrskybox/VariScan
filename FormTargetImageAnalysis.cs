@@ -607,12 +607,20 @@ namespace VariScan
                         else
                         {
                             //target star magnitude standardization loop
+                            //
+                            //  v = primary instrument filter raw magnitude for light source
+                            //  b = differential instrument filter raw magnitude for light source
+                            //  V = primary standard color cataloged magnitude for nearest star to light source
+                            //  B = differential standard color cataloged magnitude for nearest star to light source
+                            //
                             //  Calculate the color transform of this differential image comparison star against this primary image star
-                            //  Calculate Δ(b-v) => (b - v)var - (b - v)comp
+                            //  Calculate Δ(b-v) => (bTgt - vTgt) - (bFld - vFld)
                             //  Calculate Δ(B-V) = Tbv * Δ(b - v)
-                            //  Calculate Δv = vvar – vcomp
-                            //  Vvar = Δv + Tv_bv * Δ(B - V) + Vcomp
-                            //Compute mean Vvar for all comparison stars
+                            //  Calculate Δv = vTgt – vFld
+                            //  VTgt = Δv + Tv_bv * Δ(B - V) + VFld
+                            //
+                            //Compute each Vvar for combinations of all comparison stars
+                            //
                             foreach (StarField.FieldLightSource compLS in masterLightSources)
                             {
                                 if (compLS.CatalogInfo.Value.GAIACatalogPhotoVar != "Variable")
@@ -624,21 +632,21 @@ namespace VariScan
                                         crossRegisteredLightSources++;
                                         double vTgt = pLS[(int)priTgtIndex].LightSourceInstMag;
                                         double bTgt = dLS[(int)diffTgtIndex].LightSourceInstMag;
-                                        double bComp = dLS[(int)diffCompIndex].LightSourceInstMag;
-                                        double vComp = pLS[(int)priCompIndex].LightSourceInstMag;
+                                        double bFld = dLS[(int)diffCompIndex].LightSourceInstMag;
+                                        double vFld = pLS[(int)priCompIndex].LightSourceInstMag;
                                         //double VjComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
                                         //double BjComp = pLS[(int)priCompIndex].ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
-                                        double VjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
-                                        double BjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
-                                        if (VjComp != 0)
+                                        double VFld = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.PrimaryStandardColor));
+                                        //double BjComp = compLS.ColorStandard(ColorIndexing.ConvertColorEnum(CurrentTargetData.DifferentialStandardColor));
+                                        if (VFld != 0)
                                         {
                                             double deltaInstTgtColor = bTgt - vTgt;
-                                            double deltaInstCompColor = bComp - vComp;
-                                            double deltaInstColor = deltaInstTgtColor - deltaInstCompColor;
+                                            double deltaInstFldColor = bFld - vFld;
+                                            double deltaInstColor = deltaInstTgtColor - deltaInstFldColor;
                                             double tcInst = CurrentTargetData.ColorTransform * deltaInstColor;
-                                            double deltaInstMag = vTgt - vComp;
-                                            double tgtStd = deltaInstMag + CurrentTargetData.MagnitudeTransform * tcInst + VjComp;
-                                            targetStandardizedMag.Add(tgtStd);
+                                            double deltaInstMag = vTgt - vFld;
+                                            double VTgt = deltaInstMag + CurrentTargetData.MagnitudeTransform * tcInst + VFld;
+                                            targetStandardizedMag.Add(VTgt);
                                             standardMagnitudeCalculated++;
                                         }
                                     }
