@@ -56,7 +56,7 @@ namespace VariScan
 
         //Color Indexing and Transformation data
         ColorIndexing TargetColorIndex;
-        List<double> targetStandardizedMag = new List<double>();
+        List<double> sourceInstMag = new List<double>();
         List<double> colorTransformList = new List<double>();
         List<double> magnitudeTransformList = new List<double>();
 
@@ -201,7 +201,6 @@ namespace VariScan
 
             primaryLightSources.Clear();
             differentialLightSources.Clear();
-            //masterRegisteredList.Clear();
 
             //Housekeeping
             //Clear any existing SRC files, as they might be locked and TSX will quietly crash
@@ -217,7 +216,7 @@ namespace VariScan
             difFiles = sMgr.SelectSessionSamples(CurrentTargetData.SessionDate, CurrentTargetData.DifferentialImageFilter);
             //check for images for this target, date, filter
             // exit if none
-            if (priFiles.Count == 0 || difFiles.Count == 0)
+            if (priFiles.Count == 0 || (difFiles.Count == 0 && !DoInstMagCheckBox.Checked))
             {
                 LogIt("No primary and/or differential images for this date/filter in image bank");
                 return;
@@ -283,7 +282,7 @@ namespace VariScan
                 sf.Close();
             }
             //Check for results -- if no light sources then return
-            if (unregisteredDLS.Count < 1)
+            if (unregisteredDLS.Count < 1 && !DoInstMagCheckBox.Checked)
             {
                 LogIt("Insufficient differential light sources");
                 return;
@@ -574,7 +573,7 @@ namespace VariScan
             //********************************************************************************
 
             LogIt("Converting to color standard " + CurrentTargetData.TargetName);
-            targetStandardizedMag.Clear();
+            sourceInstMag.Clear();
 
             //Cull Master List to the brightest 2000 field stars (arbitrary just to speed up processing time)
             // masterRegisteredList = Transformation.SortByMagnitude(masterRegisteredList, 2000);
@@ -646,7 +645,7 @@ namespace VariScan
                                             double tcInst = CurrentTargetData.ColorTransform * deltaInstColor;
                                             double deltaInstMag = vTgt - vFld;
                                             double VTgt = deltaInstMag + CurrentTargetData.MagnitudeTransform * tcInst + VFld;
-                                            targetStandardizedMag.Add(VTgt);
+                                            sourceInstMag.Add(VTgt);
                                             standardMagnitudeCalculated++;
                                         }
                                     }
@@ -659,18 +658,18 @@ namespace VariScan
             }
             LogIt(crossRegisteredLightSources.ToString() + " full registered light sources");
             LogIt(standardMagnitudeCalculated.ToString() + " standard magnitude calculations.");
-            if (targetStandardizedMag.Count == 0)
+            if (sourceInstMag.Count == 0)
             {
                 LogIt("No usable target and/or comparison light sources.");
                 return false;
             }
             // Algorithm that picks the number of buckets based on Sturgis Rule
-            int sturgisRuleBuckets = (int)Math.Ceiling(Math.Log(targetStandardizedMag.Count, 2));
+            int sturgisRuleBuckets = (int)Math.Ceiling(Math.Log(sourceInstMag.Count, 2));
             //Algorithm that picks the number of buckets based on Scott's rule 3.49*sigma/cube root of n
-            (double sMean, double sStdDev) = MathNet.Numerics.Statistics.ArrayStatistics.MeanStandardDeviation(targetStandardizedMag.ToArray());
-            double hWidth = 3.49 * sStdDev / (Math.Pow(targetStandardizedMag.Count, 0.3));
-            double maxVal = targetStandardizedMag.Max();
-            double minVal = targetStandardizedMag.Min();
+            (double sMean, double sStdDev) = MathNet.Numerics.Statistics.ArrayStatistics.MeanStandardDeviation(sourceInstMag.ToArray());
+            double hWidth = 3.49 * sStdDev / (Math.Pow(sourceInstMag.Count, 0.3));
+            double maxVal = sourceInstMag.Max();
+            double minVal = sourceInstMag.Min();
             int scottsRuleBuckets = 1;
             if (hWidth > 0)
                 scottsRuleBuckets = (int)Math.Ceiling((maxVal - minVal) / hWidth);
@@ -678,14 +677,14 @@ namespace VariScan
             int ricksRuleBuckets = 100;
             // Pick a bucket Rule
             int bucketRule = ricksRuleBuckets;
-            MathNet.Numerics.Statistics.Histogram histBuckets = new MathNet.Numerics.Statistics.Histogram(targetStandardizedMag, bucketRule);
+            MathNet.Numerics.Statistics.Histogram histBuckets = new MathNet.Numerics.Statistics.Histogram(sourceInstMag, bucketRule);
             MathNet.Numerics.Statistics.Bucket bigBucket = Utility.FullestBucket(histBuckets);
             //Find the statistical median of the bigBucket
             double median = (bigBucket.UpperBound + bigBucket.LowerBound) / 2;
             //Find the statistical mean of the bigBucket
             //by finding its members then finding the mean
             List<double> bigBucketList = new List<double>();
-            foreach (double tsm in targetStandardizedMag)
+            foreach (double tsm in sourceInstMag)
                 if (bigBucket.Contains(tsm) == 0)
                     bigBucketList.Add(tsm);
             //Then, find the mean of the bucket
@@ -699,13 +698,75 @@ namespace VariScan
                 TransformedTargetChart.Series[0].Points.AddXY(bucketMean, histBuckets[i].Count);
             }
             //Mode-based averages -- old algo
-            (double fieldmean, double fieldstddev) = MathNet.Numerics.Statistics.ArrayStatistics.MeanStandardDeviation(targetStandardizedMag.ToArray());
+            (double fieldmean, double fieldstddev) = MathNet.Numerics.Statistics.ArrayStatistics.MeanStandardDeviation(sourceInstMag.ToArray());
             //CurrentTargetData.StandardColorMagnitude = fieldmean;
             //CurrentTargetData.StandardMagnitudeError = fieldstddev;
             CurrentTargetData.StandardColorMagnitude = bbmean;
             CurrentTargetData.StandardMagnitudeError = bbmstddev;
             TargetModeBox.Text = bbmean.ToString("0.000");
             TargetStdDevBox.Text = bbmstddev.ToString("0.000");
+            return true;
+        }
+
+        public bool ConvertToInstrumentMagnitude()
+        {
+            //********************************************************************************
+            //
+            // Average all source instrument magnitudes
+            //
+            //
+            //********************************************************************************
+
+            LogIt("Averaging Source Instrument Magnitudes " + CurrentTargetData.TargetName);
+            sourceInstMag.Clear();
+
+            ////Cull Master List to the brightest 2000 field stars (arbitrary just to speed up processing time)
+            //// masterRegisteredList = Transformation.SortByMagnitude(masterRegisteredList, 2000);
+            int sourceInstMagCalculated = 0;
+
+            int plsIdx = 0;
+
+            //Primary field star images  loop
+            foreach (StarField.FieldLightSource[] pLS in primaryLightSources)
+            {
+                plsIdx++;
+                int? priTgtIndex = Registration.FindRegisteredLightSource(pLS, CurrentTargetData.MasterRegistrationIndex);
+                if (priTgtIndex == null)
+                {
+                    LogIt("No target light source found in primary registered image (P" + (plsIdx - 1).ToString() + ").");
+                }
+                else
+                {
+                    foreach (StarField.FieldLightSource compLS in masterLightSources)
+                    {
+                        int? priCompIndex = Registration.FindRegisteredLightSource(pLS, (int)compLS.RegistrationIndex);
+                        if (priTgtIndex != null)
+                        {
+                            sourceInstMagCalculated++;
+                            double vTgt = pLS[(int)priTgtIndex].LightSourceInstMag;
+                            sourceInstMag.Add(vTgt);
+                        }
+                    }
+                }
+
+            }
+            LogIt(sourceInstMag.ToString() + " Source instrument magnitude calculations.");
+            if (sourceInstMag.Count == 0)
+            {
+                LogIt("No usable target and/or comparison light sources.");
+                return false;
+            }
+            // Algorithm that picks the number of buckets based on Sturgis Rule
+            TransformedTargetChart.Series[0].Points.Clear();
+            TransformedTargetChart.ChartAreas[0].AxisX.LabelStyle.Format = "0.00";
+            for (int i = 0; i < sourceInstMag.Count; i++)
+            {
+                TransformedTargetChart.Series[0].Points.AddXY(sourceInstMag[i], i);
+            }
+            CurrentTargetData.SourceInstrumentMagnitude = sourceInstMag.Average();
+            // CurrentTargetData.StandardMagnitudeError = sourceInstMag.;
+            //TargetModeBox.Text = bbmean.ToString("0.000");
+            //TargetStdDevBox.Text = bbmstddev.ToString("0.000");
             return true;
         }
 
@@ -1098,27 +1159,34 @@ namespace VariScan
 
             foreach (TargetData tData in tDataList)
             {
-                double tgtMag = tData.StandardColorMagnitude;
-                if (tData.IsTransformed &&
-                    tgtMag != 0 &&
-                    tData.PrimaryImageFilter == priFilter &&
-                    tData.DifferentialImageFilter == difFilter &&
-                    tData.PrimaryStandardColor == priColor &&
-                    tData.DifferentialStandardColor == difColor)
+                if (!DoInstMagCheckBox.Checked)
                 {
-                    double errorBar = tData.StandardMagnitudeError;
+                    double tgtMag = tData.StandardColorMagnitude;
+                    if (tData.IsTransformed &&
+                        tgtMag != 0 &&
+                        tData.PrimaryImageFilter == priFilter &&
+                        tData.DifferentialImageFilter == difFilter &&
+                        tData.PrimaryStandardColor == priColor &&
+                        tData.DifferentialStandardColor == difColor)
+                    {
+                        double errorBar = tData.StandardMagnitudeError;
+                        DateTime dataDate = tData.ImageDateUT.ToLocalTime();
+                        if (tData.CatalogName == "APASS" && PlotCatalogListBox.SelectedItem != "Gaia")
+                        {
+                            HistoryChart.Series[0].Points.AddXY(dataDate, tgtMag);
+                            HistoryChart.Series[1].Points.AddXY(dataDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
+                        }
+                        else if (tData.CatalogName == "Gaia" && PlotCatalogListBox.SelectedItem != "APASS")
+                        {
+                            HistoryChart.Series[2].Points.AddXY(dataDate, tgtMag);
+                            HistoryChart.Series[3].Points.AddXY(dataDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
+                        }
+                    }
+                }
+                else
+                {
                     DateTime dataDate = tData.ImageDateUT.ToLocalTime();
-                    if (tData.CatalogName == "APASS" && PlotCatalogListBox.SelectedItem != "Gaia")
-                    {
-                        HistoryChart.Series[0].Points.AddXY(dataDate, tgtMag);
-                        HistoryChart.Series[1].Points.AddXY(dataDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
-                    }
-                    else if (tData.CatalogName == "Gaia" && PlotCatalogListBox.SelectedItem != "APASS")
-                    {
-                        HistoryChart.Series[2].Points.AddXY(dataDate, tgtMag);
-                        HistoryChart.Series[3].Points.AddXY(dataDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
-                    }
-
+                    HistoryChart.Series[0].Points.AddXY(dataDate, tData.SourceInstrumentMagnitude);
                 }
             }
             return;
@@ -1138,11 +1206,11 @@ namespace VariScan
                 CurrentTargetData.CatalogName = TargetCatalogBox.Text;
 
                 RegisterLightSources(session);
-                if (primaryLightSources.Count == 0 || differentialLightSources.Count == 0)
+                if (primaryLightSources.Count == 0 || (differentialLightSources.Count == 0 && !DoInstMagCheckBox.Checked))
                 {
                     LogIt("Insufficient light sources to process.");
                 }
-                else
+                else if (!DoInstMagCheckBox.Checked)
                 {
                     if (PresetTransformsBox.Checked)
                     {
@@ -1160,6 +1228,10 @@ namespace VariScan
                         CalculateTransforms(CurrentTargetData.CatalogName);
                     }
                     isTransformed = ConvertToColorStandard(CurrentTargetData.CatalogName);
+                }
+                else //Use Source Instrument Magnitude
+                {
+                    isTransformed = ConvertToInstrumentMagnitude();
                 }
 
                 if (isTransformed)

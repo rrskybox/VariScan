@@ -54,6 +54,7 @@ namespace VariScan
                     TargetListDropDown.Text = TargetListDropDown.Items[0].ToString();
                 //Load Filter assignments
                 ColorIndexing colorIndex = new ColorIndexing();
+                FilterListBox.Items.Clear();
                 zeroBasedFilters = colorIndex.GetSessionFilters().ToArray();
                 //Add to list box
                 if (zeroBasedFilters != null)
@@ -63,6 +64,7 @@ namespace VariScan
             }
             else                //Load filters from TSX
             {
+                FilterListBox.Items.Clear();
                 zeroBasedFilters = Filters.FilterNameSet();
                 //Add to list box
                 if (zeroBasedFilters != null)

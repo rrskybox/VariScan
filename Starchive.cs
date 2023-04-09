@@ -113,7 +113,7 @@ namespace VariScan
             //  retrieve target data on elements matching name, color and filter
             Configuration cfg = new Configuration();
             List<TargetData> starList = new List<TargetData>();
-            if (!CheckStarchiveFile()) 
+            if (!CheckStarchiveFile())
                 return starList;
             XElement starAllXdata = XElement.Load(cfg.StarchiveFilePath);
             IEnumerable<XElement> starXlist = starAllXdata.Elements(PhotometryRecordX);
@@ -221,6 +221,7 @@ namespace VariScan
                                        new XElement(ColorTransformX, pData.ColorTransform.ToString()),
                                        new XElement(MagnitudeTransformX, pData.MagnitudeTransform.ToString()),
                                        new XElement(StandardColorMagnitudeX, pData.StandardColorMagnitude.ToString()),
+                                       new XElement(SourceInstrumentMagnitudeX, pData.SourceInstrumentMagnitude.ToString()),
                                        new XElement(StandardMagnitudeErrorX, pData.StandardMagnitudeError.ToString()),
                                        new XElement(SourceToAPASSErrorX, pData.SourceToAPASSCatalogPositionError.ToString()),
                                        new XElement(SourceToGaiaErrorX, pData.SourceToGAIACatalogPositionError.ToString()),
@@ -248,7 +249,8 @@ namespace VariScan
                 DifferentialStandardColor = FetchX(xData, DifferentialStandardColorX, "None"),
                 ColorTransform = Convert.ToDouble(FetchX(xData, ColorTransformX, "0.00")),
                 MagnitudeTransform = Convert.ToDouble(FetchX(xData, MagnitudeTransformX, "0.00")),
-                StandardColorMagnitude = Convert.ToDouble(FetchX(xData, StandardColorMagnitudeX, "0.0")),
+                StandardColorMagnitude = Convert.ToDouble(FetchX(xData, StandardColorMagnitudeX, "0.00")),
+                SourceInstrumentMagnitude = Convert.ToDouble(FetchX(xData, SourceInstrumentMagnitudeX, "0.00")),
                 StandardMagnitudeError = Convert.ToDouble(FetchX(xData, StandardMagnitudeErrorX, "0.0")),
                 SourceToAPASSCatalogPositionError = Convert.ToDouble(FetchX(xData, SourceToAPASSErrorX, "0.0")),
                 SourceToGAIACatalogPositionError = Convert.ToDouble(FetchX(xData, SourceToGaiaErrorX, "0.0")),
