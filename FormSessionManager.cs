@@ -545,7 +545,8 @@ namespace VariScan
             //if no weather file or other problem, return false
             if (wmon == null) return false;
             if (wmon.AlertFlag == WeatherFileReader.WeaAlert.Alert) return false;
-            else return true;
+            else 
+                return true;
         }
 
         private void WatchWeatherCheckBox_CheckedChanged(object sender, EventArgs e)

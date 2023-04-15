@@ -28,6 +28,7 @@ namespace WeatherWatch
     public class WeatherFileReader
     {
         #region Enumerations
+       
         public enum WeaData
         {
             WriteDate = 0,
@@ -119,6 +120,29 @@ namespace WeatherWatch
 
         private string weatherFilePath;
         private List<string> weaList;
+        private List<string> LastValidReading = new List<string>() //Initialized with bogus data
+        {   "2023-04-15",
+            "03:13:33.33",
+            "F",
+            "M",
+            "13.7",
+            "60.1",
+            "60.1",
+            "0.0",
+            "10",
+            "0.0",
+            "0",
+            "0",
+            "0",
+            "00003",
+            "045031.13441",
+            "1",
+            "1",
+            "1",
+            "1",
+            "0",
+            "1"  //Set Alert Flag
+        };
 
         public WeatherFileReader()
         {
@@ -126,7 +150,6 @@ namespace WeatherWatch
             weaList = ReadWeatherDataIn();
             return;
         }
-
 
         public string WeatherDataListing()
         {
@@ -168,13 +191,16 @@ namespace WeatherWatch
             { wfdata = File.ReadAllText(weatherFilePath); }
             catch
             {
-
+                //Probable conflict on reading
+                //Return last scan, or dummy
+                return LastValidReading;
             }
             List<string> wfd = wfdata.Split(new char[0], StringSplitOptions.RemoveEmptyEntries).ToList();
             for (int i = 0; i < wfd.Count; i++)
             {
                 if (wfd[i] == "") { wfd[i] = "0"; }
             }
+            LastValidReading = wfd;
             return (wfd);
         }
 
@@ -309,6 +335,7 @@ namespace WeatherWatch
         {
             get { return ((WeaRoofFlag)Convert.ToInt16(WeatherData(WeaData.RoofCloseFlag))); }
         }
+
         public WeaAlert AlertFlag
         {
             get { return ((WeaAlert)Convert.ToInt16(WeatherData(WeaData.AlertFlag))); }
