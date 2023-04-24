@@ -30,7 +30,7 @@ namespace VariScan
             Configuration cfg = new Configuration();
             if (cfg.LogFolder == "")
                 return;
-            string logfilename = DateTime.Now.ToString("dd_MMM_yyyy") + ".txt";
+            string logfilename = DateTime.Now.ToString("yyyy_MM_dd") + ".txt";
             string logfilepath = cfg.LogFolder + "\\" + logfilename;
             if (!Directory.Exists(cfg.LogFolder))
                 Directory.CreateDirectory(cfg.LogFolder);

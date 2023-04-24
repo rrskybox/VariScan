@@ -541,10 +541,10 @@ namespace VariScan
         {
             //Returns true if no weather alert, false if it is unsafe
 
-            WeatherFileReader wmon = new WeatherFileReader();
+            WeatherReader wmon = new WeatherReader();
             //if no weather file or other problem, return false
             if (wmon == null) return false;
-            if (wmon.AlertFlag == WeatherFileReader.WeaAlert.Alert) return false;
+            if (wmon.AlertFlag == WeatherReader.WeaAlert.Alert) return false;
             else 
                 return true;
         }
