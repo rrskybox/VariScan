@@ -89,7 +89,7 @@ namespace VariScan
             {
                 string textFileName = OpenTargetTextFileDialog.FileName;
                 Configuration cfg = new Configuration();
-                TargetXList.CreateXList(textFileName, cfg.TargetListPath);
+                TargetXList.CreateXListFromCSV(textFileName, cfg.TargetListPath);
             }
             Utility.ButtonGreen(ImportCSVButton);
             CompileButton.Text = "Compile";
@@ -98,7 +98,7 @@ namespace VariScan
 
         private void CompileButton_Click(object sender, EventArgs e)
         {
-            //Save configurations to file
+            //Save configurations to filehttps://www.mcafee.com/content/dam/ngm/retention/2022/AR-Scammer/Online-security.png
             ColorIndexing clist = new ColorIndexing();
             List<Filters.ActiveFilter> afList = new List<Filters.ActiveFilter>();
             for (int i = 0; i < FilterListBox.CheckedItems.Count; i++)
@@ -172,6 +172,7 @@ namespace VariScan
 
         private void AddNewButton_Click(object sender, EventArgs e)
         {
+            Utility.ButtonRed(AddNewButton);
             Configuration cfg = new Configuration();
             //Add new folder for Collection
             DialogResult dr = MessageBox.Show("Camera and Filter Wheel must be powered on and able to connect.", "Check Image Train", MessageBoxButtons.OKCancel);
@@ -185,6 +186,7 @@ namespace VariScan
             {
                 InitializeCollection();
             }
+            Utility.ButtonGreen(AddNewButton);
             return;
         }
 

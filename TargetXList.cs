@@ -106,7 +106,7 @@ namespace VariScan
             }
         }
 
-        public static void CreateXList(string textFilePath, string xmlFilePath)
+        public static void CreateXListFromCSV(string textFilePath, string xmlFilePath)
         {
             //Generages the XML target file from the filePath .txt file
             //The assumed format for the AGN text file is |<name>|<ra>|<dec>|<magnitude>
@@ -158,13 +158,20 @@ namespace VariScan
         public static void AddToTargetXList(string name, double ra, double dec, DateTime lastDate)
         {
             //Adds a Differential type of target into the the target list
+            Configuration cfg = new Configuration();
+            //If the target list file doesn't exist, then create an empty one
+            if (!File.Exists(cfg.TargetListPath))
+            {
+                XElement tgtXFile;
+                tgtXFile = new XElement(TargetListRootX);
+                tgtXFile.Save(cfg.TargetListPath);
+            }
+            //Load xml list and update data on target
             var newRef = new XElement(TargetListRecordX,
                    new XElement(NameX, name),
                    new XElement(RAX, ra.ToString()),
                    new XElement(DecX, dec.ToString()),
                    new XElement(LastDateX, lastDate.ToString()));
-            Configuration cfg = new Configuration();
-            //Load xml list and update data on target
             XElement acnL = XElement.Load(cfg.TargetListPath);
             acnL.Add(newRef);
             acnL.Save(cfg.TargetListPath);
@@ -174,12 +181,19 @@ namespace VariScan
         public static void AddToTargetXList(TargetXDescriptor refX)
         {
             //Adds a Differential type of target into the the target list
+            Configuration cfg = new Configuration();
+            //If the target list file doesn't exist, then create an empty one
+            if (!File.Exists(cfg.TargetListPath))
+            {
+                XElement tgtXFile;
+                tgtXFile = new XElement(TargetListRootX);
+                tgtXFile.Save(cfg.TargetListPath);
+            }
             var newRef = new XElement(TargetListRecordX,
                    new XElement(NameX, refX.Name),
                    new XElement(RAX, refX.RA.ToString()),
                    new XElement(DecX, refX.Dec.ToString()),
                    new XElement(LastDateX, refX.LastImagingDate.ToString()));
-            Configuration cfg = new Configuration();
             //Load xml list and update data on target
             XElement acnL = XElement.Load(cfg.TargetListPath);
             acnL.Add(newRef);
@@ -190,8 +204,15 @@ namespace VariScan
         public static void DeleteFromTargetXList(string name)
         {
             //Adds a Differential type of target into the the target list
-            Configuration cfg = new Configuration();
             //Load xml list and update data on target
+            Configuration cfg = new Configuration();
+            //If the target list file doesn't exist, then create an empty one
+            if (!File.Exists(cfg.TargetListPath))
+            {
+                XElement tgtXFile;
+                tgtXFile = new XElement(TargetListRootX);
+                tgtXFile.Save(cfg.TargetListPath);
+            }
             XElement acnL = XElement.Load(cfg.TargetListPath);
             foreach (XElement tn in acnL.Elements(TargetListRecordX).Where(t => ((string)t.Element(NameX) == name)))
                 tn.Remove();
