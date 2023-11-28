@@ -46,10 +46,8 @@ namespace VariScan
             // meridian at a location of 80 degrees altitude.  Used for autofocus routine
             // and for starting off the target search
             sky6RASCOMTele tsxm = new sky6RASCOMTele();
-            //DeviceControl dctl = new DeviceControl();
             tsxm.Asynchronous = 0;
             tsxm.Connect();
-            //dctl.DomeTrackingOff();
             if (side == "East")
             {
                 tsxm.SlewToAzAlt(90.0, 80.0, "");
@@ -60,7 +58,6 @@ namespace VariScan
                 tsxm.SlewToAzAlt(270.0, 80.0, "");
                 while (tsxm.IsSlewComplete == 0) System.Threading.Thread.Sleep(1000);
             }
-            //dctl.DomeTrackingOn();
             return;
         }
 
@@ -85,6 +82,33 @@ namespace VariScan
             try { tsxc.Connect(); }
             catch { return false; }
             return true;
+        }
+
+        public bool FocuserStartUp()
+        {
+            //Method for connecting and initializing the TSX camera
+            ccdsoftCamera tsxc = new ccdsoftCamera();
+            try { tsxc.focConnect(); }
+            catch { return false; }
+            return true;
+        }
+
+        public bool RotatorStartUp()
+        {
+            //Method for connecting and initializing the TSX camera
+            ccdsoftCamera tsxc = new ccdsoftCamera();
+            try { tsxc.rotatorConnect(); }
+            catch { return false; }
+            return true;
+        }
+
+        public bool HasRotator()
+        {
+            //Returns true if a rotator is connected, else false
+            ccdsoftCamera tsxc = new ccdsoftCamera();
+            if (tsxc.rotatorIsConnected() == 1) //rotator is present and powered up
+                return true;
+            else return false;
         }
 
         public void SetCameraTemperature(double settemp)
@@ -166,7 +190,6 @@ namespace VariScan
             return clsStatus;
         }
 
-
         private bool IsDomeTrackingUnderway()
         {
             //Test to see if a dome tracking operation is underway.
@@ -202,7 +225,8 @@ namespace VariScan
             sky6Dome tsxd = new sky6Dome();
             tsxd.IsCoupled = 1;
             System.Threading.Thread.Sleep(500);
-            while (IsDomeTrackingUnderway()) { System.Threading.Thread.Sleep(1000); }
+            while (IsDomeTrackingUnderway())
+            { System.Threading.Thread.Sleep(1000); }
             return;
         }
 
@@ -215,5 +239,39 @@ namespace VariScan
             while (IsDomeTrackingUnderway()) { System.Threading.Thread.Sleep(1000); }
             return;
         }
+
+        public double? CurrentIPA()
+        {
+            //Will return Image PA of most recent image link
+            double? currentImagePA = null;
+            if (!HasRotator())
+                return currentImagePA;
+            ImageLinkResults ilr = new ImageLinkResults();
+            try
+            { currentImagePA = ilr.imagePositionAngle; }
+            catch
+            { return currentImagePA; }
+            return currentImagePA;
+        }
+
+        public bool RotateToImagePA(double destinationIPA)
+        {
+            //Move the rotator to a position that gives an image position angle of tImagePA
+            //  Assumes that the rotator position angle variables are current
+            //Returns false if failure, true if good
+
+            if (!HasRotator())
+                return false;
+            ccdsoftCamera tsxc = new ccdsoftCamera();
+            //target rotation PA = current image PA + current rotator PA - target image PA 
+
+            double rotatorPA = tsxc.rotatorPositionAngle();
+            double destRotationPA = ((double)CurrentIPA() - destinationIPA) + rotatorPA;
+            double destRotationPAnormalized = AstroMath.Transform.NormalizeDegreeRange(destRotationPA);
+            tsxc.rotatorGotoPositionAngle(destRotationPAnormalized);
+            return true;
+        }
+
     }
 }
+

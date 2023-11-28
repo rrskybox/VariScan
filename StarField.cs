@@ -99,7 +99,7 @@ namespace VariScan
                 ferr = TSX_Image.InsertWCS(true);
                 IsImageLinked = true;
             }
-            catch (Exception ex)
+            catch 
             {
 
                 IsImageLinked = false;
@@ -174,7 +174,7 @@ namespace VariScan
                 object[] xDataLine = TSX_Image.scanLine(yPos);
                 int xyADU = int.MaxValue;
                 try { xyADU = (int)xDataLine[xPos]; }
-                catch (Exception ex) { }
+                catch { }
                 starData.LightSourceADU = xyADU;
                 starData.SourceInventory = ls;
                 //Remove saturated and antibloomed stars and crop image by 1/2

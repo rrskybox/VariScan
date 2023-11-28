@@ -157,8 +157,7 @@ namespace VariScan
                        (Math.Abs(Convert.ToDouble(radecSplit[0])) + Convert.ToDouble(radecSplit[1]) / 60.0 + Convert.ToDouble(radecSplit[2]) / 3600.0);
                     return radecDouble;
                 }
-                catch (Exception ex)
-                { return null; };
+                catch { return null; };
             }
         }
 

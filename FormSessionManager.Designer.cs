@@ -44,6 +44,7 @@ namespace VariScan
             this.CollectionGroupBox = new System.Windows.Forms.GroupBox();
             this.SetCollectionButton = new System.Windows.Forms.Button();
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
+            this.RotateZeroCheckBox = new System.Windows.Forms.CheckBox();
             this.EnableCLSBox = new System.Windows.Forms.CheckBox();
             this.CLSReductionBox = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -255,6 +256,7 @@ namespace VariScan
             // ConfigurationGroupBox
             // 
             this.ConfigurationGroupBox.BackColor = System.Drawing.Color.LightSeaGreen;
+            this.ConfigurationGroupBox.Controls.Add(this.RotateZeroCheckBox);
             this.ConfigurationGroupBox.Controls.Add(this.EnableCLSBox);
             this.ConfigurationGroupBox.Controls.Add(this.CLSReductionBox);
             this.ConfigurationGroupBox.Controls.Add(this.label9);
@@ -280,6 +282,18 @@ namespace VariScan
             this.ConfigurationGroupBox.TabIndex = 16;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
+            // 
+            // RotateZeroCheckBox
+            // 
+            this.RotateZeroCheckBox.AutoSize = true;
+            this.RotateZeroCheckBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.RotateZeroCheckBox.Location = new System.Drawing.Point(186, 139);
+            this.RotateZeroCheckBox.Name = "RotateZeroCheckBox";
+            this.RotateZeroCheckBox.Size = new System.Drawing.Size(73, 17);
+            this.RotateZeroCheckBox.TabIndex = 28;
+            this.RotateZeroCheckBox.Text = "PA 0 East";
+            this.RotateZeroCheckBox.UseVisualStyleBackColor = true;
+            this.RotateZeroCheckBox.CheckedChanged += new System.EventHandler(this.RotateZeroCheckBox_CheckedChanged);
             // 
             // EnableCLSBox
             // 
@@ -442,9 +456,9 @@ namespace VariScan
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(8, 140);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(115, 13);
+            this.label5.Size = new System.Drawing.Size(88, 13);
             this.label5.TabIndex = 25;
-            this.label5.Text = "Image Reduction Type";
+            this.label5.Text = "Image Reduction";
             this.label5.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // DomeCheckBox
@@ -466,9 +480,9 @@ namespace VariScan
             "None",
             "Auto Dark",
             "Full"});
-            this.ReductionListBox.Location = new System.Drawing.Point(188, 137);
+            this.ReductionListBox.Location = new System.Drawing.Point(104, 137);
             this.ReductionListBox.Name = "ReductionListBox";
-            this.ReductionListBox.Size = new System.Drawing.Size(70, 21);
+            this.ReductionListBox.Size = new System.Drawing.Size(62, 21);
             this.ReductionListBox.TabIndex = 24;
             this.ReductionListBox.Text = "None";
             this.ReductionListBox.SelectedIndexChanged += new System.EventHandler(this.ReductionListBox_SelectedIndexChanged);
@@ -655,7 +669,7 @@ namespace VariScan
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DarkCyan;
-            this.ClientSize = new System.Drawing.Size(296, 652);
+            this.ClientSize = new System.Drawing.Size(296, 681);
             this.Controls.Add(this.AnalyzeButton);
             this.Controls.Add(this.AbortButton);
             this.Controls.Add(this.LogBox);
@@ -732,6 +746,7 @@ namespace VariScan
         private System.Windows.Forms.CheckBox EnableCLSBox;
         private System.Windows.Forms.ComboBox CLSReductionBox;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.CheckBox RotateZeroCheckBox;
     }
 }
 

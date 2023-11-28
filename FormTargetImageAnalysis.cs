@@ -1171,12 +1171,12 @@ namespace VariScan
                     {
                         double errorBar = tData.StandardMagnitudeError;
                         DateTime dataDate = tData.ImageDateUT.ToLocalTime();
-                        if (tData.CatalogName == "APASS" && PlotCatalogListBox.SelectedItem != "Gaia")
+                        if (tData.CatalogName == "APASS" && PlotCatalogListBox.SelectedItem.ToString() != "Gaia")
                         {
                             HistoryChart.Series[0].Points.AddXY(dataDate, tgtMag);
                             HistoryChart.Series[1].Points.AddXY(dataDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);
                         }
-                        else if (tData.CatalogName == "Gaia" && PlotCatalogListBox.SelectedItem != "APASS")
+                        else if (tData.CatalogName == "Gaia" && PlotCatalogListBox.SelectedItem.ToString() != "APASS")
                         {
                             HistoryChart.Series[2].Points.AddXY(dataDate, tgtMag);
                             HistoryChart.Series[3].Points.AddXY(dataDate, tgtMag, tgtMag - errorBar, tgtMag + errorBar);

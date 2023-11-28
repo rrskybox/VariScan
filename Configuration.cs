@@ -90,7 +90,7 @@ namespace VariScan
         const string GaiaMagnitudeTransformX = "GaiaMagnitudeTransform";
 
         const string CurrentSessionSetX = "CurrentSessionSet";
-
+        const string RotateToPA0EastX = "RotateToZeroEast";
 
         string ssdir;  //VariScan Root directory
         //string cmdir;  //Current Collection directory
@@ -151,6 +151,7 @@ namespace VariScan
                     new XElement(GaiaColorTransformX, "0.0"),
                     new XElement(ApassMagnitudeTransformX, "0.0"),
                     new XElement(GaiaMagnitudeTransformX, "0.0"),
+                    new XElement(RotateToPA0EastX, "False"),
                     new XElement(CurrentSessionSetX, "0.0"));
 
                 cDefaultX.Save(ssdir + "\\" + ScanConfigurationFilename);
@@ -459,6 +460,12 @@ namespace VariScan
         {
             get { return GetConfig(CurrentSessionSetX, "0"); }
             set { SetConfig(CurrentSessionSetX, value); }
+        }
+
+        public string IsRotateZeroEast
+        {
+            get { return GetConfig(RotateToPA0EastX , "False"); }
+            set { SetConfig(RotateToPA0EastX, value); }
         }
 
     }

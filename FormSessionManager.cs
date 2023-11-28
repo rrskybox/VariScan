@@ -92,6 +92,7 @@ namespace VariScan
             FocusPresetBox.Checked = Convert.ToBoolean(cfg.UseFocusPreset);
             FocusFilterBox.SelectedIndex = Convert.ToInt32(cfg.FocusFilter);
             EnableCLSBox.Checked = Convert.ToBoolean(cfg.UseCLS);
+            RotateZeroCheckBox.Checked = Convert.ToBoolean(cfg.IsRotateZeroEast);
             switch (cfg.CLSReduction)
             {
                 case "None":
@@ -196,25 +197,39 @@ namespace VariScan
                 }
             }
 
+            // Scan Running...
             varList = new TargetXList();
             CurrentTargetCount.Text = varList.TargetXCount.ToString();
 
-            LogEventHandler("\r\n" + "********** Beginning Survey Run **********");
-            LogEventHandler("Found " + CurrentTargetCount.Text + " prospective targets -- not all will be qualified.");
-
-            // Scan Running...
-            // Connect telescope mount and camera, and dome, if any
+            // Connect/initialize telescope mount, camera, focuser (if needed), rotator (if needed) and dome, if any
             if (ss_hwp.TelescopeStartUp()) LogEventHandler("Initializing Mount");
             else LogEventHandler("Mount initialization failed");
             if (ss_hwp.CameraStartUp()) LogEventHandler("Initializing Camera");
             else LogEventHandler("Camera initialization failed");
+            if (ss_hwp.FocuserStartUp()) LogEventHandler("Initializing Focuser, if needed");
+            else LogEventHandler("Focuser initialization failed");
+            if (ss_hwp.RotatorStartUp()) LogEventHandler("Initializing Rotator, if needed");
+            else LogEventHandler("No Rotator Found");
+
             if (Convert.ToBoolean(cfg.UsesDome))
             {
                 if (DomeControl.DomeStartUp()) LogEventHandler("Initializing Dome");
                 else LogEventHandler("Dome initialization failed");
             }
-            ;
+            LogEventHandler("Initialization Complete");
             Show();
+
+            //Initialization complete, begin sequencing
+            LogEventHandler("\r\n" + "********** Beginning Survey Run **********");
+            LogEventHandler("Found " + CurrentTargetCount.Text + " prospective targets -- not all will be qualified.");
+            //Rotate to PA Zero East there is a rotator that is connected and if selected
+            if (ss_hwp.HasRotator() && cfg.IsRotateZeroEast == "True")
+            {
+                LogEventHandler("Checking rotator position for 0 IPA");
+                ss_hwp.TelescopePrePosition("East");
+                ss_hwp.RotateToImagePA(0);
+            }
+
 
             //Start the sequence on the west side.
             //Theoretically, nearly all targets on west side will be scanned before setting below limit,
@@ -545,7 +560,7 @@ namespace VariScan
             //if no weather file or other problem, return false
             if (wmon == null) return false;
             if (wmon.AlertFlag == WeatherReader.WeaAlert.Alert) return false;
-            else 
+            else
                 return true;
         }
 
@@ -669,6 +684,14 @@ namespace VariScan
             Configuration cfg = new Configuration();
             cfg.FocusFilter = FocusFilterBox.SelectedIndex.ToString("0");
         }
+
+        private void RotateZeroCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            //Saves the RotateZeroCheckBox state to configuration
+            Configuration cfg = new Configuration();
+            cfg.IsRotateZeroEast = RotateZeroCheckBox.Checked.ToString();
+        }
+
 
         #endregion
 

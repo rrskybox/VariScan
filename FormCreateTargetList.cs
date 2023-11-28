@@ -48,6 +48,7 @@ namespace VariScan
                 //file exists so populate window accordingly
                 TargetXList tList = new TargetXList();
                 List<TargetXList.TargetXDescriptor> tXList = tList.GetTargetXList();
+                TargetListDropDown.Items.Clear();
                 foreach (TargetXList.TargetXDescriptor tX in tXList)
                     TargetListDropDown.Items.Add(tX.Name);
                 if (TargetListDropDown.Items.Count > 0)
@@ -64,13 +65,13 @@ namespace VariScan
             }
             else                //Load filters from TSX
             {
+                TargetListDropDown.Items.Clear();
                 FilterListBox.Items.Clear();
                 zeroBasedFilters = Filters.FilterNameSet();
                 //Add to list box
                 if (zeroBasedFilters != null)
                     FilterListBox.Items.AddRange(zeroBasedFilters);
             }
-            Utility.ButtonRed(CompileButton);
             Utility.ButtonGreen(DoneButton);
         }
 
@@ -92,7 +93,6 @@ namespace VariScan
                 TargetXList.CreateXListFromCSV(textFileName, cfg.TargetListPath);
             }
             Utility.ButtonGreen(ImportCSVButton);
-            CompileButton.Text = "Compile";
             return;
         }
 
